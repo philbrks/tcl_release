@@ -56,28 +56,37 @@ jobs:
         shell: powershell
         run: |
           curl.exe -L -o tcl9.0.3-src.tar.gz "http://prdownloads.sourceforge.net/tcl/tcl9.0.3-src.tar.gz"
-          
-      - name: Verify download
+          curl.exe -L -o tk9.0.3-src.tar.gz "http://prdownloads.sourceforge.net/tcl/tk9.0.3-src.tar.gz"
+          curl.exe -L -o tcllib-2.0.tar.gz  "http://prdownloads.sourceforge.net/tcllib/tcllib-2.0.tar.gz"
+          curl.exe -L -o tklib-0.9.tar.gz   "http://prdownloads.sourceforge.net/tcllib/tklib-0.9.tar.gz"
+
+      - name: Verify downloads
         shell: powershell
         run: |
-          Get-Item tcl9.0.3-src.tar.gz | Format-List Length
-          
-      - name: Extract source archive
+          CertUtil -hashfile tcl9.0.3-src.tar.gz MD5
+          CertUtil -hashfile tk9.0.3-src.tar.gz MD5
+          CertUtil -hashfile tcllib-2.0.tar.gz MD5
+          CertUtil -hashfile tklib-0.9.tar.gz MD5
+                    
+      - name: Extract source archives
         shell: powershell
         run: |
           tar -xzf tcl9.0.3-src.tar.gz
+          tar -xzf tk9.0.3-src.tar.gz -C tcl9.0.3/pkgs
+          tar -xzf tcllib-2.0.tar.gz
+          tar -xzf tklib-0.9.tar.gz
           
       - name: Init MSVC
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
-      - name: Build Tcl (${{ matrix.config }})
+      - name: Build Tcl/Tk (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
         working-directory: tcl9.0.3/win
 
-      - name: Install Tcl  (${{ matrix.config }})
+      - name: Install Tcl/Tk  (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
           if ($lastexitcode -ne 0) {
@@ -85,11 +94,16 @@ jobs:
           }
         working-directory: tcl9.0.3/win
 
+      - name: Build tcllib and tklib
+        run: |
+            %TCLSH% tcllib-2.0/installer.tcl -no-gui -html -html-path %INSTALLDIR%/lib -examples -example-path %INSTALLDIR%/lib -pkgs -pkg-path %INSTALLDIR%/lib -apps -app-path %INSTALLDIR%/lib -no-nroff -no-wait
+            %TCLSH% tklib-0.9/installer.tcl -no-gui -html -html-path %INSTALLDIR%/lib -examples -example-path %INSTALLDIR%/lib -pkgs -pkg-path %INSTALLDIR%/lib -apps -app-path %INSTALLDIR%/lib -no-nroff -no-wait
       - name: Upload distribution
         uses: actions/upload-artifact@v4
         with:
           name: "Tcl-Tk Release Distribution (Win64)"
-          path: ${{ env.INSTALLDIR }}
+          path: ${{ env.INSTALLDIR }} 
+
 
 
 
