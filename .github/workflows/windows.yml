@@ -28,7 +28,6 @@ jobs:
     defaults:
       run:
         shell: powershell
-        working-directory: tk/win
     # Using powershell means we need to explicitly stop on failure
     strategy:
       matrix:
@@ -88,6 +87,7 @@ jobs:
         with:
           name: "Tcl-Tk Release Distribution (Win64)"
           path: ${{ env.INSTALLDIR }}
+
 
 
 
