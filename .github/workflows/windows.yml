@@ -55,9 +55,12 @@ jobs:
       - name: Download Tcl source
         shell: powershell
         run: |
-          $url = "http://prdownloads.sourceforge.net/tcl/tcl9.0.3-src.tar.gz"
-          $output = "tcl9.0.3-src.tar.gz"
-          Invoke-WebRequest -Uri $url -OutFile $output
+          curl.exe -L -o tcl9.0.3-src.tar.gz "http://prdownloads.sourceforge.net/tcl/tcl9.0.3-src.tar.gz"
+          
+      - name: Verify download
+        shell: powershell
+        run: |
+          Get-Item tcl9.0.3-src.tar.gz | Format-List Length
           
       - name: Extract source archive
         shell: powershell
@@ -87,6 +90,7 @@ jobs:
         with:
           name: "Tcl-Tk Release Distribution (Win64)"
           path: ${{ env.INSTALLDIR }}
+
 
 
 
