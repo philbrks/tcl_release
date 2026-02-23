@@ -1,0 +1,105 @@
+name: Windows
+on:
+  workflow_dispatch:
+    inputs:
+      tcl-tags:
+        required: true
+        type: choice
+        options:
+          - '["core-9-0-3"]'
+          - '["core-9-1-a1-rc"]'
+        default: '["core-9-0-3"]'
+      tcllib-tags:
+        options:
+          - '["tcllib-2-0"]'
+        default: '["tcllib-2-0"]'
+      tklib-tags:
+        options:
+          - '["tklib-0.9"]'
+        default: '["tklib-0.9"]'
+    
+permissions:
+  contents: read
+env:
+  ERROR_ON_FAILURES: 1
+jobs:
+  msvc:
+    runs-on: windows-2025
+    defaults:
+      run:
+        shell: powershell
+        working-directory: tk/win
+    # Using powershell means we need to explicitly stop on failure
+    strategy:
+      matrix:
+        config:
+          - ""
+          # - "OPTS=symbols"
+          # - "OPTS=static"
+        tcl-tag: ${{ fromJSON(github.event.inputs.tcl-tags) }}
+        tcllib-tag: ${{ fromJSON(github.event.inputs.tcllib-tags) }}
+        tklib-tag: ${{ fromJSON(github.event.inputs.tklib-tags) }}
+    steps:
+      - name: Prepare
+        run: |
+          mkdir "C:\Tcl-tk"
+          Add-Content -Path $env:GITHUB_ENV -Value "INSTALLDIR=C:\Tcl-tk"
+          if ( '${{ matrix.tcl-tag }}' -match 'core-9-0-.*' ) {
+            Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh90.exe"
+          } elseif ( '${{ matrix.tcl-tag }}' -match 'core-9-1-.*' ) {
+            Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh91.exe"
+          } else {
+            throw "Unable to set value for TCLSH variable"
+          }
+        working-directory: .
+
+      - name: Download Tcl source
+        shell: powershell
+        run: |
+          $url = "http://prdownloads.sourceforge.net/tcl/tcl9.0.3-src.tar.gz"
+          $output = "tcl9.0.3-src.tar.gz"
+          Invoke-WebRequest -Uri $url -OutFile $output
+          
+      - name: Extract source archive
+        shell: powershell
+        run: |
+          tar -xzf tcl9.0.3-src.tar.gz
+          
+      - name: Init MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build Tcl (${{ matrix.config }})
+        run: |
+          &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
+        working-directory: tcl9.0.3/win
+
+      - name: Install Tcl  (${{ matrix.config }})
+        run: |
+          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake exit code: $lastexitcode"
+          }
+        working-directory: tcl9.0.3/win
+
+      - name: Upload distribution
+        uses: actions/upload-artifact@v4
+        with:
+          name: "Tcl-Tk Release Distribution (Win64)"
+          path: ${{ env.INSTALLDIR }}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
