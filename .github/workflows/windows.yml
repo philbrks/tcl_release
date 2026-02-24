@@ -97,13 +97,14 @@ jobs:
       - name: Build tcllib and tklib
         shell: powershell
         run: |
-            %TCLSH% tcllib-2.0/installer.tcl -no-gui -html -html-path %INSTALLDIR%/lib -examples -example-path %INSTALLDIR%/lib -pkgs -pkg-path %INSTALLDIR%/lib -apps -app-path %INSTALLDIR%/lib -no-nroff -no-wait
-            %TCLSH% tklib-0.9/installer.tcl -no-gui -html -html-path %INSTALLDIR%/lib -examples -example-path %INSTALLDIR%/lib -pkgs -pkg-path %INSTALLDIR%/lib -apps -app-path %INSTALLDIR%/lib -no-nroff -no-wait
+            ${{ env.TCLSH }} tcllib-2.0/installer.tcl -no-gui -html -html-path ${{ env.INSTALLDIR }}/lib -examples -example-path ${{ env.INSTALLDIR }}/lib -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -apps -app-path ${{ env.INSTALLDIR }}/lib -no-nroff -no-wait
+            ${{ env.TCLSH }} tklib-0.9/installer.tcl -no-gui -html -html-path ${{ env.INSTALLDIR }}/lib -examples -example-path ${{ env.INSTALLDIR }}/lib -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -apps -app-path ${{ env.INSTALLDIR }}/lib -no-nroff -no-wait
       - name: Upload distribution
         uses: actions/upload-artifact@v4
         with:
           name: "Tcl-Tk Release Distribution (Win64)"
           path: ${{ env.INSTALLDIR }} 
+
 
 
 
