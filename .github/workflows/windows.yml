@@ -45,13 +45,16 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl9.0.3-src.tar.gz"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_HASH=820AEED1E4E1A89038D0302D2F839E84"
             Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk9.0.3-src.tar.gz"
+            Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_HASH=72F9C4005EAAF3B9C994BDA74324C28E"
 
             # Tcllib and Tklib settings
             Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_VERSION=2.0"
             Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_VERSION=0.9"
             Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcllib/"
             Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_FILE=tcllib-2.0.tar.gz"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_HASH=7A6583B88160FE2040FAB74309881C3E"
             Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_DOWNLOAD_FILE=tklib-0.9.tar.gz"
+            Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_DOWNLOAD_HASH=650A65B431987EB1AFC4481D91B9CF0F"
 
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl9.0.3"
             Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_BUILD_DIR=tcllib-2.0"
@@ -78,9 +81,21 @@ jobs:
           } else {
             echo "${{ env.TCL_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
           }
-          Get-FileHash ${{ env.TK_DOWNLOAD_FILE }} -Algorithm MD5
-          Get-FileHash ${{ env.TCLLIB_DOWNLOAD_FILE }} -Algorithm MD5
-          Get-FileHash ${{ env.TKLIB_DOWNLOAD_FILE }} -Algorithm MD5
+          if ( (Get-FileHash "${{ env.TK_DOWNLOAD_FILE }}" -Algorithm MD5) .Hash -ne "${{ env.TK_DOWNLOAD_HASH }}" ) {
+            throw "MD5 Checksum hash check failed for ${{ env.TK_DOWNLOAD_FILE }}"
+          } else {
+            echo "${{ env.TK_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
+          }
+          if ( (Get-FileHash "${{ env.TCLLIB_DOWNLOAD_FILE }}" -Algorithm MD5) .Hash -ne "${{ env.TCLLIB_DOWNLOAD_HASH }}" ) {
+            throw "MD5 Checksum hash check failed for ${{ env.TCLLIB_DOWNLOAD_FILE }}"
+          } else {
+            echo "${{ env.TCLLIB_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
+          }
+          if ( (Get-FileHash "${{ env.TKLIB_DOWNLOAD_FILE }}" -Algorithm MD5) .Hash -ne "${{ env.TKLIB_DOWNLOAD_HASH }}" ) {
+            throw "MD5 Checksum hash check failed for ${{ env.TKLIB_DOWNLOAD_FILE }}"
+          } else {
+            echo "${{ env.TKLIB_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
+          }
                     
       - name: Extract source archives
         shell: powershell
