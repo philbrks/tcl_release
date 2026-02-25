@@ -39,6 +39,10 @@ jobs:
         tcllib-tag: ${{ fromJSON(github.event.inputs.tcllib-tags) }}
         tklib-tag: ${{ fromJSON(github.event.inputs.tklib-tags) }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        timeout-minutes: 5
+        
       - name: Prepare
         run: |
           pwd
@@ -58,8 +62,8 @@ jobs:
       - name: Download Tcl source
         shell: powershell
         run: |
-          curl.exe -L -o tcl9.0.3-src.tar.gz "http://prdownloads.sourceforge.net/tcl/tcl9.0.3-src.tar.gz"
-          curl.exe -L -o tk9.0.3-src.tar.gz "http://prdownloads.sourceforge.net/tcl/tk9.0.3-src.tar.gz"
+          curl.exe -L -o tcl${{ env.TCL_VERSION }}-src.tar.gz "http://prdownloads.sourceforge.net/tcl/tcl9.0.3-src.tar.gz"
+          curl.exe -L -o tk${{ env.TCL_VERSION }}-src.tar.gz "http://prdownloads.sourceforge.net/tcl/tk9.0.3-src.tar.gz"
           curl.exe -L -o tcllib-2.0.tar.gz  "http://prdownloads.sourceforge.net/tcllib/tcllib-2.0.tar.gz"
           curl.exe -L -o tklib-0.9.tar.gz   "http://prdownloads.sourceforge.net/tcllib/tklib-0.9.tar.gz"
 
@@ -67,19 +71,19 @@ jobs:
         shell: powershell
         run: |
           if ( (Get-FileHash "tcl${{ env.TCL_VERSION }}-src.tar.gz" -Algorithm MD5).Hash -ne "${{ env.TCL_HASH }}" ) {
-            throw "MD5 Checksum hash check failed for tcl9.0.3-src.tar.gz"
+            throw "MD5 Checksum hash check failed for tcl${{ env.TCL_VERSION }}-src.tar.gz"
           } else {
-            echo "tcl9.0.3-src.tar.gz successfully downloaded from SourceForge."
+            echo "tcl${{ env.TCL_VERSION }}-src.tar.gz successfully downloaded from SourceForge."
           }
-          Get-FileHash tk9.0.3-src.tar.gz -Algorithm MD5
+          Get-FileHash tk${{ env.TCL_VERSION }}-src.tar.gz -Algorithm MD5
           Get-FileHash tcllib-2.0.tar.gz -Algorithm MD5
           Get-FileHash tklib-0.9.tar.gz -Algorithm MD5
                     
       - name: Extract source archives
         shell: powershell
         run: |
-          tar -xzf tcl9.0.3-src.tar.gz
-          tar -xzf tk9.0.3-src.tar.gz -C tcl9.0.3/pkgs
+          tar -xzf tcl${{ env.TCL_VERSION }}-src.tar.gz
+          tar -xzf tk${{ env.TCL_VERSION }}-src.tar.gz -C tcl${{ env.TCL_VERSION }}/pkgs
           tar -xzf tcllib-2.0.tar.gz
           tar -xzf tklib-0.9.tar.gz
           
@@ -91,7 +95,7 @@ jobs:
       - name: Build Tcl/Tk (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
-        working-directory: tcl9.0.3/win
+        working-directory: tcl${{ env.TCL_VERSION }}/win
 
       - name: Build Test Harness ${{ matrix.config }}
         run: |
@@ -100,7 +104,7 @@ jobs:
              throw "nmake exit code: $lastexitcode"
           }
         timeout-minutes: 5
-        working-directory: tcl9.0.3/win
+        working-directory: tcl${{ env.TCL_VERSION }}/win
       - name: Run Tests ${{ matrix.config }}
         run: |
           dir "D:\a\tcl_release"
@@ -111,7 +115,7 @@ jobs:
              throw "nmake exit code: $lastexitcode"
           }
         timeout-minutes: 30
-        working-directory: tcl9.0.3/win
+        working-directory: tcl${{ env.TCL_VERSION }}/win
         env:
           ERROR_ON_FAILURES: 1
       - name: Install Tcl/Tk  (${{ matrix.config }})
@@ -120,7 +124,7 @@ jobs:
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
           }
-        working-directory: tcl9.0.3/win
+        working-directory: tcl${{ env.TCL_VERSION }}/win
 
       - name: Build tcllib and tklib
         shell: powershell
@@ -132,6 +136,7 @@ jobs:
         with:
           name: "Tcl-Tk Release Distribution (Win64)"
           path: ${{ env.INSTALLDIR }} 
+
 
 
 
