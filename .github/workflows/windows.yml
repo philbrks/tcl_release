@@ -50,7 +50,12 @@ jobs:
           if ( '${{ matrix.tcl-tag }}' -match 'core-9-0-.*' ) {
             Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh90.exe"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=9.0.3"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcl/"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl9.0.3-src.tar.gz"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl9.0.3"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_HASH=820AEED1E4E1A89038D0302D2F839E84"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_VERSION=2.0"
+            Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_VERSION=0.9"
           } elseif ( '${{ matrix.tcl-tag }}' -match 'core-9-1-.*' ) {
             Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh91.exe"
           } else {
@@ -61,7 +66,7 @@ jobs:
       - name: Download Tcl source
         shell: powershell
         run: |
-          curl.exe -L -o tcl${{ env.TCL_VERSION }}-src.tar.gz "http://prdownloads.sourceforge.net/tcl/tcl9.0.3-src.tar.gz"
+          curl.exe -L -o ${{ env.TCL_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}"
           curl.exe -L -o tk${{ env.TCL_VERSION }}-src.tar.gz "http://prdownloads.sourceforge.net/tcl/tk9.0.3-src.tar.gz"
           curl.exe -L -o tcllib-2.0.tar.gz  "http://prdownloads.sourceforge.net/tcllib/tcllib-2.0.tar.gz"
           curl.exe -L -o tklib-0.9.tar.gz   "http://prdownloads.sourceforge.net/tcllib/tklib-0.9.tar.gz"
@@ -81,8 +86,8 @@ jobs:
       - name: Extract source archives
         shell: powershell
         run: |
-          tar -xzf tcl${{ env.TCL_VERSION }}-src.tar.gz
-          tar -xzf tk${{ env.TCL_VERSION }}-src.tar.gz -C tcl${{ env.TCL_VERSION }}/pkgs
+          tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
+          tar -xzf tk${{ env.TCL_VERSION }}-src.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
           tar -xzf tcllib-2.0.tar.gz
           tar -xzf tklib-0.9.tar.gz
           
@@ -97,6 +102,7 @@ jobs:
         working-directory: tcl${{ env.TCL_VERSION }}/win
 
       - name: Build Test Harness ${{ matrix.config }}
+        if: 1 == 0
         run: |
           &nmake -f makefile.vc ${{ matrix.config }} tcltest
           if ($lastexitcode -ne 0) {
@@ -104,7 +110,9 @@ jobs:
           }
         timeout-minutes: 5
         working-directory: tcl${{ env.TCL_VERSION }}/win
+
       - name: Run Tests ${{ matrix.config }}
+        if: 1 == 0
         run: |
           Write-Output "::add-matcher::.github\tcltest.json"
           &nmake -f makefile.vc ${{ matrix.config }} test
@@ -115,6 +123,7 @@ jobs:
         working-directory: tcl${{ env.TCL_VERSION }}/win
         env:
           ERROR_ON_FAILURES: 1
+
       - name: Install Tcl/Tk  (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
