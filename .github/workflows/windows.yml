@@ -81,17 +81,17 @@ jobs:
           } else {
             echo "${{ env.TCL_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
           }
-          if ( (Get-FileHash "${{ env.TK_DOWNLOAD_FILE }}" -Algorithm MD5) .Hash -ne "${{ env.TK_DOWNLOAD_HASH }}" ) {
+          if ( (Get-FileHash "${{ env.TK_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TK_DOWNLOAD_HASH }}" ) {
             throw "MD5 Checksum hash check failed for ${{ env.TK_DOWNLOAD_FILE }}"
           } else {
             echo "${{ env.TK_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
           }
-          if ( (Get-FileHash "${{ env.TCLLIB_DOWNLOAD_FILE }}" -Algorithm MD5) .Hash -ne "${{ env.TCLLIB_DOWNLOAD_HASH }}" ) {
+          if ( (Get-FileHash "${{ env.TCLLIB_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCLLIB_DOWNLOAD_HASH }}" ) {
             throw "MD5 Checksum hash check failed for ${{ env.TCLLIB_DOWNLOAD_FILE }}"
           } else {
             echo "${{ env.TCLLIB_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
           }
-          if ( (Get-FileHash "${{ env.TKLIB_DOWNLOAD_FILE }}" -Algorithm MD5) .Hash -ne "${{ env.TKLIB_DOWNLOAD_HASH }}" ) {
+          if ( (Get-FileHash "${{ env.TKLIB_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TKLIB_DOWNLOAD_HASH }}" ) {
             throw "MD5 Checksum hash check failed for ${{ env.TKLIB_DOWNLOAD_FILE }}"
           } else {
             echo "${{ env.TKLIB_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
