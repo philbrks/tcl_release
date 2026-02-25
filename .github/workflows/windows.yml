@@ -58,6 +58,7 @@ jobs:
 
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl9.0.3"
             Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_BUILD_DIR=tcllib-2.0"
+            Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_BUILD_DIR=tklib-0.9"
           } elseif ( '${{ matrix.tcl-tag }}' -match 'core-9-1-.*' ) {
             Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh91.exe"
           } else {
@@ -102,8 +103,8 @@ jobs:
         run: |
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
-          tar -xzf tcllib-2.0.tar.gz
-          tar -xzf tklib-0.9.tar.gz
+          tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
+          tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           
       - name: Init MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -113,7 +114,7 @@ jobs:
       - name: Build Tcl/Tk (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
-        working-directory: tcl${{ env.TCL_VERSION }}/win
+        working-directory: ${{ env.TCL_BUILD_DIR }}/win
 
       - name: Build Test Harness ${{ matrix.config }}
         if: 1 == 0
@@ -123,7 +124,7 @@ jobs:
              throw "nmake exit code: $lastexitcode"
           }
         timeout-minutes: 5
-        working-directory: tcl${{ env.TCL_VERSION }}/win
+        working-directory: ${{ env.TCL_BUILD_DIR }}/win
 
       - name: Run Tests ${{ matrix.config }}
         if: 1 == 0
@@ -134,7 +135,7 @@ jobs:
              throw "nmake exit code: $lastexitcode"
           }
         timeout-minutes: 30
-        working-directory: tcl${{ env.TCL_VERSION }}/win
+        working-directory: ${{ env.TCL_BUILD_DIR }}/win
         env:
           ERROR_ON_FAILURES: 1
 
@@ -144,13 +145,13 @@ jobs:
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
           }
-        working-directory: tcl${{ env.TCL_VERSION }}/win
+        working-directory: ${{ env.TCL_BUILD_DIR }}/win
 
       - name: Build tcllib and tklib
         shell: powershell
         run: |
-            ${{ env.TCLSH }} tcllib-2.0/installer.tcl -no-gui -html -html-path ${{ env.INSTALLDIR }}/lib -examples -example-path ${{ env.INSTALLDIR }}/lib -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -apps -app-path ${{ env.INSTALLDIR }}/lib -no-nroff -no-wait
-            ${{ env.TCLSH }} tklib-0.9/installer.tcl -no-gui -html -html-path ${{ env.INSTALLDIR }}/lib -examples -example-path ${{ env.INSTALLDIR }}/lib -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -apps -app-path ${{ env.INSTALLDIR }}/lib -no-nroff -no-wait
+            ${{ env.TCLSH }} ${{ env.TCL_BUILD_DIR }}/${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -html -html-path ${{ env.INSTALLDIR }}/lib -examples -example-path ${{ env.INSTALLDIR }}/lib -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -apps -app-path ${{ env.INSTALLDIR }}/lib -no-nroff -no-wait
+            ${{ env.TCLSH }} ${{ env.TCL_BUILD_DIR }}/${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -html -html-path ${{ env.INSTALLDIR }}/lib -examples -example-path ${{ env.INSTALLDIR }}/lib -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -apps -app-path ${{ env.INSTALLDIR }}/lib -no-nroff -no-wait
       - name: Upload distribution
         uses: actions/upload-artifact@v4
         with:
