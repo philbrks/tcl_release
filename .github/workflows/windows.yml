@@ -150,13 +150,14 @@ jobs:
       - name: Build tcllib and tklib
         shell: powershell
         run: |
-            ${{ env.TCLSH }} ${{ env.TCL_BUILD_DIR }}/${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -html -html-path ${{ env.INSTALLDIR }}/lib -examples -example-path ${{ env.INSTALLDIR }}/lib -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -apps -app-path ${{ env.INSTALLDIR }}/lib -no-nroff -no-wait
-            ${{ env.TCLSH }} ${{ env.TCL_BUILD_DIR }}/${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -html -html-path ${{ env.INSTALLDIR }}/lib -examples -example-path ${{ env.INSTALLDIR }}/lib -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -apps -app-path ${{ env.INSTALLDIR }}/lib -no-nroff -no-wait
+            ${{ env.TCLSH }} ${{ env.TCL_BUILD_DIR }}/pkgs/${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -html -html-path ${{ env.INSTALLDIR }}/lib -examples -example-path ${{ env.INSTALLDIR }}/lib -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -apps -app-path ${{ env.INSTALLDIR }}/lib -no-nroff -no-wait
+            ${{ env.TCLSH }} ${{ env.TCL_BUILD_DIR }}/pkgs/${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -html -html-path ${{ env.INSTALLDIR }}/lib -examples -example-path ${{ env.INSTALLDIR }}/lib -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -apps -app-path ${{ env.INSTALLDIR }}/lib -no-nroff -no-wait
       - name: Upload distribution
         uses: actions/upload-artifact@v4
         with:
           name: "Tcl-Tk Release Distribution (Win64)"
           path: ${{ env.INSTALLDIR }} 
+
 
 
 
