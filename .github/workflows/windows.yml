@@ -65,6 +65,8 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcl/"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl9.1a1-src.tar.gz"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_HASH=DFAF19E2D9CA72A91EED1B90C189ABAA"
+
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl9.1a1"
           } else {
             throw "Unable to set value for TCLSH variable"
           }
