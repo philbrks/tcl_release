@@ -74,9 +74,9 @@ jobs:
         shell: powershell
         run: |
           curl.exe -L -o ${{ env.TCL_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}"
-          curl.exe -L -o ${{ env.TK_DOWNLOAD_FILE }}  "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}"
-          curl.exe -L -o ${{ env.TCLLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}" 
-          curl.exe -L -o ${{ env.TKLIB_DOWNLOAD_FILE }}  "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}"
+          #curl.exe -L -o ${{ env.TK_DOWNLOAD_FILE }}  "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}"
+          #curl.exe -L -o ${{ env.TCLLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}" 
+          #curl.exe -L -o ${{ env.TKLIB_DOWNLOAD_FILE }}  "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}"
 
       - name: Verify downloads
         shell: powershell
