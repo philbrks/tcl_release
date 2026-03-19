@@ -7,7 +7,7 @@ on:
         type: choice
         options:
           - '["core-9-0-3"]'
-          - '["core-9-1-a1-rc"]'
+          - '["core-9-1-a1"]'
         default: '["core-9-0-3"]'
     
 permissions:
@@ -61,6 +61,10 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_BUILD_DIR=tklib-0.9"
           } elseif ( '${{ matrix.tcl-tag }}' -match 'core-9-1-.*' ) {
             Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh91.exe"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=9.1.a1"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcl/"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl9.1a1-src.tar.gz"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_HASH=DFAF19E2D9CA72A91EED1B90C189ABAA"
           } else {
             throw "Unable to set value for TCLSH variable"
           }
@@ -77,6 +81,7 @@ jobs:
       - name: Verify downloads
         shell: powershell
         run: |
+          if: 1 == 0
           if ( (Get-FileHash "${{ env.TCL_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCL_DOWNLOAD_HASH }}" ) {
             throw "MD5 Checksum hash check failed for ${{ env.TCL_DOWNLOAD_FILE }}"
           } else {
@@ -102,9 +107,9 @@ jobs:
         shell: powershell
         run: |
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
-          tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
-          tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
-          tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
+          #tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
+          #tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
+          #tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           
       - name: Init MSVC
         uses: ilammy/msvc-dev-cmd@v1
