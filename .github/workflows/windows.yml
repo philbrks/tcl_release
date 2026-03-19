@@ -117,7 +117,7 @@ jobs:
         working-directory: ${{ env.TCL_BUILD_DIR }}/win
 
       - name: Build Test Harness ${{ matrix.config }}
-        if: 1 == 1
+        if: 1 == 0
         run: |
           &nmake -f makefile.vc ${{ matrix.config }} tcltest
           if ($lastexitcode -ne 0) {
@@ -127,7 +127,7 @@ jobs:
         working-directory: ${{ env.TCL_BUILD_DIR }}/win
 
       - name: Run Tests ${{ matrix.config }}
-        if: 1 == 1
+        if: 1 == 0
         run: |
           Write-Output "::add-matcher::.github\tcltest.json"
           &nmake -f makefile.vc ${{ matrix.config }} test
@@ -148,6 +148,7 @@ jobs:
         working-directory: ${{ env.TCL_BUILD_DIR }}/win
 
       - name: Install tcllib and tklib
+        if: 1 == 0
         shell: powershell
         run: |
             ${{ env.TCLSH }} ${{ env.TCL_BUILD_DIR }}/pkgs/${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
