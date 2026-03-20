@@ -183,6 +183,11 @@ Root: HKCU; Subkey: "Software\Classes\TclFile\shell\open\command"; \
 ; ---------------------------------------------------------------------------
 [Code]
 
+const
+  SMTO_ABORTIFHUNG = 2;
+  WM_SETTINGCHANGE = $001A;
+
+
 // NeedsAddPath: returns True when the given directory is not already on the
 // user's PATH (prevents duplicate entries).
 function NeedsAddPath(Param: string): Boolean;
@@ -322,16 +327,12 @@ begin
   );
 end;
 
-const
-  SMTO_ABORTIFHUNG = 2;
-  WM_SETTINGCHANGE = $001A;
-
 procedure BroadcastEnvironmentChange;
 var
   Dummy: DWORD;
 begin
   SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
-    CastStringToInteger('Environment'), SMTO_ABORTIFHUNG, 5000, Dummy);
+    PChar('Environment'), SMTO_ABORTIFHUNG, 5000, Dummy);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
