@@ -187,9 +187,9 @@ const
   SMTO_ABORTIFHUNG = 2;
   WM_SETTINGCHANGE = $001A;
 
-function SendMessageTimeout(hWnd: HWND; Msg: UINT; wParam: WPARAM;
-  lParam: LPARAM; fuFlags: UINT; uTimeout: UINT;
-  var lpdwResult: DWORD): LRESULT;
+function SendMessageTimeout(hWnd: LongWord; Msg: LongWord; wParam: LongWord;
+  lParam: LongWord; fuFlags: LongWord; uTimeout: LongWord;
+  var lpdwResult: LongWord): LongWord;
   external 'SendMessageTimeoutW@user32.dll stdcall';
 
 // NeedsAddPath: returns True when the given directory is not already on the
