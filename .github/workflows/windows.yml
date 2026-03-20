@@ -191,7 +191,8 @@ jobs:
 
       - name: Build Installer
         run: |
-          pwd
+          dir
+          dir tcl9.1a1
           # Drive ISCC entirely via /D defines so the .iss file itself needs no
           # edits when the Tcl version changes.
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
