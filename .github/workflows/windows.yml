@@ -61,7 +61,7 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl9.0.3"
             Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_BUILD_DIR=tcllib-2.0"
             Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_BUILD_DIR=tklib-0.9"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_ICO_PATH=tcl9.0.3/win/tclsh.ico"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_ICO_PATH=tcl9.0.3\win\tclsh.ico"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
           } elseif ( '${{ matrix.tcl-tag }}' -match 'core-9-1-.*' ) {
             Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh91.exe"
@@ -72,7 +72,7 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_HASH=DFAF19E2D9CA72A91EED1B90C189ABAA"
 
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl9.1a1"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_ICO_PATH=tcl9.1a1/win/tclsh.ico"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_ICO_PATH=tcl9.1a1\win\tclsh.ico"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
           } else {
             throw "Unable to set value for TCLSH variable"
