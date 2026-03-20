@@ -333,10 +333,12 @@ end;
 
 procedure BroadcastEnvironmentChange;
 var
-  Dummy: DWORD;
+  Dummy: LongWord;
+  EnvStr: string;
 begin
+  EnvStr := 'Environment';
   SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
-    PChar('Environment'), SMTO_ABORTIFHUNG, 5000, Dummy);
+    CastStringToInteger(EnvStr), SMTO_ABORTIFHUNG, 5000, Dummy);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
