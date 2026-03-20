@@ -200,7 +200,7 @@ jobs:
             /DMyAppVersion="${{ env.TCL_VERSION }}" `
             /DMyMajorMinor="${{ env.TCL_MAJOR_MINOR }}" `
             /DMyInstallDir="${{ env.INSTALLDIR }}" `
-            /DMyIconFile="${{ env.TCL_ICO_PATH }}" `
+            /DMyIconFile="${{ github.workspace }}\${{ env.TCL_ICO_PATH }}" `
             /DMyAppGuid="${{ env.TCL_APP_GUID }}" `
             ".github\tcl_windows.iss"
           if ($lastexitcode -ne 0) {
