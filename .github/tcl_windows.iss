@@ -322,11 +322,15 @@ begin
   );
 end;
 
+const
+  SMTO_ABORTIFHUNG = 2;
+  WM_SETTINGCHANGE = $001A;
+
 procedure BroadcastEnvironmentChange;
 var
   Dummy: DWORD;
 begin
-  SendMessageTimeout(HWND_BROADCAST, WM_WININICHANGE, 0,
+  SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
     CastStringToInteger('Environment'), SMTO_ABORTIFHUNG, 5000, Dummy);
 end;
 
