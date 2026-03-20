@@ -151,7 +151,7 @@ Root: HKCU; Subkey: "Environment"; \
       ValueData: "{olddata};{app}\bin"; \
       Check: NeedsAddPath(ExpandConstant('{app}\bin')); \
       Tasks: modifypath; \
-      Flags: preservestringtype uninsdeletevalue
+      Flags: preservestringtype
 
 ; --- .tcl file association ---
 Root: HKCU; Subkey: "Software\Classes\.tcl"; \
@@ -321,3 +321,19 @@ begin
     + 'Please visit the URLs above to access the full documentation online.'
   );
 end;
+
+procedure BroadcastEnvironmentChange;
+var
+  Dummy: DWORD;
+begin
+  SendMessageTimeout(HWND_BROADCAST, WM_WININICHANGE, 0,
+    CastStringToInteger('Environment'), SMTO_ABORTIFHUNG, 5000, Dummy);
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+    if IsTaskSelected('modifypath') then
+      BroadcastEnvironmentChange;
+end;
+
