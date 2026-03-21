@@ -130,7 +130,7 @@ Name: "desktopicon_tclsh"; \
 
 ; PATH modification
 Name: "modifypath"; \
-      Description: "Add Tcl/Tk &bin directory to the user PATH"; \
+      Description: "Add Tcl/Tk &bin directory to the PATH"; \
       GroupDescription: "Environment:"; \
       Flags: checkedonce
 
@@ -144,12 +144,23 @@ Name: "assoc_tcl"; \
 ; Registry entries
 ; ---------------------------------------------------------------------------
 [Registry]
-; --- PATH modification (user-level, reversible) ---
-; We store the original PATH value so the uninstaller can restore it exactly.
+; --- PATH modification (reversible) ---
+; Per-user install: write to HKCU.  The Check function skips this when
+; running elevated (admin install uses the HKLM entry below instead).
 Root: HKCU; Subkey: "Environment"; \
       ValueType: expandsz; ValueName: "Path"; \
       ValueData: "{olddata};{app}\bin"; \
-      Check: NeedsAddPath(ExpandConstant('{app}\bin')); \
+      Check: NeedsAddPathUser(ExpandConstant('{app}\bin')); \
+      Tasks: modifypath; \
+      Flags: preservestringtype
+
+; All-users install: write to HKLM system PATH instead.  The Check function
+; skips this when NOT running elevated.
+Root: HKLM; \
+      Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+      ValueType: expandsz; ValueName: "Path"; \
+      ValueData: "{olddata};{app}\bin"; \
+      Check: NeedsAddPathSystem(ExpandConstant('{app}\bin')); \
       Tasks: modifypath; \
       Flags: preservestringtype
 
@@ -192,13 +203,39 @@ function SendMessageTimeout(hWnd: LongWord; Msg: LongWord; wParam: LongWord;
   var lpdwResult: LongWord): LongWord;
   external 'SendMessageTimeoutW@user32.dll stdcall';
 
-// NeedsAddPath: returns True when the given directory is not already on the
-// user's PATH (prevents duplicate entries).
-function NeedsAddPath(Param: string): Boolean;
+// NeedsAddPathUser: returns True when NOT running as admin and the given
+// directory is not already on the user PATH (HKCU).
+function NeedsAddPathUser(Param: string): Boolean;
 var
   OrigPath: string;
 begin
+  if IsAdminLoggedOn then
+  begin
+    Result := False;
+    Exit;
+  end;
   if not RegQueryStringValue(HKCU, 'Environment', 'Path', OrigPath) then
+  begin
+    Result := True;
+    Exit;
+  end;
+  Result := Pos(';' + Uppercase(Param) + ';', ';' + Uppercase(OrigPath) + ';') = 0;
+end;
+
+// NeedsAddPathSystem: returns True when running as admin and the given
+// directory is not already on the system PATH (HKLM).
+function NeedsAddPathSystem(Param: string): Boolean;
+var
+  OrigPath: string;
+  SubKey:   string;
+begin
+  if not IsAdminLoggedOn then
+  begin
+    Result := False;
+    Exit;
+  end;
+  SubKey := 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
+  if not RegQueryStringValue(HKLM, SubKey, 'Path', OrigPath) then
   begin
     Result := True;
     Exit;
@@ -212,8 +249,21 @@ var
   CurrentPath: string;
   NewPath:     string;
   P:           Integer;
+  SubKey:      string;
+  RootKey:     Integer;
 begin
-  if not RegQueryStringValue(HKCU, 'Environment', 'Path', CurrentPath) then
+  if IsAdminLoggedOn then
+  begin
+    RootKey := HKLM;
+    SubKey  := 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
+  end
+  else
+  begin
+    RootKey := HKCU;
+    SubKey  := 'Environment';
+  end;
+
+  if not RegQueryStringValue(RootKey, SubKey, 'Path', CurrentPath) then
     Exit;
 
   PathToRemove := ';' + Uppercase(PathToRemove);
@@ -225,7 +275,7 @@ begin
     // Remove leading semicolon we prepended
     if Copy(NewPath, 1, 1) = ';' then
       Delete(NewPath, 1, 1);
-    RegWriteStringValue(HKCU, 'Environment', 'Path', NewPath);
+    RegWriteStringValue(RootKey, SubKey, 'Path', NewPath);
   end;
 end;
 
@@ -316,6 +366,12 @@ var
 
 procedure InitializeWizard;
 begin
+  // For all-users (admin) installs, default to C:\Program Files\Tcl-Tk\<ver>
+  // rather than the per-user %LOCALAPPDATA% path set in [Setup].
+  if IsAdminLoggedOn then
+    WizardForm.DirEdit.Text :=
+      ExpandConstant('{pf}\Tcl-Tk\{#MyMajorMinor}');
+
   DocPage := CreateOutputMsgPage(
     wpFinished,
     'Documentation and Resources',
