@@ -279,62 +279,10 @@ begin
   end;
 end;
 
-// Called before the uninstaller removes files so we can warn about extras.
-function InitializeUninstall(): Boolean;
-var
-  AppDir:  string;
-  FindRec: TFindRec;
-  Extras:  string;
-  Ans:     Integer;
-begin
-  Result := True;
-  AppDir := ExpandConstant('{app}');
-
-  // Walk the installation root for files not tracked by the uninstaller.
-  // (A simple heuristic: anything in {app}\lib that is a directory not
-  //  listed in [Files] is treated as user-added.)
-  Extras := '';
-  if FindFirst(AppDir + '\lib\*', FindRec) then
-  begin
-    repeat
-      if (FindRec.Attributes and FILE_ATTRIBUTE_DIRECTORY <> 0)
-          and (FindRec.Name <> '.') and (FindRec.Name <> '..') then
-      begin
-        // Directories installed by this package are known; anything else
-        // is potentially user-added.
-        if (FindRec.Name <> 'dde1.5')
-            and (FindRec.Name <> 'registry1.4')
-            and (FindRec.Name <> 'nmake') then
-          Extras := Extras + #13#10 + '  lib\' + FindRec.Name;
-      end;
-    until not FindNext(FindRec);
-    FindClose(FindRec);
-  end;
-
-  if Extras <> '' then
-  begin
-    Ans := MsgBox(
-      'The following directories in the installation folder appear to have '
-      + 'been added after installation (possibly user-installed packages):'
-      + #13#10 + Extras + #13#10 + #13#10
-      + 'Do you want to remove them along with the rest of the installation?'
-      + #13#10 + #13#10
-      + 'Click YES to remove everything, NO to leave them in place.',
-      mbConfirmation, MB_YESNO);
-    if Ans = IDNO then
-    begin
-      // Leave extra content; the uninstaller will not touch those dirs.
-      // (Inno Setup only removes files it installed, so this is advisory.)
-      MsgBox(
-        'The extra directories will not be deleted. After uninstallation '
-        + 'the installation folder may not be fully empty.',
-        mbInformation, MB_OK);
-    end;
-  end;
-end;
-
-// CurUninstallStepChanged: clean up PATH and notify if the directory is not
-// empty after files are removed.
+// CurUninstallStepChanged: clean up PATH, then check for user-added files.
+// We check for leftover content *after* usUninstall (i.e. in usPostUninstall)
+// so that anything remaining at that point is genuinely user-added -- the
+// uninstaller has already removed every file it originally installed.
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var
   AppDir: string;
@@ -342,10 +290,12 @@ begin
   case CurUninstallStep of
     usPostUninstall:
       begin
-        // Remove bin dir from user PATH
+        // Remove bin dir from PATH
         RemoveFromPath(ExpandConstant('{app}\bin'));
 
-        // Notify if install directory still contains files
+        // If the installation directory still exists after the uninstaller has
+        // finished, it must contain files that were not part of the original
+        // install (e.g. user-installed Tcl packages).
         AppDir := ExpandConstant('{app}');
         if DirExists(AppDir) then
           MsgBox(
