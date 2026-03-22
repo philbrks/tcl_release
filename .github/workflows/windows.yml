@@ -214,3 +214,15 @@ jobs:
         with:
           name: "Tcl-Tk Windows Installer (Win64)"
           path: ".github/Output/Tcl-Tk-${{ env.TCL_VERSION }}-win64-setup.exe"
+
+
+      # -----------------------------------------------------------------------
+      # Installer test
+      # -----------------------------------------------------------------------
+      - name: Test Installer
+        run: |
+          .github\test_installer.ps1
+          if ($lastexitcode -ne 0) {
+            throw "Installer test suite failed (exit code $lastexitcode)"
+          }
+        working-directory: .  
