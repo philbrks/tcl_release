@@ -48,7 +48,7 @@ Pass "Installer found: $InstallerExe"
 Write-Host "Running installer..."
 
 $proc = Start-Process -FilePath $InstallerExe `
-    -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "-Log=.\Setup.log"`
+    -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/Log=.\Setup.log"`
     -Wait -PassThru 
 if ($proc.ExitCode -ne 0) {
     Fail "Installer exited with code $($proc.ExitCode)"
