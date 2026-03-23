@@ -66,13 +66,17 @@ $manifest = Get-Content $ManifestPath |
 
 Write-Output "LOCALAPPDATA is $Env:LOCALAPPDATA"
 Write-Output "InstallRoot is $InstallRoot"
+dir $Env:LOCALAPPDATA
+dir $InstallRoot
+dir $InstallRoot\bin
+dir $InstallRoot\lib
 
 $missingFiles = @()
 foreach ($rel in $manifest) {
     $full = Join-Path $InstallRoot $rel.Trim()
     Write-Output "item: $rel -> $full"
     if (-not (Test-Path $full)) {
-        $missingFiles += $rel.Trim()
+        $missingFiles += $full.Trim()
     }
 }
 if ($missingFiles.Count -gt 0) {
