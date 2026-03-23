@@ -203,13 +203,13 @@ function SendMessageTimeout(hWnd: LongWord; Msg: LongWord; wParam: LongWord;
   var lpdwResult: LongWord): LongWord;
   external 'SendMessageTimeoutW@user32.dll stdcall';
 
-// NeedsAddPathUser: returns True when NOT running as admin and the given
+// NeedsAddPathUser: returns True when NOT running in admin install mode and the given
 // directory is not already on the user PATH (HKCU).
 function NeedsAddPathUser(Param: string): Boolean;
 var
   OrigPath: string;
 begin
-  if IsAdmin then
+  if IsAdminInstallMode then
   begin
     Result := False;
     Exit;
@@ -222,14 +222,14 @@ begin
   Result := Pos(';' + Uppercase(Param) + ';', ';' + Uppercase(OrigPath) + ';') = 0;
 end;
 
-// NeedsAddPathSystem: returns True when running as admin and the given
+// NeedsAddPathSystem: returns True when running in admin install mode and the given
 // directory is not already on the system PATH (HKLM).
 function NeedsAddPathSystem(Param: string): Boolean;
 var
   OrigPath: string;
   SubKey:   string;
 begin
-  if not IsAdmin then
+  if not IsAdminInstallMode then
   begin
     Result := False;
     Exit;
@@ -252,7 +252,7 @@ var
   SubKey:      string;
   RootKey:     Integer;
 begin
-  if IsAdmin then
+  if IsAdminInstallMode then
   begin
     RootKey := HKLM;
     SubKey  := 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
@@ -318,7 +318,7 @@ procedure InitializeWizard;
 begin
   // For all-users (admin) installs, default to C:\Program Files\Tcl-Tk\<ver>
   // rather than the per-user %LOCALAPPDATA% path set in [Setup].
-  if IsAdmin then
+  if IsAdminInstallMode then
     WizardForm.DirEdit.Text :=
       ExpandConstant('{pf}\Tcl-Tk\{#MyMajorMinor}');
 

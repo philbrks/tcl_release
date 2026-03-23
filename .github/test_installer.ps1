@@ -59,7 +59,12 @@ Pass "Installer found: $InstallerExe"
 # 1. Run the installer silently (per-user, no elevation needed)
 # ---------------------------------------------------------------------------
 Write-Host "Running installer..."
+#Write-Output "InstallerExe=$InstallerExe"
 
+# Useful switches for the installer from Inno Setup: 
+#       "/CURRENTUSER" - current user even if admin.
+#       "/Log=.Setup.log" - debug output log.
+#
 $proc = Start-Process -FilePath $InstallerExe `
     -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/Log=.\Setup.log"`
     -Wait -PassThru 
