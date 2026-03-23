@@ -46,6 +46,7 @@ Pass "Installer found: $InstallerExe"
 # 1. Run the installer silently (per-user, no elevation needed)
 # ---------------------------------------------------------------------------
 Write-Host "Running installer..."
+
 $proc = Start-Process -FilePath $InstallerExe `
     -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" `
     -Wait -PassThru
@@ -61,9 +62,14 @@ Write-Host "Checking installed files..."
 $manifest = Get-Content $ManifestPath |
     Where-Object { $_ -notmatch '^\s*#' -and $_ -match '\S' }
 
+# Write-Output "Manifest is: $manifest."
+
+# Write-Output "InstallRoot is $InstallRoot"
+
 $missingFiles = @()
 foreach ($rel in $manifest) {
     $full = Join-Path $InstallRoot $rel.Trim()
+    # Write-Output "item: $rel -> $full"
     if (-not (Test-Path $full)) {
         $missingFiles += $rel.Trim()
     }
@@ -90,7 +96,7 @@ Pass "Bin directory present in user PATH"
 Write-Host "Running tclsh package checks..."
 
 # Locate tclsh via PATH (proves PATH was set correctly)
-$tclsh = (Get-Command $TclshName -ErrorAction SilentlyContinue)?.Source
+$tclsh = (Get-Command $TclshName -ErrorAction SilentlyContinue).Source
 if (-not $tclsh) {
     # Fall back: look directly in install dir (PATH refresh may lag in CI)
     $tclsh = Join-Path $InstallRoot "bin\$TclshName"
@@ -100,14 +106,14 @@ if (-not (Test-Path $tclsh)) {
 }
 Pass "tclsh located: $tclsh"
 
-$tclScript = ".github\tcl_package_checks.tcl"
+$tclScript = ".github\tcl_tests.tcl"
 $proc = Start-Process -FilePath $tclsh `
     -ArgumentList $tclScript `
     -Wait -PassThru -NoNewWindow
 if ($proc.ExitCode -ne 0) {
     Fail "tclsh package checks failed (exit code $($proc.ExitCode))"
 }
-Pass "All tclsh package checks passed"
+Pass "All tclsh tests passed"
 
 # ---------------------------------------------------------------------------
 # 5. Run the uninstaller silently
