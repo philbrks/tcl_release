@@ -209,7 +209,7 @@ function NeedsAddPathUser(Param: string): Boolean;
 var
   OrigPath: string;
 begin
-  if IsAdminLoggedOn then
+  if IsAdmin then
   begin
     Result := False;
     Exit;
@@ -229,7 +229,7 @@ var
   OrigPath: string;
   SubKey:   string;
 begin
-  if not IsAdminLoggedOn then
+  if not IsAdmin then
   begin
     Result := False;
     Exit;
@@ -252,7 +252,7 @@ var
   SubKey:      string;
   RootKey:     Integer;
 begin
-  if IsAdminLoggedOn then
+  if IsAdmin then
   begin
     RootKey := HKLM;
     SubKey  := 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
@@ -318,7 +318,7 @@ procedure InitializeWizard;
 begin
   // For all-users (admin) installs, default to C:\Program Files\Tcl-Tk\<ver>
   // rather than the per-user %LOCALAPPDATA% path set in [Setup].
-  if IsAdminLoggedOn then
+  if IsAdmin then
     WizardForm.DirEdit.Text :=
       ExpandConstant('{pf}\Tcl-Tk\{#MyMajorMinor}');
 

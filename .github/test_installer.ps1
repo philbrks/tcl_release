@@ -27,7 +27,20 @@ function Pass([string]$msg) {
 # ---------------------------------------------------------------------------
 $MajorMinor  = $env:TCL_MAJOR_MINOR          # e.g. 9.1
 $Version     = $env:TCL_VERSION              # e.g. 9.1.a1
-$InstallRoot = "$env:LOCALAPPDATA\Tcl-Tk\$MajorMinor"
+
+# Determine the expected install root the same way the installer does:
+# IsAdmin (elevated token) -> Program Files; otherwise -> LOCALAPPDATA.
+$currentPrincipal = [Security.Principal.WindowsPrincipal] `
+    [Security.Principal.WindowsIdentity]::GetCurrent()
+$isElevated = $currentPrincipal.IsInRole(
+    [Security.Principal.WindowsBuiltInRole]::Administrator)
+if ($isElevated) {
+    $InstallRoot = "$env:ProgramFiles\Tcl-Tk\$MajorMinor"
+} else {
+    $InstallRoot = "$env:LOCALAPPDATA\Tcl-Tk\$MajorMinor"
+}
+Write-Host "Running as elevated: $isElevated  ->  InstallRoot: $InstallRoot"
+
 $TclshName   = "tclsh" + $MajorMinor.Replace(".", "") + ".exe"   # tclsh91.exe
 $InstallerExe = ".github\Output\Tcl-Tk-$Version-win64-setup.exe"
 
@@ -88,13 +101,17 @@ Pass "All $($manifest.Count) expected files present"
 # ---------------------------------------------------------------------------
 # 3. Check PATH contains the bin directory
 # ---------------------------------------------------------------------------
-Write-Host "Checking user PATH..."
-$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+Write-Host "Checking PATH..."
 $expectedBin = "$InstallRoot\bin"
-if ($userPath -notlike "*$expectedBin*") {
-    Fail "Bin directory not found in user PATH.`n  Expected: $expectedBin`n  PATH: $userPath"
+if ($isElevated) {
+    $pathToCheck = [Environment]::GetEnvironmentVariable("Path", "Machine")
+} else {
+    $pathToCheck = [Environment]::GetEnvironmentVariable("Path", "User")
 }
-Pass "Bin directory present in user PATH"
+if ($pathToCheck -notlike "*$expectedBin*") {
+    Fail "Bin directory not found in PATH.`n  Expected: $expectedBin`n  PATH: $pathToCheck"
+}
+Pass "Bin directory present in PATH"
 
 # ---------------------------------------------------------------------------
 # 4. Invoke tclsh and run package checks
@@ -140,16 +157,23 @@ Pass "Uninstaller completed successfully"
 # ---------------------------------------------------------------------------
 # 6. Check PATH no longer contains the bin directory
 # ---------------------------------------------------------------------------
-Write-Host "Checking user PATH after uninstall..."
+Write-Host "Checking PATH after uninstall..."
 # Re-read from registry; the current process environment is stale.
-$userPathAfter = (Get-ItemProperty `
-    -Path 'HKCU:\Environment' `
-    -Name 'Path' `
-    -ErrorAction SilentlyContinue).Path
-if ($userPathAfter -and ($userPathAfter -like "*$expectedBin*")) {
-    Fail "Bin directory still present in user PATH after uninstall: $userPathAfter"
+if ($isElevated) {
+    $pathAfter = (Get-ItemProperty `
+        -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' `
+        -Name 'Path' `
+        -ErrorAction SilentlyContinue).Path
+} else {
+    $pathAfter = (Get-ItemProperty `
+        -Path 'HKCU:\Environment' `
+        -Name 'Path' `
+        -ErrorAction SilentlyContinue).Path
 }
-Pass "Bin directory removed from user PATH"
+if ($pathAfter -and ($pathAfter -like "*$expectedBin*")) {
+    Fail "Bin directory still present in PATH after uninstall: $pathAfter"
+}
+Pass "Bin directory removed from PATH"
 
 # ---------------------------------------------------------------------------
 # 7. Check installed files have been removed
