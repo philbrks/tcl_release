@@ -34,175 +34,198 @@ $currentPrincipal = [Security.Principal.WindowsPrincipal] `
     [Security.Principal.WindowsIdentity]::GetCurrent()
 $isElevated = $currentPrincipal.IsInRole(
     [Security.Principal.WindowsBuiltInRole]::Administrator)
-if ($isElevated) {
-    $InstallRoot = "$env:ProgramFiles\Tcl-Tk\$MajorMinor"
-} else {
-    $InstallRoot = "$env:LOCALAPPDATA\Tcl-Tk\$MajorMinor"
-}
-Write-Host "Running as elevated: $isElevated  ->  InstallRoot: $InstallRoot"
 
-$TclshName   = "tclsh" + $MajorMinor.Replace(".", "") + ".exe"   # tclsh91.exe
-$InstallerExe = ".github\Output\Tcl-Tk-$Version-win64-setup.exe"
+#Write-Output "currentPrincipal=$currentPrincipal"
+#Write-Output "isElevated=$isElevated"
 
-# Path to the expected-files manifest (one relative path per line, # comments ok)
-$ManifestPath = ".github\tcl_installer_files.txt"
+function RunAndTestInstaller([bool]$AllUserMode) {
+    if ( $AllUserMode ) {
+        Write-Host "Running with: /ALLUSERS" -ForegroundColor Green
+        $InstallRoot = "$env:ProgramFiles\Tcl-Tk\$MajorMinor"
+    } else {
+        Write-Host "Running with: /CURRENTUSER" -ForegroundColor Green
+        $InstallRoot = "$env:LOCALAPPDATA\Tcl-Tk\$MajorMinor"
+    }
 
-# ---------------------------------------------------------------------------
-# 0. Sanity-check: installer exists
-# ---------------------------------------------------------------------------
-if (-not (Test-Path $InstallerExe)) {
-    Fail "Installer not found: $InstallerExe"
-}
-Pass "Installer found: $InstallerExe"
+    Write-Host "Running as elevated: $isElevated  ->  InstallRoot: $InstallRoot"
 
-# ---------------------------------------------------------------------------
-# 1. Run the installer silently (per-user, no elevation needed)
-# ---------------------------------------------------------------------------
-Write-Host "Running installer..."
-#Write-Output "InstallerExe=$InstallerExe"
+    $TclshName   = "tclsh" + $MajorMinor.Replace(".", "") + ".exe"   # tclsh91.exe
+    $InstallerExe = ".github\Output\Tcl-Tk-$Version-win64-setup.exe"
 
-# Useful switches for the installer from Inno Setup: 
-#       "/CURRENTUSER" - current user even if admin.
-#       "/Log=.Setup.log" - debug output log.
-#
-$proc = Start-Process -FilePath $InstallerExe `
-    -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/Log=.\Setup.log"`
-    -Wait -PassThru 
-if ($proc.ExitCode -ne 0) {
-    Fail "Installer exited with code $($proc.ExitCode)"
-}
-Pass "Installer completed successfully"
-type ".\Setup.log"
+    # Path to the expected-files manifest (one relative path per line, # comments ok)
+    $ManifestPath = ".github\tcl_installer_files.txt"
 
-# ---------------------------------------------------------------------------
-# 2. Check expected files
-# ---------------------------------------------------------------------------
-Write-Host "Checking installed files..."
-$manifest = Get-Content $ManifestPath |
-    Where-Object { $_ -notmatch '^\s*#' -and $_ -match '\S' }
+    # ---------------------------------------------------------------------------
+    # 0. Sanity-check: installer exists
+    # ---------------------------------------------------------------------------
+    if (-not (Test-Path $InstallerExe)) {
+        Fail "Installer not found: $InstallerExe"
+    }
+    Pass "Installer found: $InstallerExe"
 
-# Write-Output "Manifest is: $manifest."
+    # ---------------------------------------------------------------------------
+    # 1. Run the installer silently (per-user, no elevation needed)
+    # ---------------------------------------------------------------------------
+    Write-Host "Running installer..."
+    #Write-Output "InstallerExe=$InstallerExe"
 
-Write-Output "LOCALAPPDATA is $Env:LOCALAPPDATA"
-Write-Output "InstallRoot is $InstallRoot"
-dir $Env:LOCALAPPDATA
-dir $InstallRoot
-dir $InstallRoot\bin
-dir $InstallRoot\lib
+    # Useful switches for the installer from Inno Setup: 
+    #       "/CURRENTUSER" - current user even if admin.
+    #       "/ADMINUSER" - run as admin user.
+    #       "/ALLUSERS" - install for all users.
+    #       "/Log=.Setup.log" - debug output log.
+    #
+    if ($AllUserMode) {
+        $installerSwitches = "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/ALLUSERS"
+    } else {
+        $installerSwitches = "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CURRENTUSER"
+    }
 
-$missingFiles = @()
-foreach ($rel in $manifest) {
-    $full = Join-Path $InstallRoot $rel.Trim()
-    Write-Output "item: $rel -> $full"
-    if (-not (Test-Path $full)) {
-        $missingFiles += $full.Trim()
+    $proc = Start-Process -FilePath $InstallerExe `
+        -ArgumentList $installerSwitches `
+        -Wait -PassThru 
+    if ($proc.ExitCode -ne 0) {
+        Fail "Installer exited with code $($proc.ExitCode)"
+    }
+    Pass "Installer completed successfully"
+    #type ".\Setup.log"
+
+    # ---------------------------------------------------------------------------
+    # 2. Check expected files
+    # ---------------------------------------------------------------------------
+    Write-Host "Checking installed files..."
+    $manifest = Get-Content $ManifestPath |
+        Where-Object { $_ -notmatch '^\s*#' -and $_ -match '\S' }
+
+    # Write-Output "Manifest is: $manifest."
+    
+    #Write-Output "LOCALAPPDATA is $Env:LOCALAPPDATA"
+    #Write-Output "InstallRoot is $InstallRoot"
+    #dir $Env:LOCALAPPDATA
+    #dir $InstallRoot
+    #dir $InstallRoot\bin
+    #dir $InstallRoot\lib
+
+    $missingFiles = @()
+    foreach ($rel in $manifest) {
+        $full = Join-Path $InstallRoot $rel.Trim()
+        #Write-Output "item: $rel -> $full"
+        if (-not (Test-Path $full)) {
+            $missingFiles += $full.Trim()
+        }
+    }
+    if ($missingFiles.Count -gt 0) {
+        Fail "Missing installed files:`n  $($missingFiles -join "`n  ")"
+    }
+    Pass "All $($manifest.Count) expected files present"
+
+    # ---------------------------------------------------------------------------
+    # 3. Check PATH contains the bin directory
+    # ---------------------------------------------------------------------------
+    Write-Host "Checking PATH..."
+    $expectedBin = "$InstallRoot\bin"
+    if ($AllUserMode) {
+        $pathToCheck = [Environment]::GetEnvironmentVariable("Path", "Machine")
+    } else {
+        $pathToCheck = [Environment]::GetEnvironmentVariable("Path", "User")
+    }
+    if ($pathToCheck -notlike "*$expectedBin*") {
+        Fail "Bin directory not found in PATH.`n  Expected: $expectedBin`n  PATH: $pathToCheck"
+    }
+    Pass "Bin directory present in PATH"
+
+    # ---------------------------------------------------------------------------
+    # 4. Invoke tclsh and run package checks
+    # ---------------------------------------------------------------------------
+    Write-Host "Running tclsh package checks..."
+
+    # Locate tclsh via PATH (proves PATH was set correctly)
+    $tclsh = (Get-Command $TclshName -ErrorAction SilentlyContinue).Source
+    if (-not $tclsh) {
+        # Fall back: look directly in install dir (PATH refresh may lag in CI)
+        $tclsh = Join-Path $InstallRoot "bin\$TclshName"
+    }
+    if (-not (Test-Path $tclsh)) {
+        Fail "tclsh not found: $tclsh"
+    }
+    Pass "tclsh located: $tclsh"
+    
+    $tclScript = ".github\tcl_tests.tcl"
+    $proc = Start-Process -FilePath $tclsh `
+        -ArgumentList $tclScript `
+        -Wait -PassThru -NoNewWindow
+    if ($proc.ExitCode -ne 0) {
+        Fail "tclsh package checks failed (exit code $($proc.ExitCode))"
+    }
+    Pass "All tclsh tests passed"
+
+    # ---------------------------------------------------------------------------
+    # 5. Run the uninstaller silently
+    # ---------------------------------------------------------------------------
+    Write-Host "Running uninstaller..."
+    $uninstExe = Join-Path $InstallRoot "unins000.exe"
+    if (-not (Test-Path $uninstExe)) {
+        Fail "Uninstaller not found: $uninstExe"
+    }
+    $proc = Start-Process -FilePath $uninstExe `
+        -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" `
+        -Wait -PassThru
+    if ($proc.ExitCode -ne 0) {
+        Fail "Uninstaller exited with code $($proc.ExitCode)"
+    }
+    Pass "Uninstaller completed successfully"
+
+    # ---------------------------------------------------------------------------
+    # 6. Check PATH no longer contains the bin directory
+    # ---------------------------------------------------------------------------
+    Write-Host "Checking PATH after uninstall..."
+    # Re-read from registry; the current process environment is stale.
+    if ($AllUserMode) {
+        $pathAfter = (Get-ItemProperty `
+            -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' `
+            -Name 'Path' `
+            -ErrorAction SilentlyContinue).Path
+    } else {
+        $pathAfter = (Get-ItemProperty `
+            -Path 'HKCU:\Environment' `
+            -Name 'Path' `
+            -ErrorAction SilentlyContinue).Path
+    }
+    if ($pathAfter -and ($pathAfter -like "*$expectedBin*")) {
+        Fail "Bin directory still present in PATH after uninstall: $pathAfter"
+    }
+    Pass "Bin directory removed from PATH"
+
+    # ---------------------------------------------------------------------------
+    # 7. Check installed files have been removed
+    # ---------------------------------------------------------------------------
+    Write-Host "Checking files removed after uninstall..."
+    $remainingFiles = @()
+    foreach ($rel in $manifest) {
+        $full = Join-Path $InstallRoot $rel.Trim()
+        if (Test-Path $full) {
+            $remainingFiles += $rel.Trim()
+        }
+    }
+    if ($remainingFiles.Count -gt 0) {
+        Fail "Files still present after uninstall:`n  $($remainingFiles -join "`n  ")"
+    }
+    Pass "All installed files removed"
+
+    # Optionally warn (not fail) if the install root itself still exists,
+    # since the user may have added files of their own.
+    if (Test-Path $InstallRoot) {
+        Write-Warning "Install directory still exists (may contain user-added files): $InstallRoot"
+    } else {
+        Pass "Install directory removed"
     }
 }
-if ($missingFiles.Count -gt 0) {
-    Fail "Missing installed files:`n  $($missingFiles -join "`n  ")"
-}
-Pass "All $($manifest.Count) expected files present"
 
-# ---------------------------------------------------------------------------
-# 3. Check PATH contains the bin directory
-# ---------------------------------------------------------------------------
-Write-Host "Checking PATH..."
-$expectedBin = "$InstallRoot\bin"
-if ($isElevated) {
-    $pathToCheck = [Environment]::GetEnvironmentVariable("Path", "Machine")
-} else {
-    $pathToCheck = [Environment]::GetEnvironmentVariable("Path", "User")
-}
-if ($pathToCheck -notlike "*$expectedBin*") {
-    Fail "Bin directory not found in PATH.`n  Expected: $expectedBin`n  PATH: $pathToCheck"
-}
-Pass "Bin directory present in PATH"
 
-# ---------------------------------------------------------------------------
-# 4. Invoke tclsh and run package checks
-# ---------------------------------------------------------------------------
-Write-Host "Running tclsh package checks..."
-
-# Locate tclsh via PATH (proves PATH was set correctly)
-$tclsh = (Get-Command $TclshName -ErrorAction SilentlyContinue).Source
-if (-not $tclsh) {
-    # Fall back: look directly in install dir (PATH refresh may lag in CI)
-    $tclsh = Join-Path $InstallRoot "bin\$TclshName"
-}
-if (-not (Test-Path $tclsh)) {
-    Fail "tclsh not found: $tclsh"
-}
-Pass "tclsh located: $tclsh"
-
-$tclScript = ".github\tcl_tests.tcl"
-$proc = Start-Process -FilePath $tclsh `
-    -ArgumentList $tclScript `
-    -Wait -PassThru -NoNewWindow
-if ($proc.ExitCode -ne 0) {
-    Fail "tclsh package checks failed (exit code $($proc.ExitCode))"
-}
-Pass "All tclsh tests passed"
-
-# ---------------------------------------------------------------------------
-# 5. Run the uninstaller silently
-# ---------------------------------------------------------------------------
-Write-Host "Running uninstaller..."
-$uninstExe = Join-Path $InstallRoot "unins000.exe"
-if (-not (Test-Path $uninstExe)) {
-    Fail "Uninstaller not found: $uninstExe"
-}
-$proc = Start-Process -FilePath $uninstExe `
-    -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" `
-    -Wait -PassThru
-if ($proc.ExitCode -ne 0) {
-    Fail "Uninstaller exited with code $($proc.ExitCode)"
-}
-Pass "Uninstaller completed successfully"
-
-# ---------------------------------------------------------------------------
-# 6. Check PATH no longer contains the bin directory
-# ---------------------------------------------------------------------------
-Write-Host "Checking PATH after uninstall..."
-# Re-read from registry; the current process environment is stale.
-if ($isElevated) {
-    $pathAfter = (Get-ItemProperty `
-        -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' `
-        -Name 'Path' `
-        -ErrorAction SilentlyContinue).Path
-} else {
-    $pathAfter = (Get-ItemProperty `
-        -Path 'HKCU:\Environment' `
-        -Name 'Path' `
-        -ErrorAction SilentlyContinue).Path
-}
-if ($pathAfter -and ($pathAfter -like "*$expectedBin*")) {
-    Fail "Bin directory still present in PATH after uninstall: $pathAfter"
-}
-Pass "Bin directory removed from PATH"
-
-# ---------------------------------------------------------------------------
-# 7. Check installed files have been removed
-# ---------------------------------------------------------------------------
-Write-Host "Checking files removed after uninstall..."
-$remainingFiles = @()
-foreach ($rel in $manifest) {
-    $full = Join-Path $InstallRoot $rel.Trim()
-    if (Test-Path $full) {
-        $remainingFiles += $rel.Trim()
-    }
-}
-if ($remainingFiles.Count -gt 0) {
-    Fail "Files still present after uninstall:`n  $($remainingFiles -join "`n  ")"
-}
-Pass "All installed files removed"
-
-# Optionally warn (not fail) if the install root itself still exists,
-# since the user may have added files of their own.
-if (Test-Path $InstallRoot) {
-    Write-Warning "Install directory still exists (may contain user-added files): $InstallRoot"
-} else {
-    Pass "Install directory removed"
-}
-
+# 
+Write-Host "Test install to %LOCALAPPDATA%"
+RunAndTestInstaller( 0 )
+Write-Host "Test install to %PROGRAMFILES%"
+RunAndTestInstaller( 1 )
 Write-Host ""
 Write-Host "All installer tests passed." -ForegroundColor Green

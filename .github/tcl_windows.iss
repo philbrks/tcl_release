@@ -316,7 +316,8 @@ var
 
 procedure InitializeWizard;
 begin
-  // For all-users (admin) installs, default to C:\Program Files\Tcl-Tk\<ver>
+  // For all-users (admin) installs, default to 
+  //    %PROGRAMFILES%\Tcl-Tk\<ver> - C:\Program Files\Tcl-Tk\<ver>
   // rather than the per-user %LOCALAPPDATA% path set in [Setup].
   if IsAdminInstallMode then
     WizardForm.DirEdit.Text :=
