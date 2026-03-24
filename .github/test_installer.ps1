@@ -229,3 +229,4 @@ Write-Host "Test install to %PROGRAMFILES%"
 RunAndTestInstaller( 1 )
 Write-Host ""
 Write-Host "All installer tests passed." -ForegroundColor Green
+exit 0
