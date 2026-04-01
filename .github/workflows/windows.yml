@@ -42,7 +42,8 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcl/"
           Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcllib/"
-
+          Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_DIR="https://core.tcl-lang.org/tcltls/tarball"
+ 
           if ( '${{ matrix.tcl-tag }}' -match 'core-9-0-3' ) {
             # Tcl and Tk settings
             Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh90.exe"
@@ -79,18 +80,23 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_VERSION=0.9"
           Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_DOWNLOAD_HASH=650A65B431987EB1AFC4481D91B9CF0F"
 
+          Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_FILE=tcltls-tls-2-0.tar.gz
+          Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_VERSION=2.0"
+          Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_HASH=D648CD998DE10048FB640F6208C0220A"
+
         working-directory: .
 
       - name: Download Tcl source
         shell: powershell
         run: |
           curl.exe -L -o ${{ env.TCL_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}"
-          #curl.exe -L -o ${{ env.TK_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}"
-          #curl.exe -L -o ${{ env.TCLLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}"
-          #curl.exe -L -o ${{ env.TKLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}"
+          curl.exe -L -o ${{ env.TK_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}"
+          curl.exe -L -o ${{ env.TCLLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}"
+          curl.exe -L -o ${{ env.TKLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}"
+          curl.exe -L -o ${{ env.TCLTLS_DOWNLOAD_FILE }} "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
 
       - name: Verify downloads
-        if: 1 == 0
+        if: 1 == 1
         shell: powershell
         run: |
           if ( (Get-FileHash "${{ env.TCL_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCL_DOWNLOAD_HASH }}" ) {
@@ -113,21 +119,28 @@ jobs:
           } else {
             echo "${{ env.TKLIB_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
           }
+          if ( (Get-FileHash "${{ env.TLCTLS_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCLTLS_DOWNLOAD_HASH }}" ) {
+            throw "MD5 Checksum hash check failed for ${{ env.TCLTLS_DOWNLOAD_FILE }}"
+          } else {
+            echo "${{ env.TCLTLS_DOWNLOAD_FILE }} successfully downloaded from core.tcl-lang.org."
+          }
 
       - name: Extract source archives
         shell: powershell
         run: |
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
-          #tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
-          #tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
-          #tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
+          tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
+          tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
+          # For now, tcllib and tklib have to be installed from toplevel
+          tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
+          tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
 
       - name: Init MSVC
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
-      - name: Build Tcl/Tk (${{ matrix.config }})
+      - name: Build Tcl/Tk and libraries (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
         working-directory: ${{ env.TCL_BUILD_DIR }}/win
