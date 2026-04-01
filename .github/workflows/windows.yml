@@ -37,7 +37,11 @@ jobs:
       - name: Prepare
         run: |
           mkdir "C:\Tcl-tk"
+          # Common Tcl/Tk Settings
           Add-Content -Path $env:GITHUB_ENV -Value "INSTALLDIR=C:\Tcl-tk"
+          Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
+          Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcllib/"
+
           if ( '${{ matrix.tcl-tag }}' -match 'core-9-0-3' ) {
             # Tcl and Tk settings
             Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh90.exe"
@@ -48,35 +52,33 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_HASH=820AEED1E4E1A89038D0302D2F839E84"
             Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk9.0.3-src.tar.gz"
             Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_HASH=72F9C4005EAAF3B9C994BDA74324C28E"
-
-            # Tcllib and Tklib settings
-            Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_VERSION=2.0"
-            Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_VERSION=0.9"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcllib/"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_FILE=tcllib-2.0.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_HASH=7A6583B88160FE2040FAB74309881C3E"
-            Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_DOWNLOAD_FILE=tklib-0.9.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_DOWNLOAD_HASH=650A65B431987EB1AFC4481D91B9CF0F"
-
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl9.0.3"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_BUILD_DIR=tcllib-2.0"
-            Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_BUILD_DIR=tklib-0.9"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_ICO_PATH=tcl9.0.3\win\tclsh.ico"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
+
           } elseif ( '${{ matrix.tcl-tag }}' -match 'core-9-1-.*' ) {
             Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh91.exe"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=9.1.a1"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_MAJOR_MINOR=9.1"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcl/"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl9.1a1-src.tar.gz"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_HASH=DFAF19E2D9CA72A91EED1B90C189ABAA"
-
+            Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk9.1a1-src.tar.gz"
+            Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_HASH=4AA84FD5DC39F0544FDEF1535AEE0189"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl9.1a1"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_ICO_PATH=tcl9.1a1\win\tclsh.ico"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
           } else {
-            throw "Unable to set value for TCLSH variable"
+            throw "Unable to set values for TCLSH build variables"
           }
+          # Common library settings
+          # For now, tcllib and tklib must be built at the top level instead of in the tcl.../pkgs directory
+          Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_BUILD_DIR=tcllib-2.0"
+          Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_BUILD_DIR=tklib-0.9"
+          
+          Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_FILE=tcllib-2.0.tar.gz"
+          Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_VERSION=2.0"
+          Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_HASH=7A6583B88160FE2040FAB74309881C3E"
+          
+          Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_DOWNLOAD_FILE=tklib-0.9.tar.gz"
+          Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_VERSION=0.9"
+          Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_DOWNLOAD_HASH=650A65B431987EB1AFC4481D91B9CF0F"
+
         working-directory: .
 
       - name: Download Tcl source
@@ -191,16 +193,13 @@ jobs:
 
       - name: Build Installer
         run: |
-          dir tcl9.1a1/win/tclsh.ico
-          echo "${{ env.TCL_ICO_PATH }}"
-          dir "${{ env.TCL_ICO_PATH }}"
           # Drive ISCC entirely via /D defines so the .iss file itself needs no
           # edits when the Tcl version changes.
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
             /DMyAppVersion="${{ env.TCL_VERSION }}" `
             /DMyMajorMinor="${{ env.TCL_MAJOR_MINOR }}" `
             /DMyInstallDir="${{ env.INSTALLDIR }}" `
-            /DMyIconFile="${{ github.workspace }}\${{ env.TCL_ICO_PATH }}" `
+            /DMyIconFile="${{ github.workspace }}\${{ env.TCL_BUILD_DIR }}\win\tclsh.ico" `
             /DMyAppGuid="${{ env.TCL_APP_GUID }}" `
             ".github\tcl_windows.iss"
           if ($lastexitcode -ne 0) {
