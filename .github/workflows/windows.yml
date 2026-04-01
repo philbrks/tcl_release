@@ -130,7 +130,7 @@ jobs:
         run: |
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
           # This binary is only needed for cross compilation - not needed here:
-          del ${{ env.TCL_BUILD_DIR\win\x86_64-w64-mingw32-nmakehlp.exe
+          del ${{ env.TCL_BUILD_DIR }}\win\x86_64-w64-mingw32-nmakehlp.exe
           tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           # For now, tcllib and tklib have to be installed from toplevel
