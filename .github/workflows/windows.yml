@@ -119,7 +119,7 @@ jobs:
           } else {
             echo "${{ env.TKLIB_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
           }
-          if ( (Get-FileHash "${{ env.TLCTLS_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCLTLS_DOWNLOAD_HASH }}" ) {
+          if ( (Get-FileHash "${{ env.TCLTLS_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCLTLS_DOWNLOAD_HASH }}" ) {
             throw "MD5 Checksum hash check failed for ${{ env.TCLTLS_DOWNLOAD_FILE }}"
           } else {
             echo "${{ env.TCLTLS_DOWNLOAD_FILE }} successfully downloaded from core.tcl-lang.org."
