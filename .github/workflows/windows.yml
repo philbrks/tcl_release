@@ -80,7 +80,7 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_VERSION=0.9"
           Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_DOWNLOAD_HASH=650A65B431987EB1AFC4481D91B9CF0F"
 
-          Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_FILE=tcltls-tls-2-0.tar.gz
+          Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_FILE=tcltls-tls-2-0.tar.gz"
           Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_VERSION=2.0"
           Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_HASH=D648CD998DE10048FB640F6208C0220A"
 
