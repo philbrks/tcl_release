@@ -40,6 +40,7 @@ jobs:
           # Common Tcl/Tk Settings
           Add-Content -Path $env:GITHUB_ENV -Value "INSTALLDIR=C:\Tcl-tk"
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
+          Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcl/"
           Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcllib/"
 
           if ( '${{ matrix.tcl-tag }}' -match 'core-9-0-3' ) {
@@ -47,7 +48,6 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh90.exe"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=9.0.3"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_MAJOR_MINOR=9.0"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcl/"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl9.0.3-src.tar.gz"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_HASH=820AEED1E4E1A89038D0302D2F839E84"
             Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk9.0.3-src.tar.gz"
