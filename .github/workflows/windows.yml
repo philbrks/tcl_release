@@ -42,7 +42,7 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcl/"
           Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcllib/"
-          Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_DIR="https://core.tcl-lang.org/tcltls/tarball"
+          Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_DIR=https://core.tcl-lang.org/tcltls/tarball"
  
           if ( '${{ matrix.tcl-tag }}' -match 'core-9-0-3' ) {
             # Tcl and Tk settings
