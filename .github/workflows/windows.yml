@@ -1,4 +1,4 @@
-﻿name: Windows
+name: Windows
 on:
   workflow_dispatch:
     inputs:
@@ -8,7 +8,8 @@ on:
         options:
           - '["core-9-0-3"]'
           - '["core-9-1-a1"]'
-        default: '["core-9-1-a1"]'
+          - '["main"]'
+        default: '["main"]'
 
 permissions:
   contents: read
@@ -64,6 +65,13 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk9.1a1-src.tar.gz"
             Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_HASH=4AA84FD5DC39F0544FDEF1535AEE0189"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl9.1a1"
+          } elseif ( '${{ matrix.tcl-tag }} ' -match 'main' ) {
+            Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh91.exe"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=9.1.main"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_MAJOR_MINOR=9.1"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl-main.tar.gz"
+            Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk-main-src.tar.gz"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl"
           } else {
             throw "Unable to set values for TCLSH build variables"
           }
@@ -89,50 +97,57 @@ jobs:
       - name: Download Tcl source
         shell: powershell
         run: |
-          curl.exe -L -o ${{ env.TCL_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}"
-          curl.exe -L -o ${{ env.TK_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}"
-          curl.exe -L -o ${{ env.TCLLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}"
-          curl.exe -L -o ${{ env.TKLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}"
-          curl.exe -L -o ${{ env.TCLTLS_DOWNLOAD_FILE }} "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
+          if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
+            curl.exe -L -o "https://core.tcl-lang.org/tcl/tarball/${{ env.TCL_DOWNLOAD_FILE }}"
+            curl.exe -L -o "https://core.tcl-lang.org/tcl/tarball/${{ env.TK_DOWNLOAD_FILE }}"
+          } else {
+            curl.exe -L -o ${{ env.TCL_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}"
+            curl.exe -L -o ${{ env.TK_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}"
+            curl.exe -L -o ${{ env.TCLLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}"
+            curl.exe -L -o ${{ env.TKLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}"
+            curl.exe -L -o ${{ env.TCLTLS_DOWNLOAD_FILE }} "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
+          }
 
       - name: Verify downloads
         if: 1 == 1
         shell: powershell
         run: |
-          if ( (Get-FileHash "${{ env.TCL_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCL_DOWNLOAD_HASH }}" ) {
-            throw "MD5 Checksum hash check failed for ${{ env.TCL_DOWNLOAD_FILE }}"
+          if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
+            # This will be potentially different each time, no need to verify.
           } else {
-            echo "${{ env.TCL_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
-          }
-          if ( (Get-FileHash "${{ env.TK_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TK_DOWNLOAD_HASH }}" ) {
-            throw "MD5 Checksum hash check failed for ${{ env.TK_DOWNLOAD_FILE }}"
-          } else {
-            echo "${{ env.TK_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
-          }
-          if ( (Get-FileHash "${{ env.TCLLIB_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCLLIB_DOWNLOAD_HASH }}" ) {
-            throw "MD5 Checksum hash check failed for ${{ env.TCLLIB_DOWNLOAD_FILE }}"
-          } else {
-            echo "${{ env.TCLLIB_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
-          }
-          if ( (Get-FileHash "${{ env.TKLIB_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TKLIB_DOWNLOAD_HASH }}" ) {
-            throw "MD5 Checksum hash check failed for ${{ env.TKLIB_DOWNLOAD_FILE }}"
-          } else {
-            echo "${{ env.TKLIB_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
-          }
-          if ( (Get-FileHash "${{ env.TCLTLS_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCLTLS_DOWNLOAD_HASH }}" ) {
-            #throw "MD5 Checksum hash check failed for ${{ env.TCLTLS_DOWNLOAD_FILE }}"
-            echo "FileHash failed: ${{ env.TCLTLS_DOWNLOAD_HASH }}"
-            Get-FileHash "${{ env.TCLTLS_DOWNLOAD_FILE }}" -Algorithm MD5
-          } else {
-            echo "${{ env.TCLTLS_DOWNLOAD_FILE }} successfully downloaded from core.tcl-lang.org."
+            if ( (Get-FileHash "${{ env.TCL_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCL_DOWNLOAD_HASH }}" ) {
+              throw "MD5 Checksum hash check failed for ${{ env.TCL_DOWNLOAD_FILE }}"
+            } else {
+              echo "${{ env.TCL_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
+            }
+            if ( (Get-FileHash "${{ env.TK_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TK_DOWNLOAD_HASH }}" ) {
+              throw "MD5 Checksum hash check failed for ${{ env.TK_DOWNLOAD_FILE }}"
+            } else {
+              echo "${{ env.TK_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
+            }
+            if ( (Get-FileHash "${{ env.TCLLIB_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCLLIB_DOWNLOAD_HASH }}" ) {
+              throw "MD5 Checksum hash check failed for ${{ env.TCLLIB_DOWNLOAD_FILE }}"
+            } else {
+              echo "${{ env.TCLLIB_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
+            }
+            if ( (Get-FileHash "${{ env.TKLIB_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TKLIB_DOWNLOAD_HASH }}" ) {
+              throw "MD5 Checksum hash check failed for ${{ env.TKLIB_DOWNLOAD_FILE }}"
+            } else {
+              echo "${{ env.TKLIB_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
+            }
+            if ( (Get-FileHash "${{ env.TCLTLS_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCLTLS_DOWNLOAD_HASH }}" ) {
+              #throw "MD5 Checksum hash check failed for ${{ env.TCLTLS_DOWNLOAD_FILE }}"
+              echo "FileHash failed: ${{ env.TCLTLS_DOWNLOAD_HASH }}"
+              Get-FileHash "${{ env.TCLTLS_DOWNLOAD_FILE }}" -Algorithm MD5
+            } else {
+              echo "${{ env.TCLTLS_DOWNLOAD_FILE }} successfully downloaded from core.tcl-lang.org."
+            }
           }
 
       - name: Extract source archives
         shell: powershell
         run: |
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
-          # This binary is only needed for cross compilation - not needed here:
-          del ${{ env.TCL_BUILD_DIR }}\win\x86_64-w64-mingw32-nmakehlp.exe
           tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           # For now, tcllib and tklib have to be installed from toplevel
@@ -259,3 +274,4 @@ jobs:
             throw "Installer test suite failed (exit code $lastexitcode)"
           }
         working-directory: .  
+
