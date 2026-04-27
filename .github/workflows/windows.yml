@@ -148,12 +148,12 @@ jobs:
       - name: Extract source archives
         shell: powershell
         run: |
-          if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
-            tar -xzf tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-          }
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
+          if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
+            tar -xzf tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+          }
           # For now, tcllib and tklib have to be installed from toplevel
           tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
