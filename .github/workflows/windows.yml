@@ -98,8 +98,8 @@ jobs:
         shell: powershell
         run: |
           if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
-            curl.exe -L --ssl-no-revoke -o "https://core.tcl-lang.org/tcl/tarball/${{ env.TCL_DOWNLOAD_FILE }}"
-            curl.exe -L --ssl-no-revoke -o "https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}"
+            curl.exe -L --ssl-no-revoke -o ${{ env.TCL_DOWNLOAD_FILE }} "https://core.tcl-lang.org/tcl/tarball/${{ env.TCL_DOWNLOAD_FILE }}"
+            curl.exe -L --ssl-no-revoke -o ${{ env.TK_DOWNLOAD_FILE }} "https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}"
           } else {
             curl.exe -L -o ${{ env.TCL_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}"
             curl.exe -L -o ${{ env.TK_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}"
