@@ -100,6 +100,7 @@ jobs:
           if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
             curl.exe -L --ssl-no-revoke -o ${{ env.TCL_DOWNLOAD_FILE }} "https://core.tcl-lang.org/tcl/tarball/${{ env.TCL_DOWNLOAD_FILE }}"
             curl.exe -L --ssl-no-revoke -o ${{ env.TK_DOWNLOAD_FILE }} "https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}"
+            curl.exe -L --ssl-no-revoke -o tdbc-main.tar.gz "https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz"
           } else {
             curl.exe -L -o ${{ env.TCL_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}"
             curl.exe -L -o ${{ env.TK_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}"
@@ -147,6 +148,9 @@ jobs:
       - name: Extract source archives
         shell: powershell
         run: |
+          if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
+            tar -xzf tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+          }
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
