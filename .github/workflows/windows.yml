@@ -71,7 +71,7 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_MAJOR_MINOR=9.1"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl-main.tar.gz"
             Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk-main-src.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl"
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl-main"
           } else {
             throw "Unable to set values for TCLSH build variables"
           }
@@ -98,22 +98,22 @@ jobs:
         shell: powershell
         run: |
           if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
-            curl.exe -L -o "https://core.tcl-lang.org/tcl/tarball/${{ env.TCL_DOWNLOAD_FILE }}"
-            curl.exe -L -o "https://core.tcl-lang.org/tcl/tarball/${{ env.TK_DOWNLOAD_FILE }}"
+            curl.exe -L --ssl-no-revoke -o "https://core.tcl-lang.org/tcl/tarball/${{ env.TCL_DOWNLOAD_FILE }}"
+            curl.exe -L --ssl-no-revoke -o "https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}"
           } else {
             curl.exe -L -o ${{ env.TCL_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}"
             curl.exe -L -o ${{ env.TK_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}"
-            curl.exe -L -o ${{ env.TCLLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}"
-            curl.exe -L -o ${{ env.TKLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}"
-            curl.exe -L -o ${{ env.TCLTLS_DOWNLOAD_FILE }} "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
           }
+          curl.exe -L -o ${{ env.TCLLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}"
+          curl.exe -L -o ${{ env.TKLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}"
+          curl.exe -L --ssl-no-revoke -o ${{ env.TCLTLS_DOWNLOAD_FILE }} "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
 
       - name: Verify downloads
         if: 1 == 1
         shell: powershell
         run: |
           if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
-            # This will be potentially different each time, no need to verify.
+            # This will be potentially different each time and is a test build anyway, no need to verify hash codes.
           } else {
             if ( (Get-FileHash "${{ env.TCL_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCL_DOWNLOAD_HASH }}" ) {
               throw "MD5 Checksum hash check failed for ${{ env.TCL_DOWNLOAD_FILE }}"
@@ -274,4 +274,5 @@ jobs:
             throw "Installer test suite failed (exit code $lastexitcode)"
           }
         working-directory: .  
+
 
