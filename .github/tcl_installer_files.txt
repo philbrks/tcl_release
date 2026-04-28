@@ -34,7 +34,7 @@ include\tommath.h
 # ---------------------------------------------------------------------------
 # lib (top-level files)
 # ---------------------------------------------------------------------------
-lib\libtcl9.1a1.zip
+lib\libtcl9.1a2.zip
 lib\tcl91.lib
 lib\tclConfig.sh
 lib\tclooConfig.sh
