@@ -100,11 +100,14 @@ jobs:
           if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
             curl.exe -L --ssl-no-revoke -o ${{ env.TCL_DOWNLOAD_FILE }} "https://core.tcl-lang.org/tcl/tarball/${{ env.TCL_DOWNLOAD_FILE }}"
             curl.exe -L --ssl-no-revoke -o ${{ env.TK_DOWNLOAD_FILE }} "https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}"
+            curl.exe -L --ssl-no-revoke -o itcl-main.tar.gz "https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz"
             curl.exe -L --ssl-no-revoke -o tdbc-main.tar.gz "https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz"
             curl.exe -L --ssl-no-revoke -o tdbcodbc-main.tar.gz "https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz"
             curl.exe -L --ssl-no-revoke -o tdbcmysql-main.tar.gz "https://core.tcl-lang.org/tdbcmysql/tarball/tdbcmysql-main.tar.gz"
             curl.exe -L --ssl-no-revoke -o tdbcsqlite3-main.tar.gz "https://core.tcl-lang.org/tdbcsqlite3/tarball/tdbcsqlite3-main.tar.gz"
             curl.exe -L --ssl-no-revoke -o tdbcpostgres-main.tar.gz "https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz"
+            curl.exe -L --ssl-no-revoke -o thread-main.tar.gz "https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz"
+            curl.exe -L --ssl-no-revoke -o sqlite3-main.tar.gz "https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz"
           } else {
             curl.exe -L -o ${{ env.TCL_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}"
             curl.exe -L -o ${{ env.TK_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}"
@@ -156,11 +159,14 @@ jobs:
           tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
+            tar -xzf itcl-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             tar -xzf tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             tar -xzf tdbcodbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             tar -xzf tdbcmysql-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             tar -xzf tdbcpostgres-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             tar -xzf tdbcsqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            tar -xzf thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            tar -xzf sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
           }
           # For now, tcllib and tklib have to be installed from toplevel
           tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
