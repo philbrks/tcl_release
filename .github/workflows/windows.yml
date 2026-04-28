@@ -173,6 +173,9 @@ jobs:
           # For now, tcllib and tklib have to be installed from toplevel
           tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
+          pwd
+          dir
+          dir ${{ env.TCL_BUILD_DIR }}/pkgs
 
       - name: Init MSVC
         uses: ilammy/msvc-dev-cmd@v1
