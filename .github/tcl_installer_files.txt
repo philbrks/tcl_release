@@ -77,9 +77,9 @@ lib\registry1.4\tcl9registry14.dll
 # ---------------------------------------------------------------------------
 # lib\sqlite3.51.2
 # ---------------------------------------------------------------------------
-lib\sqlite3.51.2\pkgIndex.tcl
-lib\sqlite3.51.2\sqlite3.n
-lib\sqlite3.51.2\tcl9sqlite3512.dll
+lib\sqlite3.53.0\pkgIndex.tcl
+lib\sqlite3.53.0\sqlite3.n
+lib\sqlite3.53.0\tcl9sqlite3530.dll
 
 # ---------------------------------------------------------------------------
 # lib\tcl9\9.1\tdbc
