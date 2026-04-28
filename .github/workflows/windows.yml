@@ -108,7 +108,7 @@ jobs:
             curl.exe -L --ssl-no-revoke -o tdbcpostgres-main.tar.gz "https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz"
             curl.exe -L --ssl-no-revoke -o thread-main.tar.gz "https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz"
             curl.exe -L --ssl-no-revoke -o sqlite3-main.tar.gz "https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz"
-            curl.exe -L --ssl-no-revoke -o Img-main.tar.gz "https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz"
+            curl.exe -L --ssl-no-revoke -o Img-2.1.1.tar.gz "https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz"
           } else {
             curl.exe -L -o ${{ env.TCL_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}"
             curl.exe -L -o ${{ env.TK_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}"
