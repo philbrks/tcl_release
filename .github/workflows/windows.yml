@@ -131,7 +131,7 @@ jobs:
           Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}'
 
           # Need to figure out OpenSSL dependency before we add this:
-          Invoke-Curl -ExtraArgs @('-L') -OutputFile ${{ env.TCLTLS_DOWNLOAD_FILE }} -Url "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
+          #Invoke-Curl -ExtraArgs @('-L') -OutputFile ${{ env.TCLTLS_DOWNLOAD_FILE }} -Url "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
           echo "Done downloading source files.  LASTERRORCODE=$LASTERRORCODE"
           dir
 
@@ -177,7 +177,6 @@ jobs:
         run: |
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
-          tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           tar -xzf Img-2.1.1.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
           if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
             tar -xzf itcl-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
@@ -192,6 +191,8 @@ jobs:
           # For now, tcllib and tklib have to be installed from toplevel
           tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
+          # Need to figure out OpenSSL build before we try this:
+          # tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           dir
           dir ${{ env.TCL_BUILD_DIR }}/pkgs
           
