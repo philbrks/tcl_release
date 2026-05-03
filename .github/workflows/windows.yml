@@ -197,7 +197,7 @@ jobs:
           dir ${{ env.TCL_BUILD_DIR }}/pkgs
           
       - name: Init MSVC
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@v4
         with:
           arch: x64
 
