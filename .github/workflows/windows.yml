@@ -106,7 +106,7 @@ jobs:
               curl.exe @ExtraArgs -o $OutputFile $Url
               if ($LASTEXITCODE -ne 0) {
                   Write-Error "curl failed (exit code $LASTEXITCODE) downloading '$Url' to '$OutputFile'"
-                  exit $LASTEXITCODE
+                  throw $LASTEXITCODE
               }
           }
 
@@ -131,6 +131,7 @@ jobs:
 
           # Need to figure out OpenSSL dependency before we add this:
           Invoke-Curl -ExtraArgs @('-L') -OutputFile ${{ env.TCLTLS_DOWNLOAD_FILE }} -Url "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
+          echo "Done downloading source files.  LASTERRORCODE=$LASTERRORCODE"
 
       - name: Verify downloads
         if: 1 == 1
