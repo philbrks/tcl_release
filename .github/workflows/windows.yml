@@ -203,6 +203,9 @@ jobs:
       - name: Build Tcl/Tk and libraries (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake exit code: $lastexitcode"
+          }
         working-directory: ${{ env.TCL_BUILD_DIR }}/win
 
       - name: Build Test Harness ${{ matrix.config }}
