@@ -177,7 +177,6 @@ jobs:
         run: |
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
-          tar -xzf Img-2.1.1.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
           if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
             tar -xzf itcl-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             tar -xzf tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
@@ -188,9 +187,10 @@ jobs:
             tar -xzf thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             tar -xzf sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
           }
-          # For now, tcllib and tklib have to be installed from toplevel
+          # For now, TkImg, tcllib and tklib have to be installed from toplevel
           tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
+          # tar -xzf Img-2.1.1.tar.gz
           # Need to figure out OpenSSL build before we try this:
           # tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           dir
