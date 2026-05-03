@@ -97,25 +97,40 @@ jobs:
       - name: Download Tcl source
         shell: powershell
         run: |
-          if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
-            curl.exe -L --ssl-no-revoke -o ${{ env.TCL_DOWNLOAD_FILE }} "https://core.tcl-lang.org/tcl/tarball/${{ env.TCL_DOWNLOAD_FILE }}"
-            curl.exe -L --ssl-no-revoke -o ${{ env.TK_DOWNLOAD_FILE }} "https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}"
-            curl.exe -L --ssl-no-revoke -o itcl-main.tar.gz "https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz"
-            curl.exe -L --ssl-no-revoke -o tdbc-main.tar.gz "https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz"
-            curl.exe -L --ssl-no-revoke -o tdbcodbc-main.tar.gz "https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz"
-            curl.exe -L --ssl-no-revoke -o tdbcmysql-main.tar.gz "https://core.tcl-lang.org/tdbcmysql/tarball/tdbcmysql-main.tar.gz"
-            curl.exe -L --ssl-no-revoke -o tdbcsqlite3-main.tar.gz "https://core.tcl-lang.org/tdbcsqlite3/tarball/tdbcsqlite3-main.tar.gz"
-            curl.exe -L --ssl-no-revoke -o tdbcpostgres-main.tar.gz "https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz"
-            curl.exe -L --ssl-no-revoke -o thread-main.tar.gz "https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz"
-            curl.exe -L --ssl-no-revoke -o sqlite3-main.tar.gz "https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz"
-            curl.exe -L --ssl-no-revoke -o Img-2.1.1.tar.gz "https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz"
-          } else {
-            curl.exe -L -o ${{ env.TCL_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}"
-            curl.exe -L -o ${{ env.TK_DOWNLOAD_FILE }} "${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}"
+          function Invoke-Curl {
+              param(
+                  [string]$OutputFile,
+                  [string]$Url,
+                  [string[]]$ExtraArgs = @()
+              )
+              curl.exe @ExtraArgs -o $OutputFile $Url
+              if ($LASTEXITCODE -ne 0) {
+                  Write-Error "curl failed (exit code $LASTEXITCODE) downloading '$Url' to '$OutputFile'"
+                  exit $LASTEXITCODE
+              }
           }
-          curl.exe -L -o ${{ env.TCLLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}"
-          curl.exe -L -o ${{ env.TKLIB_DOWNLOAD_FILE }} "${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}"
-          curl.exe -L --ssl-no-revoke -o ${{ env.TCLTLS_DOWNLOAD_FILE }} "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
+
+          if ('${{ matrix.tcl-tag }} ' -match 'main') {
+              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}'  -Url 'https://core.tcl-lang.org/tcl/tarball/${{ env.TCL_DOWNLOAD_FILE }}'
+              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url 'https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}'
+              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'itcl-main.tar.gz'              -Url 'https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz'
+              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbc-main.tar.gz'              -Url 'https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz'
+              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbcodbc-main.tar.gz'          -Url 'https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz'
+              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbcmysql-main.tar.gz'         -Url 'https://core.tcl-lang.org/tdbcmysql/tarball/tdbcmysql-main.tar.gz'
+              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbcsqlite3-main.tar.gz'       -Url 'https://core.tcl-lang.org/tdbcsqlite3/tarball/tdbcsqlite3-main.tar.gz'
+              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
+              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
+              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
+              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'Img-2.1.1.tar.gz'              -Url 'https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz'
+          } else {
+              Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}' -Url '${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}'
+              Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'  -Url '${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}'
+          }
+          Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}'
+          Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}'
+
+          # Need to figure out OpenSSL dependency before we add this:
+          Invoke-Curl -ExtraArgs @('-L') -OutputFile ${{ env.TCLTLS_DOWNLOAD_FILE }} -Url "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
 
       - name: Verify downloads
         if: 1 == 1
@@ -144,13 +159,14 @@ jobs:
             } else {
               echo "${{ env.TKLIB_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
             }
-            if ( (Get-FileHash "${{ env.TCLTLS_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCLTLS_DOWNLOAD_HASH }}" ) {
-              #throw "MD5 Checksum hash check failed for ${{ env.TCLTLS_DOWNLOAD_FILE }}"
-              echo "FileHash failed: ${{ env.TCLTLS_DOWNLOAD_HASH }}"
-              Get-FileHash "${{ env.TCLTLS_DOWNLOAD_FILE }}" -Algorithm MD5
-            } else {
-              echo "${{ env.TCLTLS_DOWNLOAD_FILE }} successfully downloaded from core.tcl-lang.org."
-            }
+            # Need to figure out OpenSSL dependency before we add this:
+            #if ( (Get-FileHash "${{ env.TCLTLS_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCLTLS_DOWNLOAD_HASH }}" ) {
+            #  #throw "MD5 Checksum hash check failed for ${{ env.TCLTLS_DOWNLOAD_FILE }}"
+            #  echo "FileHash failed: ${{ env.TCLTLS_DOWNLOAD_HASH }}"
+            #  Get-FileHash "${{ env.TCLTLS_DOWNLOAD_FILE }}" -Algorithm MD5
+            #} else {
+            #  echo "${{ env.TCLTLS_DOWNLOAD_FILE }} successfully downloaded from core.tcl-lang.org."
+            #}
           }
 
       - name: Extract source archives
@@ -173,10 +189,7 @@ jobs:
           # For now, tcllib and tklib have to be installed from toplevel
           tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
-          pwd
-          dir
-          dir ${{ env.TCL_BUILD_DIR }}/pkgs
-
+          
       - name: Init MSVC
         uses: ilammy/msvc-dev-cmd@v1
         with:
