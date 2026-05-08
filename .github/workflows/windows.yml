@@ -72,9 +72,11 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl-main.tar.gz"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl-main"
             Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk-main.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "IMG_DOWNLOAD_FILE=Img-2.1.1.tar.gz"
             Add-Content -Path $env:GITHUB_ENV -Value "TK_BUILD_DIR=tk-main"
+            Add-Content -Path $env:GITHUB_ENV -Value "IMG_DOWNLOAD_FILE=Img-2.1.1.tar.gz"
             Add-Content -Path $env:GITHUB_ENV -Value "IMG_BUILD_DIR=Img-2.1.1"
+            Add-Content -Path $env:GITHUB_ENV -Value "TDOM_DOWNLOAD_FILE=tDom-0-9-6.tar.gz"
+            Add-Content -Path $env:GITHUB_ENV -Value "TDOM_BUILD_DIR=tDom-0-9-6"
           } else {
             throw "Unable to set values for TCLSH build variables"
           }
@@ -125,13 +127,14 @@ jobs:
               Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
               Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
               Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
-              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url 'https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz'
           } else {
               Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}' -Url '${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}'
               Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'  -Url '${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}'
           }
           Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}'
           Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}'
+          Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url 'https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz'
+          Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}'  -Url 'https://www.tdom.org/index.html/tarball/tDOM-0-9-6.tar.gz'
 
           # Need to figure out OpenSSL dependency before we add this:
           #Invoke-Curl -ExtraArgs @('-L') -OutputFile ${{ env.TCLTLS_DOWNLOAD_FILE }} -Url "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
@@ -194,6 +197,7 @@ jobs:
           tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
           tar -xzf ${{ env.IMG_DOWNLOAD_FILE }}
+          tar -xzf ${{ env.TDOM_DOWNLOAD_FILE }}
           # Need to figure out OpenSSL build before we try this:
           # tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           dir
@@ -227,6 +231,14 @@ jobs:
              throw "nmake exit code: $lastexitcode"
           }
         working-directory: ${{ env.IMG_BUILD_DIR }}/win
+
+      - name: Build tDom (${{ matrix.config }})
+        run: |
+          &nmake -f makefile.vc all ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake exit code: $lastexitcode"
+          }
+        working-directory: ${{ env.TDOM_BUILD_DIR }}/win
 
       - name: Build Test Harness ${{ matrix.config }}
         if: 1 == 0
@@ -338,5 +350,6 @@ jobs:
             throw "Installer test suite failed (exit code $lastexitcode)"
           }
         working-directory: .  
+
 
 
