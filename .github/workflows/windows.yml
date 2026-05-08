@@ -263,7 +263,7 @@ jobs:
         env:
           ERROR_ON_FAILURES: 1
 
-      - name: Install Tcl/Tk (${{ matrix.config }})
+      - name: Install Tcl (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
           if ($lastexitcode -ne 0) {
@@ -271,6 +271,30 @@ jobs:
           }
         working-directory: ${{ env.TCL_BUILD_DIR }}/win
 
+      - name: Install Tk (${{ matrix.config }})
+        run: |
+          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake exit code: $lastexitcode"
+          }
+        working-directory: ${{ env.TK_BUILD_DIR }}/win
+
+      - name: Install Img (${{ matrix.config }})
+        run: |
+          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake exit code: $lastexitcode"
+          }
+        working-directory: ${{ env.IMG_BUILD_DIR }}/win
+
+      - name: Install tDom (${{ matrix.config }})
+        run: |
+          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake exit code: $lastexitcode"
+          }
+        working-directory: ${{ env.TDOM_BUILD_DIR }}/win
+        
       - name: Install tcllib and tklib
         if: 1 == 0
         shell: powershell
