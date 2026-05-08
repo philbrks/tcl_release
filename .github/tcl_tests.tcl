@@ -9,6 +9,11 @@ set packages {
     sqlite3
     thread
     tcl::zlib
+    tdbc
+    tdbc::odbc
+    tdbc::sqlite3
+    Img
+    tdom
     itcl
     dde
 }
