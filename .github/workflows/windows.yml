@@ -222,7 +222,7 @@ jobs:
 
       - name: Build Img (${{ matrix.config }})
         run: |
-          &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+          &nmake -f makefile.vc all ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
           }
