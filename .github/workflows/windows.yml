@@ -70,8 +70,11 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=9.1.main"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_MAJOR_MINOR=9.1"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl-main.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk-main-src.tar.gz"
             Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl-main"
+            Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk-main.tar.gz"
+            Add-Content -Path $env:GITHUB_ENV -Value "IMG_DOWNLOAD_FILE=Img-2.1.1.tar.gz"
+            Add-Content -Path $env:GITHUB_ENV -Value "TK_BUILD_DIR=tk-main"
+            Add-Content -Path $env:GITHUB_ENV -Value "IMG_BUILD_DIR=Img-2.2.1"
           } else {
             throw "Unable to set values for TCLSH build variables"
           }
@@ -176,8 +179,9 @@ jobs:
         shell: powershell
         run: |
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
-          tar -xzf ${{ env.TK_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
+          tar -xzf ${{ env.TK_DOWNLOAD_FILE }}
           if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
+            # Download items included in the Tcl source distribution that come from different repos
             tar -xzf itcl-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             tar -xzf tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             tar -xzf tdbcodbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
@@ -187,10 +191,9 @@ jobs:
             tar -xzf thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             tar -xzf sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
           }
-          # For now, TkImg, tcllib and tklib have to be installed from toplevel
           tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
-          # tar -xzf Img-2.1.1.tar.gz
+          tar -xzf ${{ env.IMG_DOWNLOAD_FILE }}
           # Need to figure out OpenSSL build before we try this:
           # tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           dir
@@ -201,13 +204,29 @@ jobs:
         with:
           arch: x64
 
-      - name: Build Tcl/Tk and libraries (${{ matrix.config }})
+      - name: Build Tcl and included libraries (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
           }
         working-directory: ${{ env.TCL_BUILD_DIR }}/win
+
+      - name: Build Tk (${{ matrix.config }})
+        run: |
+          &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake exit code: $lastexitcode"
+          }
+        working-directory: ${{ env.TK_BUILD_DIR }}/win
+
+      - name: Build Img (${{ matrix.config }})
+        run: |
+          &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake exit code: $lastexitcode"
+          }
+        working-directory: ${{ env.IMG_BUILD_DIR }}/win
 
       - name: Build Test Harness ${{ matrix.config }}
         if: 1 == 0
