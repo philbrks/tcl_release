@@ -134,7 +134,7 @@ jobs:
           Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}'
           Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}'
           Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url 'https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz'
-          Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}'  -Url 'https://www.tdom.org/index.html/tarball/tDOM-0-9-6.tar.gz'
+          Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url 'https://core.tcl-lang.org/tdom/tarball/${{ env.TDOM_DOWNLOAD_FILE }}'
 
           # Need to figure out OpenSSL dependency before we add this:
           #Invoke-Curl -ExtraArgs @('-L') -OutputFile ${{ env.TCLTLS_DOWNLOAD_FILE }} -Url "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
@@ -234,7 +234,7 @@ jobs:
 
       - name: Build tDom (${{ matrix.config }})
         run: |
-          &nmake -f makefile.vc all ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+          &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
           }
