@@ -125,7 +125,7 @@ jobs:
               Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
               Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
               Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
-              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}   -Url 'https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz'
+              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url 'https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz'
           } else {
               Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}' -Url '${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}'
               Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'  -Url '${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}'
