@@ -296,17 +296,27 @@ jobs:
         working-directory: ${{ env.TDOM_BUILD_DIR }}/win
         
       - name: Install tcllib and tklib
-        if: 1 == 0
+        if: 1 == 1
         shell: powershell
         run: |
             ${{ env.TCLSH }} ${{ env.TCL_BUILD_DIR }}/pkgs/${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
             ${{ env.TCLSH }} ${{ env.TCL_BUILD_DIR }}/pkgs/${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
         working-directory: .
+
+      - name: Generate Installed file manifest for Install Test.
+        shell: powershell
+        run: |
+            ${{ env.TCLSH }} ${{ env.INSTALLDIR }} tcl_installer_files.txt
+            pwd
+            dir
+        working-directory: .
+
       - name: Upload distribution
         uses: actions/upload-artifact@v7.0.1
         with:
           name: "Tcl-Tk Release Distribution (Win64)"
           path: ${{ env.INSTALLDIR }}
+
 
       # -----------------------------------------------------------------------
       # Installer build
