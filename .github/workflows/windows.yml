@@ -312,7 +312,10 @@ jobs:
       - name: Generate Installed file manifest for Install Test.
         shell: powershell
         run: |
-            ${{ env.TCLSH }} generate_manifest.tcl ${{ env.INSTALLDIR }} tcl_installer_files.txt
+            ${{ env.TCLSH }} .github\generate_manifest.tcl ${{ env.INSTALLDIR }} tcl_installer_files.txt
+            if ($lastexitcode -ne 0) {
+             throw "tklib installer exit code: $lastexitcode"
+            }
             pwd
             dir
         working-directory: .
