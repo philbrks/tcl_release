@@ -312,7 +312,7 @@ jobs:
       - name: Generate Installed file manifest for Install Test.
         shell: powershell
         run: |
-            ${{ env.TCLSH }} ${{ env.INSTALLDIR }} tcl_installer_files.txt
+            ${{ env.TCLSH }} generate_manifest.tcl ${{ env.INSTALLDIR }} tcl_installer_files.txt
             pwd
             dir
         working-directory: .
