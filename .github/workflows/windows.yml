@@ -299,8 +299,14 @@ jobs:
         if: 1 == 1
         shell: powershell
         run: |
-            ${{ env.TCLSH }} ${{ env.TCL_BUILD_DIR }}/pkgs/${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
-            ${{ env.TCLSH }} ${{ env.TCL_BUILD_DIR }}/pkgs/${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
+            ${{ env.TCLSH }} ${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
+            if ($lastexitcode -ne 0) {
+             throw "tcllib installer exit code: $lastexitcode"
+            }
+            ${{ env.TCLSH }} ${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
+            if ($lastexitcode -ne 0) {
+             throw "tklib installer exit code: $lastexitcode"
+            }
         working-directory: .
 
       - name: Generate Installed file manifest for Install Test.
