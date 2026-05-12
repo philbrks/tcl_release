@@ -53,7 +53,7 @@ function RunAndTestInstaller([bool]$AllUserMode) {
     $InstallerExe = ".github\Output\Tcl-Tk-$Version-win64-setup.exe"
 
     # Path to the expected-files manifest (one relative path per line, # comments ok)
-    $ManifestPath = ".github\tcl_installer_files.txt"
+    $ManifestPath = "tcl_installer_files.txt"
 
     # ---------------------------------------------------------------------------
     # 0. Sanity-check: installer exists
