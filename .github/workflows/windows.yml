@@ -37,12 +37,35 @@ jobs:
 
       - name: Prepare
         run: |
+	  # Shorthand for writing variables to $env:GITHUB_ENV
+          function Export-ToGitHubEnv {
+            param(
+                [Parameter(Mandatory, ValueFromPipeline)]
+                [string[]]$VariableNames
+            )
+            process {
+                foreach ($name in $VariableNames) {
+                    "$name=$(Get-Variable -Name $name -ValueOnly)" | Out-File -FilePath $env:GITHUB_ENV -Append
+                }
+            }
+          }
+          $TCLLIB_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcllib/tcllib-2.0.tar.gz"
+          $TCLLIB_DOWNLOAD_FILE = Split-Path -Leaf $TCLLIB_DOWNLOAD_URL 
+          $TCLLIB_DOWNLOAD_HASH = "7A6583B88160FE2040FAB74309881C3E"
+          $TCLLIB_VERSION       = "2.0"
+          Export-ToGitHubEnv TCLLIB_DOWNLOAD_URL, TCLLIB_DOWNLOAD_FILE, TCLLIB_DOWNLOAD_HASH, TCLLIB_VERSION       
+
+          $TKLIB_DOWNLOAD_URL = "http://prdownloads.sourceforge.net/tcllib/tklib-0.9.tar.gz"
+          $TKLIB_DOWNLOAD_FILE  = Split-Path -Leaf $TKLIB_DOWNLOAD_URL
+          $TKLIB_DOWNLOAD_HASH = "650A65B431987EB1AFC4481D91B9CF0F"
+          $TKLIB_VERSION = "0.9"
+          Export-ToGitHubEnv TKLIB_DOWNLOAD_URL, TKLIB_DOWNLOAD_FILE, TKLIB_DOWNLOAD_HASH, TKLIB_VERSION       
+
           mkdir "C:\Tcl-tk"
           # Common Tcl/Tk Settings
           Add-Content -Path $env:GITHUB_ENV -Value "INSTALLDIR=C:\Tcl-tk"
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcl/"
-          Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcllib/"
           Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_DIR=https://core.tcl-lang.org/tcltls/tarball/"
  
           if ( '${{ matrix.tcl-tag }}' -match 'core-9-0-3' ) {
@@ -85,13 +108,7 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_BUILD_DIR=tcllib-2.0"
           Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_BUILD_DIR=tklib-0.9"
           
-          Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_FILE=tcllib-2.0.tar.gz"
-          Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_VERSION=2.0"
-          Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_DOWNLOAD_HASH=7A6583B88160FE2040FAB74309881C3E"
           
-          Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_DOWNLOAD_FILE=tklib-0.9.tar.gz"
-          Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_VERSION=0.9"
-          Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_DOWNLOAD_HASH=650A65B431987EB1AFC4481D91B9CF0F"
 
           Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_FILE=tcltls-tls-2-0.tar.gz"
           Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_VERSION=2.0"
@@ -131,8 +148,8 @@ jobs:
               Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}' -Url '${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}'
               Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'  -Url '${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}'
           }
-          Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TCLLIB_DOWNLOAD_FILE }}'
-          Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TCLLIB_DOWNLOAD_DIR }}${{ env.TKLIB_DOWNLOAD_FILE }}'
+          Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
+          Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
           Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url 'https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz'
           Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url 'https://core.tcl-lang.org/tdom/tarball/${{ env.TDOM_DOWNLOAD_FILE }}'
 
