@@ -47,7 +47,7 @@ jobs:
                     echo "Processing $name"
                     echo "$name=$(Get-Variable -Name $name -ValueOnly)"
                     echo "$env:GITHUB_ENV"
-                    "$name=$(Get-Variable -Name $name -ValueOnly)" | Out-File -FilePath $env:GITHUB_ENV -Append
+                    Add-Content -Path $env:GITHUB_ENV -Value "$name=$(Get-Variable -Name $name -ValueOnly)"
                     echo "Done Processing $name"
                     
                 }
