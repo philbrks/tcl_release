@@ -122,10 +122,18 @@ jobs:
 
           # Save needed variables to GITHUB_ENV
           $TCL_DOWNLOAD_FILE = Split-Path -Leaf $TCL_DOWNLOAD_URL
-          echo "Configuring TCL 1"
+          echo "Configuring TCL 1: $TCLSH, $TCL_MAJOR_MINOR"
           Export-ToGitHubEnv TCLSH, TCL_MAJOR_MINOR 
-          echo "Configuring TCL 2"
-          Export-ToGitHubEnv TCL_DOWNLOAD_URL, TCL_DOWNLOAD_FILE, TCL_DOWNLOAD_HASH, TCL_VERSION, TCL_BUILD_DIR, 
+          echo "Configuring TCL 2 $TCL_DOWNLOAD_URL"
+          Export-ToGitHubEnv TCL_DOWNLOAD_URL
+          echo "Configuring TCL 3 $TCL_DOWNLOAD_FILE"
+          Export-ToGitHubEnv TCL_DOWNLOAD_FILE
+          echo "Configuring TCL 4 $TCL_DOWNLOAD_HASH"
+          Export-ToGitHubEnv TCL_DOWNLOAD_HASH
+          echo "Configuring TCL 5 $TCL_VERSION"
+          Export-ToGitHubEnv TCL_VERSION
+          echo "Configuring TCL 6 $TCL_BUILD_DIR"
+          Export-ToGitHubEnv TCL_BUILD_DIR
 
           $TK_DOWNLOAD_FILE = Split-Path -Leaf $TK_DOWNLOAD_URL
           echo "Configuring TK"
