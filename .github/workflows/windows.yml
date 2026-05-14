@@ -135,7 +135,15 @@ jobs:
 
           $TKLIB_DOWNLOAD_FILE = Split-Path -Leaf $TKLIB_DOWNLOAD_URL
           echo "Configuring TKLIB"
-          Export-ToGitHubEnv TKLIB_DOWNLOAD_URL, TKLIB_DOWNLOAD_FILE, TKLIB_DOWNLOAD_HASH, TKLIB_VERSION, TKLIB_BUILD_DIR
+          Export-ToGitHubEnv TKLIB_DOWNLOAD_URL
+          echo "Configuring TKLIB 2"
+          Export-ToGitHubEnv TKLIB_DOWNLOAD_FILE
+          echo "Configuring TKLIB 3"
+          Export-ToGitHubEnv TKLIB_DOWNLOAD_HASH
+          echo "Configuring TKLIB 4"
+          Export-ToGitHubEnv TKLIB_VERSION
+          echo "Configuring TKLIB 5"
+          Export-ToGitHubEnv TKLIB_BUILD_DIR
 
         working-directory: .
 
