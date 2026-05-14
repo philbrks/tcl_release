@@ -98,12 +98,12 @@ jobs:
             $TCL_MAJOR_MINOR   = "9.1"
 
             $TCL_DOWNLOAD_URL  = "https://core.tcl-lang.org/tcl/tarball/tcl-main.tar.gz"
-            $TCL_DOWNLOAD_HASH = ""
+            $TCL_DOWNLOAD_HASH = "-"
             $TCL_VERSION       = "9.1.main"
             $TCL_BUILD_DIR     = "tcl-main"
 
             $TK_DOWNLOAD_URL = "https://core.tcl-lang.org/tk/tarball/tk-main.tar.gz"
-            $TK_DOWNLOAD_HASH = ""
+            $TK_DOWNLOAD_HASH = "-"
             $TK_VERSION = "9.1.main"
             $TK_BUILD_DIR = "tk-main"
 
