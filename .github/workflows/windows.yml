@@ -44,7 +44,12 @@ jobs:
             )
             process {
                 foreach ($name in $VariableNames) {
+                    echo "Processing $name"
+                    echo "$name=$(Get-Variable -Name $name -ValueOnly)"
+                    echo "$env:GITHUB_ENV"
                     "$name=$(Get-Variable -Name $name -ValueOnly)" | Out-File -FilePath $env:GITHUB_ENV -Append
+                    echo "Done Processing $name"
+                    
                 }
             }
           }
