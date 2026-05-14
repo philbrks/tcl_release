@@ -93,7 +93,6 @@ jobs:
             $TK_DOWNLOAD_HASH  = "4AA84FD5DC39F0544FDEF1535AEE0189"
             $TK_VERSION       = "9.1.a1"
             $TK_BUILD_DIR      = "tk9.1a1"
-            
           } elseif ( '${{ matrix.tcl-tag }} ' -match 'main' ) {
             $TCLSH             = "C:\Tcl-tk\bin\tclsh91.exe"
             $TCL_MAJOR_MINOR   = "9.1"
@@ -123,16 +122,21 @@ jobs:
 
           # Save needed variables to GITHUB_ENV
           $TCL_DOWNLOAD_FILE = Split-Path -Leaf $TCL_DOWNLOAD_URL
+          echo "Configuring TCL 1"
           Export-ToGitHubEnv TCLSH, TCL_MAJOR_MINOR 
+          echo "Configuring TCL 2"
           Export-ToGitHubEnv TCL_DOWNLOAD_URL, TCL_DOWNLOAD_FILE, TCL_DOWNLOAD_HASH, TCL_VERSION, TCL_BUILD_DIR, 
 
           $TK_DOWNLOAD_FILE = Split-Path -Leaf $TK_DOWNLOAD_URL
+          echo "Configuring TK"
           Export-ToGitHubEnv TK_DOWNLOAD_URL, TK_DOWNLOAD_FILE, TK_DOWNLOAD_HASH, TK_VERSION, TK_BUILD_DIR, 
 
           $TCLLIB_DOWNLOAD_FILE = Split-Path -Leaf $TCLLIB_DOWNLOAD_URL 
+          echo "Configuring TCLLIB"
           Export-ToGitHubEnv TCLLIB_DOWNLOAD_URL, TCLLIB_DOWNLOAD_FILE, TCLLIB_DOWNLOAD_HASH, TCLLIB_VERSION, TCLLIB_BUILD_DIR     
 
           $TKLIB_DOWNLOAD_FILE = Split-Path -Leaf $TKLIB_DOWNLOAD_URL
+          echo "Configuring TKLIB"
           Export-ToGitHubEnv TKLIB_DOWNLOAD_URL, TKLIB_DOWNLOAD_FILE, TKLIB_DOWNLOAD_HASH, TKLIB_VERSION, TKLIB_BUILD_DIR
 
         working-directory: .
