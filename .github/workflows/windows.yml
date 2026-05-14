@@ -150,6 +150,8 @@ jobs:
           echo "Configuring TKLIB 5 $TKLIB_BUILD_DIR"
           Export-ToGitHubEnv TKLIB_BUILD_DIR
 
+          type $env:GITHUB_ENV
+
         working-directory: .
 
       - name: Download Tcl source
