@@ -37,7 +37,6 @@ jobs:
 
       - name: Prepare
         run: |
-	  # Shorthand for writing variables to $env:GITHUB_ENV
           function Export-ToGitHubEnv {
             param(
                 [Parameter(Mandatory, ValueFromPipeline)]
