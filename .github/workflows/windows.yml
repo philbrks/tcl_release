@@ -49,69 +49,91 @@ jobs:
             }
           }
           $TCLLIB_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcllib/tcllib-2.0.tar.gz"
-          $TCLLIB_DOWNLOAD_FILE = Split-Path -Leaf $TCLLIB_DOWNLOAD_URL 
           $TCLLIB_DOWNLOAD_HASH = "7A6583B88160FE2040FAB74309881C3E"
           $TCLLIB_VERSION       = "2.0"
-          Export-ToGitHubEnv TCLLIB_DOWNLOAD_URL, TCLLIB_DOWNLOAD_FILE, TCLLIB_DOWNLOAD_HASH, TCLLIB_VERSION       
+          $TCLLIB_BUILD_DIR     = "tcllib-2.0"
 
-          $TKLIB_DOWNLOAD_URL = "http://prdownloads.sourceforge.net/tcllib/tklib-0.9.tar.gz"
-          $TKLIB_DOWNLOAD_FILE  = Split-Path -Leaf $TKLIB_DOWNLOAD_URL
+          $TKLIB_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcllib/tklib-0.9.tar.gz"
           $TKLIB_DOWNLOAD_HASH = "650A65B431987EB1AFC4481D91B9CF0F"
-          $TKLIB_VERSION = "0.9"
-          Export-ToGitHubEnv TKLIB_DOWNLOAD_URL, TKLIB_DOWNLOAD_FILE, TKLIB_DOWNLOAD_HASH, TKLIB_VERSION       
+          $TKLIB_VERSION       = "0.9"
+          $TKLIB_BUILD_DIR     = "tklib-0.9"
 
           mkdir "C:\Tcl-tk"
           # Common Tcl/Tk Settings
           Add-Content -Path $env:GITHUB_ENV -Value "INSTALLDIR=C:\Tcl-tk"
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
-          Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_DIR=http://prdownloads.sourceforge.net/tcl/"
+
           Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_DIR=https://core.tcl-lang.org/tcltls/tarball/"
  
           if ( '${{ matrix.tcl-tag }}' -match 'core-9-0-3' ) {
             # Tcl and Tk settings
-            Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh90.exe"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=9.0.3"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_MAJOR_MINOR=9.0"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl9.0.3-src.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_HASH=820AEED1E4E1A89038D0302D2F839E84"
-            Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk9.0.3-src.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_HASH=72F9C4005EAAF3B9C994BDA74324C28E"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl9.0.3"
+            $TCLSH             = "C:\Tcl-tk\bin\tclsh90.exe"
+            $TCL_MAJOR_MINOR   = "9.0"
+
+            $TCL_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcl/tcl9.0.3-src.tar.gz"
+            $TCL_DOWNLOAD_HASH = "820AEED1E4E1A89038D0302D2F839E84"
+            $TCL_VERSION       = "9.0.3"
+            $TCL_BUILD_DIR     = "tcl9.0.3"
+
+            $TK_DOWNLOAD_URL   = "http://prdownloads.sourceforge.net/tcl/tk9.0.3-src.tar.gz"
+            $TK_DOWNLOAD_HASH  = "72F9C4005EAAF3B9C994BDA74324C28E"
+            $TK_VERSION        = "9.0.3"
+            $TK_BUILD_DIR      = "tk9.0.3"
 
           } elseif ( '${{ matrix.tcl-tag }}' -match 'core-9-1-.*' ) {
-            Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh91.exe"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=9.1.a1"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_MAJOR_MINOR=9.1"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl9.1a1-src.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_HASH=DFAF19E2D9CA72A91EED1B90C189ABAA"
-            Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk9.1a1-src.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_HASH=4AA84FD5DC39F0544FDEF1535AEE0189"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl9.1a1"
+            $TCLSH             = "C:\Tcl-tk\bin\tclsh91.exe"
+            $TCL_MAJOR_MINOR   = "9.1"
+
+            $TCL_DOWNLOAD_URL  = http://prdownloads.sourceforge.net/tcl/tcl9.1a1-src.tar.gz"
+            $TCL_DOWNLOAD_HASH = "DFAF19E2D9CA72A91EED1B90C189ABAA"
+            $TCL_VERSION       = "9.1.a1"
+            $TCL_BUILD_DIR     = "tcl9.1a1"
+
+            $TK_DOWNLOAD_URL   = http://prdownloads.sourceforge.net/tk/tk9.1a1-src.tar.gz"
+            $TK_DOWNLOAD_HASH  = "4AA84FD5DC39F0544FDEF1535AEE0189"
+            $TK_VERSION       = "9.1.a1"
+            $TK_BUILD_DIR      = "tk9.1a1"
+            
           } elseif ( '${{ matrix.tcl-tag }} ' -match 'main' ) {
-            Add-Content -Path $env:GITHUB_ENV -Value "TCLSH=C:\Tcl-tk\bin\tclsh91.exe"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=9.1.main"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_MAJOR_MINOR=9.1"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_DOWNLOAD_FILE=tcl-main.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_BUILD_DIR=tcl-main"
-            Add-Content -Path $env:GITHUB_ENV -Value "TK_DOWNLOAD_FILE=tk-main.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "TK_BUILD_DIR=tk-main"
-            Add-Content -Path $env:GITHUB_ENV -Value "IMG_DOWNLOAD_FILE=Img-2.1.1.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "IMG_BUILD_DIR=Img-2.1.1"
-            Add-Content -Path $env:GITHUB_ENV -Value "TDOM_DOWNLOAD_FILE=tDom-0-9-6.tar.gz"
-            Add-Content -Path $env:GITHUB_ENV -Value "TDOM_BUILD_DIR=tDom-0-9-6"
+            $TCLSH             = "C:\Tcl-tk\bin\tclsh91.exe"
+            $TCL_MAJOR_MINOR   = "9.1"
+
+            $TCL_DOWNLOAD_URL  = "https://core.tcl-lang.org/tcl/tarball/tcl-main.tar.gz"
+            $TCL_DOWNLOAD_HASH = ""
+            $TCL_VERSION       = "9.1.main"
+            $TCL_BUILD_DIR     = "tcl-main"
+
+            $TK_DOWNLOAD_URL = "https://core.tcl-lang.org/tk/tarball/tk-main.tar.gz"
+            $TK_DOWNLOAD_HASH = ""
+            $TK_VERSION = "9.1.main"
+            $TK_BUILD_DIR = "tk-main"
+
           } else {
             throw "Unable to set values for TCLSH build variables"
           }
           # Common library settings
-          # For now, tcllib and tklib must be built at the top level instead of in the tcl.../pkgs directory
-          Add-Content -Path $env:GITHUB_ENV -Value "TCLLIB_BUILD_DIR=tcllib-2.0"
-          Add-Content -Path $env:GITHUB_ENV -Value "TKLIB_BUILD_DIR=tklib-0.9"
           
-          
-
+          Add-Content -Path $env:GITHUB_ENV -Value "IMG_DOWNLOAD_FILE=Img-2.1.1.tar.gz"
+          Add-Content -Path $env:GITHUB_ENV -Value "IMG_BUILD_DIR=Img-2.1.1"
+          Add-Content -Path $env:GITHUB_ENV -Value "TDOM_DOWNLOAD_FILE=tDom-0-9-6.tar.gz"
+          Add-Content -Path $env:GITHUB_ENV -Value "TDOM_BUILD_DIR=tDom-0-9-6"
           Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_FILE=tcltls-tls-2-0.tar.gz"
           Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_VERSION=2.0"
           Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_HASH=D648CD998DE10048FB640F6208C0220A"
+
+          # Save needed variables to GITHUB_ENV
+          $TCL_DOWNLOAD_FILE = Split-Path -Leaf $TCL_DOWNLOAD_URL
+          Export-ToGitHubEnv TCLSH, TCL_MAJOR_MINOR 
+          Export-ToGitHubEnv TCL_DOWNLOAD_URL, TCL_DOWNLOAD_FILE, TCL_DOWNLOAD_HASH, TCL_VERSION, TCL_BUILD_DIR, 
+
+          $TK_DOWNLOAD_FILE = Split-Path -Leaf $TK_DOWNLOAD_URL
+          Export-ToGitHubEnv TK_DOWNLOAD_URL, TK_DOWNLOAD_FILE, TK_DOWNLOAD_HASH, TK_VERSION, TK_BUILD_DIR, 
+
+          $TCLLIB_DOWNLOAD_FILE = Split-Path -Leaf $TCLLIB_DOWNLOAD_URL 
+          Export-ToGitHubEnv TCLLIB_DOWNLOAD_URL, TCLLIB_DOWNLOAD_FILE, TCLLIB_DOWNLOAD_HASH, TCLLIB_VERSION, TCLLIB_BUILD_DIR     
+
+          $TKLIB_DOWNLOAD_FILE = Split-Path -Leaf $TKLIB_DOWNLOAD_URL
+          Export-ToGitHubEnv TKLIB_DOWNLOAD_URL, TKLIB_DOWNLOAD_FILE, TKLIB_DOWNLOAD_HASH, TKLIB_VERSION, TKLIB_BUILD_DIR
 
         working-directory: .
 
@@ -132,8 +154,10 @@ jobs:
               }
           }
 
+          Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}'  -Url ${{ env.TCL_DOWNLOAD_URL }}
+          Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url '${{ env.TK_DOWNLOAD_URL }}'
+
           if ('${{ matrix.tcl-tag }} ' -match 'main') {
-              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}'  -Url 'https://core.tcl-lang.org/tcl/tarball/${{ env.TCL_DOWNLOAD_FILE }}'
               Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url 'https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}'
               Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'itcl-main.tar.gz'              -Url 'https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz'
               Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbc-main.tar.gz'              -Url 'https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz'
@@ -144,8 +168,6 @@ jobs:
               Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
               Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
           } else {
-              Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}' -Url '${{ env.TCL_DOWNLOAD_DIR }}${{ env.TCL_DOWNLOAD_FILE }}'
-              Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'  -Url '${{ env.TCL_DOWNLOAD_DIR }}${{ env.TK_DOWNLOAD_FILE }}'
           }
           Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
           Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
@@ -409,6 +431,7 @@ jobs:
             throw "Installer test suite failed (exit code $lastexitcode)"
           }
         working-directory: .  
+
 
 
 
