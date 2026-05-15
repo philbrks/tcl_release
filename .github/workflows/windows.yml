@@ -139,84 +139,79 @@ jobs:
           Export-ToGitHubEnv TCLLIB_DOWNLOAD_URL, TCLLIB_DOWNLOAD_FILE, TCLLIB_DOWNLOAD_HASH, TCLLIB_VERSION, TCLLIB_BUILD_DIR     
 
           $TKLIB_DOWNLOAD_FILE = Split-Path -Leaf $TKLIB_DOWNLOAD_URL
-          echo "Configuring TKLIB"
-          Export-ToGitHubEnv TKLIB_DOWNLOAD_URL
-          echo "Configuring TKLIB 2"
-          Export-ToGitHubEnv TKLIB_DOWNLOAD_FILE
-          echo "Configuring TKLIB 3"
-          Export-ToGitHubEnv TKLIB_DOWNLOAD_HASH
-          echo "Configuring TKLIB 4"
-          Export-ToGitHubEnv TKLIB_VERSION
-          echo "Configuring TKLIB 5 $TKLIB_BUILD_DIR"
-          Export-ToGitHubEnv TKLIB_BUILD_DIR
-
-          type $env:GITHUB_ENV
+          Export-ToGitHubEnv TKLIB_DOWNLOAD_URL, TKLIB_DOWNLOAD_FILE, TKLIB_DOWNLOAD_HASH, TKLIB_VERSION, TKLIB_BUILD_DIR
 
         working-directory: .
 
       - name: Download Tcl source
         shell: powershell
         run: |
-          function Invoke-Curl {
+          function Get-Download {
               param(
                   [string]$OutputFile,
-                  [string]$Url,
-                  [string[]]$ExtraArgs = @()
+                  [string]$Url
               )
               echo "Downloading $Url"
-              curl.exe @ExtraArgs -o $OutputFile $Url
+              curl.exe -L --ssl-no-revoke -o $OutputFile $Url
               if ($LASTEXITCODE -ne 0) {
                   Write-Error "curl failed (exit code $LASTEXITCODE) downloading '$Url' to '$OutputFile'"
                   throw $LASTEXITCODE
               }
           }
 
-          Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}'  -Url ${{ env.TCL_DOWNLOAD_URL }}
-          Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url '${{ env.TK_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}'  -Url ${{ env.TCL_DOWNLOAD_URL }}
+          Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url '${{ env.TK_DOWNLOAD_URL }}'
 
           if ('${{ matrix.tcl-tag }} ' -match 'main') {
-              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url 'https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}'
-              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'itcl-main.tar.gz'              -Url 'https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz'
-              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbc-main.tar.gz'              -Url 'https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz'
-              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbcodbc-main.tar.gz'          -Url 'https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz'
-              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbcmysql-main.tar.gz'         -Url 'https://core.tcl-lang.org/tdbcmysql/tarball/tdbcmysql-main.tar.gz'
-              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbcsqlite3-main.tar.gz'       -Url 'https://core.tcl-lang.org/tdbcsqlite3/tarball/tdbcsqlite3-main.tar.gz'
-              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
-              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
-              Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
+              # These packages are kept in separate repositories, but they are all released under the official Tcl source release, 
+              # so when main is selected as the version, we have to piece together the things that normally make up the Tcl source download.
+              Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url 'https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}'
+              Get-Download -OutputFile 'itcl-main.tar.gz'              -Url 'https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz'
+              Get-Download -OutputFile 'tdbc-main.tar.gz'              -Url 'https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz'
+              Get-Download -OutputFile 'tdbcodbc-main.tar.gz'          -Url 'https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz'
+              Get-Download -OutputFile 'tdbcmysql-main.tar.gz'         -Url 'https://core.tcl-lang.org/tdbcmysql/tarball/tdbcmysql-main.tar.gz'
+              Get-Download -OutputFile 'tdbcsqlite3-main.tar.gz'       -Url 'https://core.tcl-lang.org/tdbcsqlite3/tarball/tdbcsqlite3-main.tar.gz'
+              Get-Download -OutputFile 'tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
+              Get-Download -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
+              Get-Download -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
           } else {
           }
-          Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
-          Invoke-Curl -ExtraArgs @('-L') -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
-          Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url 'https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz'
-          Invoke-Curl -ExtraArgs @('-L', '--ssl-no-revoke') -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url 'https://core.tcl-lang.org/tdom/tarball/${{ env.TDOM_DOWNLOAD_FILE }}'
+          Get-Download -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url 'https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz'
+          Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url 'https://core.tcl-lang.org/tdom/tarball/${{ env.TDOM_DOWNLOAD_FILE }}'
 
           # Need to figure out OpenSSL dependency before we add this:
-          #Invoke-Curl -ExtraArgs @('-L') -OutputFile ${{ env.TCLTLS_DOWNLOAD_FILE }} -Url "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
+          #Get-Download -OutputFile ${{ env.TCLTLS_DOWNLOAD_FILE }} -Url "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
           echo "Done downloading source files.  LASTERRORCODE=$LASTERRORCODE"
-          dir
 
       - name: Verify downloads
         if: 1 == 1
         shell: powershell
         run: |
+          function Verify-Download {
+              param(
+                  [string]$DownloadFile,
+                  [string]$DownloadHash
+              )
+              if ( $DownloadHash -ne "SKIP" ) {
+                  echo "Verifying $DownloadFile"
+                  $FileHash = (Get-FileHash $DownloadFile -Altorithm MD4).HASH
+                  if ( $FileHash -ne $DownloadHash ) {
+                      Write-Error "MD5 hash check failed for $DownlaodFile"
+                      throw 14
+                  }
+          }
+          
+          echo "Verifying Tcl:"
+          Verify-Download "${{ env.TCL_DOWNLOAD_FILE }}", "${{ env.TCL_DOWNLOAD_HASH }}"
           if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
             # This will be potentially different each time and is a test build anyway, no need to verify hash codes.
           } else {
-            if ( (Get-FileHash "${{ env.TCL_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCL_DOWNLOAD_HASH }}" ) {
-              throw "MD5 Checksum hash check failed for ${{ env.TCL_DOWNLOAD_FILE }}"
-            } else {
-              echo "${{ env.TCL_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
-            }
             if ( (Get-FileHash "${{ env.TK_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TK_DOWNLOAD_HASH }}" ) {
               throw "MD5 Checksum hash check failed for ${{ env.TK_DOWNLOAD_FILE }}"
             } else {
               echo "${{ env.TK_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
-            }
-            if ( (Get-FileHash "${{ env.TCLLIB_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TCLLIB_DOWNLOAD_HASH }}" ) {
-              throw "MD5 Checksum hash check failed for ${{ env.TCLLIB_DOWNLOAD_FILE }}"
-            } else {
-              echo "${{ env.TCLLIB_DOWNLOAD_FILE }} successfully downloaded from SourceForge."
             }
             if ( (Get-FileHash "${{ env.TKLIB_DOWNLOAD_FILE }}" -Algorithm MD5).Hash -ne "${{ env.TKLIB_DOWNLOAD_HASH }}" ) {
               throw "MD5 Checksum hash check failed for ${{ env.TKLIB_DOWNLOAD_FILE }}"
@@ -232,6 +227,8 @@ jobs:
             #  echo "${{ env.TCLTLS_DOWNLOAD_FILE }} successfully downloaded from core.tcl-lang.org."
             #}
           }
+          echo "Verifying Tcl:"
+          Verify-Download "${{ env.TCLLIB_DOWNLOAD_FILE }}", "${{ env.TCLLIB_DOWNLOAD_HASH }}"
 
       - name: Extract source archives
         shell: powershell
