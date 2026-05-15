@@ -148,7 +148,7 @@ jobs:
           $TDOM_DOWNLOAD_FILE = Split-Path -Leaf $TDOM_DOWNLOAD_URL
           Export-ToGitHubEnv TDOM_DOWNLOAD_URL, TDOM_DOWNLOAD_FILE, TDOM_DOWNLOAD_HASH, TDOM_BUILD_DIR
 
-          type $Env:GIHUB_ENV
+          type $env:GITHUB_ENV
 
         working-directory: .
 
