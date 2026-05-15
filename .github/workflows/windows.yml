@@ -205,7 +205,7 @@ jobs:
           }
           
           echo "Verifying Tcl:"
-          Verify-Download "${{ env.TCL_DOWNLOAD_FILE }}", "${{ env.TCL_DOWNLOAD_HASH }}"
+          Verify-Download "${{ env.TCL_DOWNLOAD_FILE }}" "${{ env.TCL_DOWNLOAD_HASH }}"
           if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
             # This will be potentially different each time and is a test build anyway, no need to verify hash codes.
           } else {
@@ -229,7 +229,7 @@ jobs:
             #}
           }
           echo "Verifying Tcl:"
-          Verify-Download "${{ env.TCLLIB_DOWNLOAD_FILE }}", "${{ env.TCLLIB_DOWNLOAD_HASH }}"
+          Verify-Download "${{ env.TCLLIB_DOWNLOAD_FILE }}" "${{ env.TCLLIB_DOWNLOAD_HASH }}"
 
       - name: Extract source archives
         shell: powershell
