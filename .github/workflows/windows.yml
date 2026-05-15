@@ -201,6 +201,7 @@ jobs:
                       Write-Error "MD5 hash check failed for $DownlaodFile"
                       throw 14
                   }
+              }
           }
           
           echo "Verifying Tcl:"
