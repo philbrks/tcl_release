@@ -148,6 +148,8 @@ jobs:
           $TDOM_DOWNLOAD_FILE = Split-Path -Leaf $TDOM_DOWNLOAD_URL
           Export-ToGitHubEnv TDOM_DOWNLOAD_URL, TDOM_DOWNLOAD_FILE, TDOM_DOWNLOAD_HASH, TDOM_BUILD_DIR
 
+          type $Env:GIHUB_ENV
+
         working-directory: .
 
       - name: Download Tcl source
@@ -158,13 +160,13 @@ jobs:
                   [string]$OutputFile,
                   [string]$Url
               )
-              echo "Downloading $Url"
+              echo "Downloading $Url to $OutputFile"
               curl.exe -L --ssl-no-revoke -o $OutputFile $Url
               if ($LASTEXITCODE -ne 0) {
                   Write-Error "curl failed (exit code $LASTEXITCODE) downloading '$Url' to '$OutputFile'"
                   throw $LASTEXITCODE
               }
-              echo "Done downloading $Url"
+              echo "Done downloading $Url to $OutputFile"
           }
 
           Get-Download -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}'  -Url ${{ env.TCL_DOWNLOAD_URL }}
