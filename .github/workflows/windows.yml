@@ -188,11 +188,11 @@ jobs:
           }
           Get-Download -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url ${{ env.IMG_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url ${{ env.TDOM_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url '${{ env.IMG_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url '${{ env.TDOM_DOWNLOAD_URL }}'
 
           # Need to figure out OpenSSL dependency before we add this:
-          #Get-Download -OutputFile ${{ env.TCLTLS_DOWNLOAD_FILE }} -Url "${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}"
+          #Get-Download -OutputFile '${{ env.TCLTLS_DOWNLOAD_FILE }}' -Url '${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}'
           echo "Done downloading source files.  LASTERRORCODE=$LASTERRORCODE"
 
       - name: Verify downloads
