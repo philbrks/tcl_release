@@ -196,7 +196,7 @@ jobs:
               )
               if ( $DownloadHash -ne "SKIP" ) {
                   echo "Verifying $DownloadFile"
-                  $FileHash = (Get-FileHash $DownloadFile -Altorithm MD4).HASH
+                  $FileHash = (Get-FileHash $DownloadFile -Algorithm MD4).HASH
                   if ( $FileHash -ne $DownloadHash ) {
                       Write-Error "MD5 hash check failed for $DownlaodFile"
                       throw 14
