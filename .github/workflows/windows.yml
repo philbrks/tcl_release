@@ -164,6 +164,7 @@ jobs:
                   Write-Error "curl failed (exit code $LASTEXITCODE) downloading '$Url' to '$OutputFile'"
                   throw $LASTEXITCODE
               }
+              echo "Done downloading $Url"
           }
 
           Get-Download -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}'  -Url ${{ env.TCL_DOWNLOAD_URL }}
