@@ -69,12 +69,15 @@ jobs:
           $TDOM_DOWNLOAD_HASH  = "SKIP"
           $TDOM_BUILD_DIR      = "tDom-0-9-6"
 
+          $TCLTLS_DOWNLOAD_URL   = Add-Content -Path $env:GITHUB_ENV -Value "https://core.tcl-lang.org/tcltls/tarball/TCLTLS_DOWNLOAD_FILE=tcltls-tls-2-0.tar.gz"
+          $TCLTLS_DOWNLOAD_HASH  = "SKIP"
+          $TCLTLS_BUILD_DIR      = "tcltls-2-0"
+          
           mkdir "C:\Tcl-tk"
           # Common Tcl/Tk Settings
           Add-Content -Path $env:GITHUB_ENV -Value "INSTALLDIR=C:\Tcl-tk"
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
 
-          Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_DIR=https://core.tcl-lang.org/tcltls/tarball/"
  
           if ( '${{ matrix.tcl-tag }}' -match 'core-9-0-3' ) {
             # Tcl and Tk settings
@@ -123,11 +126,6 @@ jobs:
           }
           # Common library settings
           
-          Add-Content -Path $env:GITHUB_ENV -Value "TDOM_DOWNLOAD_FILE=tDom-0-9-6.tar.gz"
-          Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_FILE=tcltls-tls-2-0.tar.gz"
-          Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_VERSION=2.0"
-          Add-Content -Path $env:GITHUB_ENV -Value "TCLTLS_DOWNLOAD_HASH=D648CD998DE10048FB640F6208C0220A"
-
           # Save needed variables to GITHUB_ENV
           $TCL_DOWNLOAD_FILE = Split-Path -Leaf $TCL_DOWNLOAD_URL
           Export-ToGitHubEnv TCLSH, TCL_MAJOR_MINOR 
@@ -148,7 +146,10 @@ jobs:
           $TDOM_DOWNLOAD_FILE = Split-Path -Leaf $TDOM_DOWNLOAD_URL
           Export-ToGitHubEnv TDOM_DOWNLOAD_URL, TDOM_DOWNLOAD_FILE, TDOM_DOWNLOAD_HASH, TDOM_BUILD_DIR
 
-          type $env:GITHUB_ENV
+          $TCLTLS_DOWNLOAD_FILE = Split-Path -Leaf $TCLTLS_DOWNLOAD_URL
+          Export-ToGitHubEnv TCLTLS_DOWNLOAD_URL, TCLTLS_DOWNLOAD_FILE, TCLTLS_DOWNLOAD_HASH, TCLTLS_BUILD_DIR
+
+          # type $env:GITHUB_ENV
 
         working-directory: .
 
@@ -173,9 +174,9 @@ jobs:
           Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url '${{ env.TK_DOWNLOAD_URL }}'
 
           if ('${{ matrix.tcl-tag }} ' -match 'main') {
-              # These packages are kept in separate repositories, but they are all released under the official Tcl source release, 
+
+              # These component packages are kept in separate repositories, but they are all released under the official Tcl source release, 
               # so when main is selected as the version, we have to piece together the things that normally make up the Tcl source download.
-              Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url 'https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}'
               Get-Download -OutputFile 'itcl-main.tar.gz'              -Url 'https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz'
               Get-Download -OutputFile 'tdbc-main.tar.gz'              -Url 'https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz'
               Get-Download -OutputFile 'tdbcodbc-main.tar.gz'          -Url 'https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz'
@@ -184,6 +185,9 @@ jobs:
               Get-Download -OutputFile 'tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
               Get-Download -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
               Get-Download -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
+
+              # Tk
+              Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url 'https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}'
           } else {
           }
           Get-Download -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
@@ -192,7 +196,7 @@ jobs:
           Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url '${{ env.TDOM_DOWNLOAD_URL }}'
 
           # Need to figure out OpenSSL dependency before we add this:
-          #Get-Download -OutputFile '${{ env.TCLTLS_DOWNLOAD_FILE }}' -Url '${{ env.TCLTLS_DOWNLOAD_DIR }}${{ env.TCLTLS_DOWNLOAD_FILE }}'
+          #Get-Download -OutputFile '${{ env.TCLTLS_DOWNLOAD_FILE }}' -Url '${{ env.TCLTLS_DOWNLOAD_URL }}'
           echo "Done downloading source files.  LASTERRORCODE=$LASTERRORCODE"
 
       - name: Verify downloads
@@ -454,6 +458,7 @@ jobs:
             throw "Installer test suite failed (exit code $lastexitcode)"
           }
         working-directory: .  
+
 
 
 
