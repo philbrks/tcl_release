@@ -31,6 +31,13 @@ jobs:
           # - "OPTS=static"
         tcl-tag: ${{ fromJSON(github.event.inputs.tcl-tags) }}
     steps:
+      - uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: "5.42"
+          distribution: strawberry
+          install-modules-with: cpanm
+          install-modules-args: --with-develop --with-configure
+      - uses: ilammy/setup-nasm@v1
       - name: Checkout
         uses: actions/checkout@v6
         timeout-minutes: 5
@@ -272,23 +279,15 @@ jobs:
         working-directory: ${{ env.TCL_BUILD_DIR }}/win
 
       - name: Build OpenSSL (${{ matrix.config }})
-        uses: actions/checkout@v6
-        uses: shogo82148/actions-setup-perl@v1
-        uses: ilammy/setup-nasm@v1
-        with:
-          perl-version: "5.42"
-          distribution: strawberry
-          install-modules-with: cpanm
-          install-modules-args: --with-develop --with-configure
-          run: |
-            &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="C:\OpenSSL" --openssldir="C:\OpenSSL" -DOPENSSL_NO_DEPRECATED
-            if ($lastexitcode -ne 0) {
-               throw "perl Configure OSSL exit code: $lastexitcode"
-            }
-            &nmake
-            if ($lastexitcode -ne 0) {
-               throw "nmake OSSL exit code: $lastexitcode"
-            }
+        run: |
+          &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="C:\OpenSSL" --openssldir="C:\OpenSSL" -DOPENSSL_NO_DEPRECATED
+          if ($lastexitcode -ne 0) {
+             throw "perl Configure OSSL exit code: $lastexitcode"
+          }
+          &nmake
+          if ($lastexitcode -ne 0) {
+             throw "nmake OSSL exit code: $lastexitcode"
+          }
         working-directory: ${{ env.OSSL_BUILD_DIR }}
 
       - name: Build Tk (${{ matrix.config }})
