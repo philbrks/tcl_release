@@ -69,7 +69,7 @@ jobs:
           $TDOM_DOWNLOAD_HASH  = "SKIP"
           $TDOM_BUILD_DIR      = "tDom-0-9-6"
 
-          $TCLTLS_DOWNLOAD_URL   = Add-Content -Path $env:GITHUB_ENV -Value "https://core.tcl-lang.org/tcltls/tarball/TCLTLS_DOWNLOAD_FILE=tcltls-tls-2-0.tar.gz"
+          $TCLTLS_DOWNLOAD_URL   = "https://core.tcl-lang.org/tcltls/tarball/TCLTLS_DOWNLOAD_FILE=tcltls-tls-2-0.tar.gz"
           $TCLTLS_DOWNLOAD_HASH  = "SKIP"
           $TCLTLS_BUILD_DIR      = "tcltls-2-0"
           
