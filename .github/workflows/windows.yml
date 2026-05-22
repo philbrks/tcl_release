@@ -299,7 +299,7 @@ jobs:
 
       - name: Build TclTLS (${{ matrix.config }})
         run: |
-          &nmake -f makefile.vc release ${{ matrix.config }} SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR\lib TCLDIR=$Env:INSTALLDIR
+          &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR\lib TCLDIR=$Env:INSTALLDIR
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
           }
@@ -475,7 +475,4 @@ jobs:
             throw "Installer test suite failed (exit code $lastexitcode)"
           }
         working-directory: .  
-
-
-
 
