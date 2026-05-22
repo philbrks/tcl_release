@@ -66,7 +66,7 @@ jobs:
           
           $TCLTLS_DOWNLOAD_URL   = "https://core.tcl-lang.org/tcltls/tarball/tcltls-tls-2-0.tar.gz"
           $TCLTLS_DOWNLOAD_HASH  = "SKIP"
-          $TCLTLS_BUILD_DIR      = "tcltls-2-0"
+          $TCLTLS_BUILD_DIR      = "tcltls-tls-2-0"
           
           $TCLLIB_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcllib/tcllib-2.0.tar.gz"
           $TCLLIB_DOWNLOAD_HASH = "7A6583B88160FE2040FAB74309881C3E"
@@ -261,8 +261,6 @@ jobs:
           tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
           tar -xzf ${{ env.IMG_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TDOM_DOWNLOAD_FILE }}
-          # Need to figure out OpenSSL build before we try this:
-          # tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }} -C ${{ env.TCL_BUILD_DIR }}/pkgs
           dir
           dir ${{ env.TCL_BUILD_DIR }}/pkgs
           
@@ -281,7 +279,7 @@ jobs:
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
           }
-        working-directory: ${{ env.TCL_BUILD_DIR }}/win
+        working-directory: ${{ env.TCL_BUILD_DIR }}\win
 
       - name: Build OpenSSL (${{ matrix.config }})
         run: |
@@ -306,7 +304,7 @@ jobs:
              throw "nmake exit code: $lastexitcode"
           }
           &nmake -f makefile.vc install ${{ matrix.config }} SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR\lib TCLDIR=$Env:INSTALLDIR
-        working-directory: ${{ env.TCLTLS_BUILD_DIR }}/win
+        working-directory: ${{ env.TCLTLS_BUILD_DIR }}\win
 
       - name: Build Tk (${{ matrix.config }})
         run: |
