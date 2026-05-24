@@ -282,6 +282,7 @@ jobs:
         working-directory: ${{ env.TCL_BUILD_DIR }}\win
 
       - name: Build OpenSSL (${{ matrix.config }})
+        if: 1 == 0
         run: |
           &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="$Env:SSL_INSTALL_FOLDER" --openssldir="$Env:SSL_INSTALL_FOLDER" -DOPENSSL_NO_DEPRECATED
           if ($lastexitcode -ne 0) {
@@ -299,6 +300,7 @@ jobs:
 
       - name: Build TclTLS (${{ matrix.config }})
         run: |
+          copy ..\..\debug_file ..\..\tcl-main\win\rules.vc
           &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=${{ env.SSL_INSTALL_FOLDER }} TCLDIR=..\..\${{ env.TCL_BUILD_DIR }} INSTALLDIR=${{ env.INSTALLDIR }}
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
