@@ -31,13 +31,13 @@ jobs:
           # - "OPTS=static"
         tcl-tag: ${{ fromJSON(github.event.inputs.tcl-tags) }}
     steps:
-      #- uses: shogo82148/actions-setup-perl@v1
-      #  with:
-      #    perl-version: "5.42"
-      #    distribution: strawberry
-      #    install-modules-with: cpanm
-      #    install-modules-args: --with-develop --with-configure
-      #- uses: ilammy/setup-nasm@v1
+      - uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: "5.42"
+          distribution: strawberry
+          install-modules-with: cpanm
+          install-modules-args: --with-develop --with-configure
+      - uses: ilammy/setup-nasm@v1
       - name: Checkout
         uses: actions/checkout@v6
         timeout-minutes: 5
@@ -64,9 +64,9 @@ jobs:
           $OSSL_DOWNLOAD_HASH  = "1BB3506C580865A0A464E09288AC157E"
           $OSSL_BUILD_DIR      = "openssl-3.5.6"
           
-          $TCLTLS_DOWNLOAD_URL   = "https://core.tcl-lang.org/tcltls/tarball/tcltls-tls-2-0.tar.gz"
-          $TCLTLS_DOWNLOAD_HASH  = "SKIP"
-          $TCLTLS_BUILD_DIR      = "tcltls-tls-2-0"
+          $TCLTLS_DOWNLOAD_URL   = "https://core.tcl-lang.org/tcltls/uv/tcltls-2.0-src.tar.gz"
+          $TCLTLS_DOWNLOAD_HASH  = "DAD7549F5FE08B5A4F191A721001C551"
+          $TCLTLS_BUILD_DIR      = "tcltls-2-0"
           
           $TCLLIB_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcllib/tcllib-2.0.tar.gz"
           $TCLLIB_DOWNLOAD_HASH = "7A6583B88160FE2040FAB74309881C3E"
@@ -201,11 +201,9 @@ jobs:
               # Get-Download -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
               # Get-Download -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
 
-              # Tk
-              # Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url 'https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}'
           } else {
           }
-          # Get-Download -OutputFile '${{ env.OSSL_DOWNLOAD_FILE }}' -Url '${{ env.OSSL_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.OSSL_DOWNLOAD_FILE }}' -Url '${{ env.OSSL_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TCLTLS_DOWNLOAD_FILE }}' -Url '${{ env.TCLTLS_DOWNLOAD_URL }}'
           # Get-Download -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
           # Get-Download -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
@@ -255,7 +253,7 @@ jobs:
             # tar -xzf thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             # tar -xzf sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
           }
-          # tar -xzf ${{ env.OSSL_DOWNLOAD_FILE }}
+          tar -xzf ${{ env.OSSL_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }}
           # tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
           # tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
