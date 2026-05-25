@@ -240,30 +240,40 @@ jobs:
       - name: Extract source archives
         shell: powershell
         run: |
+          function Extract-Download {
+            param(
+                [string]$DownloadFile
+            )
+            echo "Extracting $DownloadFile"
+            tar -zxvf $DownloadFile
+            if ($lastexitcode -ne 0) {
+               throw "nmake exit code: $lastexitcode"
+            }
+          }
           echo "Tcl Sources:"
-          tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
-          # tar -xzf ${{ env.TK_DOWNLOAD_FILE }}
+          Extract-Download ${{ env.TCL_DOWNLOAD_FILE }}
+          # Extract-Download ${{ env.TK_DOWNLOAD_FILE }}
           if (  '${{ matrix.tcl-tag }} ' -match 'main-debug' ) {
             # Download items included in the Tcl source distribution that come from different repos
-            # tar -xzf itcl-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # tar -xzf tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # tar -xzf tdbcodbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # tar -xzf tdbcmysql-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # tar -xzf tdbcpostgres-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # tar -xzf tdbcsqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # tar -xzf thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # tar -xzf sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # Extract-Download itcl-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # Extract-Download tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # Extract-Download tdbcodbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # Extract-Download tdbcmysql-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # Extract-Download tdbcpostgres-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # Extract-Download tdbcsqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # Extract-Download thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # Extract-Download sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
           }
           echo "Open SSL Sources:"
-          tar -xzf ${{ env.OSSL_DOWNLOAD_FILE }}
+          Extract-Download ${{ env.OSSL_DOWNLOAD_FILE }}
           echo "Tcl TLS Sources:"
-          tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }}
-          # tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
-          # tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
-          # tar -xzf ${{ env.IMG_DOWNLOAD_FILE }}
-          # tar -xzf ${{ env.TDOM_DOWNLOAD_FILE }}
-          # dir
-          # dir ${{ env.TCL_BUILD_DIR }}/pkgs
+          Extract-Download ${{ env.TCLTLS_DOWNLOAD_FILE }}
+          # Extract-Download ${{ env.TCLLIB_DOWNLOAD_FILE }}
+          # Extract-Download ${{ env.TKLIB_DOWNLOAD_FILE }}
+          # Extract-Download ${{ env.IMG_DOWNLOAD_FILE }}
+          # Extract-Download ${{ env.TDOM_DOWNLOAD_FILE }}
+          dir
+          dir ${{ env.TCL_BUILD_DIR }}/pkgs
           
       - name: Init MSVC
         uses: ilammy/msvc-dev-cmd@v1.13.0
