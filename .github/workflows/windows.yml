@@ -186,31 +186,31 @@ jobs:
           }
 
           Get-Download -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}'  -Url ${{ env.TCL_DOWNLOAD_URL }}
-          Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url '${{ env.TK_DOWNLOAD_URL }}'
+          # Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url '${{ env.TK_DOWNLOAD_URL }}'
 
           if ('${{ matrix.tcl-tag }} ' -match 'main') {
 
               # These component packages are kept in separate repositories, but they are all released under the official Tcl source release, 
               # so when main is selected as the version, we have to piece together the things that normally make up the Tcl source download.
-              Get-Download -OutputFile 'itcl-main.tar.gz'              -Url 'https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz'
-              Get-Download -OutputFile 'tdbc-main.tar.gz'              -Url 'https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz'
-              Get-Download -OutputFile 'tdbcodbc-main.tar.gz'          -Url 'https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz'
-              Get-Download -OutputFile 'tdbcmysql-main.tar.gz'         -Url 'https://core.tcl-lang.org/tdbcmysql/tarball/tdbcmysql-main.tar.gz'
-              Get-Download -OutputFile 'tdbcsqlite3-main.tar.gz'       -Url 'https://core.tcl-lang.org/tdbcsqlite3/tarball/tdbcsqlite3-main.tar.gz'
-              Get-Download -OutputFile 'tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
-              Get-Download -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
-              Get-Download -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
+              # Get-Download -OutputFile 'itcl-main.tar.gz'              -Url 'https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz'
+              # Get-Download -OutputFile 'tdbc-main.tar.gz'              -Url 'https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz'
+              # Get-Download -OutputFile 'tdbcodbc-main.tar.gz'          -Url 'https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz'
+              # Get-Download -OutputFile 'tdbcmysql-main.tar.gz'         -Url 'https://core.tcl-lang.org/tdbcmysql/tarball/tdbcmysql-main.tar.gz'
+              # Get-Download -OutputFile 'tdbcsqlite3-main.tar.gz'       -Url 'https://core.tcl-lang.org/tdbcsqlite3/tarball/tdbcsqlite3-main.tar.gz'
+              # Get-Download -OutputFile 'tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
+              # Get-Download -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
+              # Get-Download -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
 
               # Tk
-              Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url 'https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}'
+              # Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url 'https://core.tcl-lang.org/tk/tarball/${{ env.TK_DOWNLOAD_FILE }}'
           } else {
           }
-          Get-Download -OutputFile '${{ env.OSSL_DOWNLOAD_FILE }}' -Url '${{ env.OSSL_DOWNLOAD_URL }}'
+          # Get-Download -OutputFile '${{ env.OSSL_DOWNLOAD_FILE }}' -Url '${{ env.OSSL_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TCLTLS_DOWNLOAD_FILE }}' -Url '${{ env.TCLTLS_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url '${{ env.IMG_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url '${{ env.TDOM_DOWNLOAD_URL }}'
+          # Get-Download -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
+          # Get-Download -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
+          # Get-Download -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url '${{ env.IMG_DOWNLOAD_URL }}'
+          # Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url '${{ env.TDOM_DOWNLOAD_URL }}'
 
           echo "Done downloading source files.  LASTERRORCODE=$LASTERRORCODE"
 
@@ -233,17 +233,17 @@ jobs:
               }
           }
           
-          Verify-Download "${{ env.TCL_DOWNLOAD_FILE }}" "${{ env.TCL_DOWNLOAD_HASH }}"
-          Verify-Download "${{ env.OSSL_DOWNLOAD_FILE }}" "${{ env.OSSL_DOWNLOAD_HASH }}"
-          Verify-Download "${{ env.TCLTLS_DOWNLOAD_FILE }}" "${{ env.TCLTLS_DOWNLOAD_HASH }}"
-          Verify-Download "${{ env.TK_DOWNLOAD_FILE }}" "${{ env.TK_DOWNLOAD_HASH }}"
-          Verify-Download "${{ env.TCLLIB_DOWNLOAD_FILE }}" "${{ env.TCLLIB_DOWNLOAD_HASH }}"
+          # Verify-Download "${{ env.TCL_DOWNLOAD_FILE }}" "${{ env.TCL_DOWNLOAD_HASH }}"
+          # Verify-Download "${{ env.OSSL_DOWNLOAD_FILE }}" "${{ env.OSSL_DOWNLOAD_HASH }}"
+          # Verify-Download "${{ env.TCLTLS_DOWNLOAD_FILE }}" "${{ env.TCLTLS_DOWNLOAD_HASH }}"
+          # Verify-Download "${{ env.TK_DOWNLOAD_FILE }}" "${{ env.TK_DOWNLOAD_HASH }}"
+          # Verify-Download "${{ env.TCLLIB_DOWNLOAD_FILE }}" "${{ env.TCLLIB_DOWNLOAD_HASH }}"
 
       - name: Extract source archives
         shell: powershell
         run: |
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
-          tar -xzf ${{ env.TK_DOWNLOAD_FILE }}
+          # tar -xzf ${{ env.TK_DOWNLOAD_FILE }}
           if (  '${{ matrix.tcl-tag }} ' -match 'main-debug' ) {
             # Download items included in the Tcl source distribution that come from different repos
             # tar -xzf itcl-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
@@ -255,14 +255,14 @@ jobs:
             # tar -xzf thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             # tar -xzf sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
           }
-          tar -xzf ${{ env.OSSL_DOWNLOAD_FILE }}
+          # tar -xzf ${{ env.OSSL_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }}
-          tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
-          tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
-          tar -xzf ${{ env.IMG_DOWNLOAD_FILE }}
-          tar -xzf ${{ env.TDOM_DOWNLOAD_FILE }}
-          dir
-          dir ${{ env.TCL_BUILD_DIR }}/pkgs
+          # tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
+          # tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
+          # tar -xzf ${{ env.IMG_DOWNLOAD_FILE }}
+          # tar -xzf ${{ env.TDOM_DOWNLOAD_FILE }}
+          # dir
+          # dir ${{ env.TCL_BUILD_DIR }}/pkgs
           
       - name: Init MSVC
         uses: ilammy/msvc-dev-cmd@v1.13.0
@@ -300,7 +300,7 @@ jobs:
 
       - name: Build TclTLS (${{ matrix.config }})
         run: |
-          copy ..\..\debug_file ..\..\tcl-main\win\rules.vc
+          copy ..\..\debug_file rules-ext.vc
           &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=${{ env.SSL_INSTALL_FOLDER }} TCLDIR=..\..\${{ env.TCL_BUILD_DIR }} INSTALLDIR=${{ env.INSTALLDIR }}
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
