@@ -1,126 +1,155 @@
-# This file should only be included in makefiles for Tcl extensions,
-# NOT in the makefile for Tcl itself.
+#------------------------------------------------------------- -*- makefile -*-
+#
+# Makefile for TCL TLS extension
+#
+# Basic build, test and install
+#   nmake /f makefile.vc INSTALLDIR=c:\path\to\tcl TCLDIR=c:\path\to\tcl\sources
+#   nmake /f makefile.vc INSTALLDIR=c:\path\to\tcl TCLDIR=c:\path\to\tcl\sources test
+#   nmake /f makefile.vc INSTALLDIR=c:\path\to\tcl TCLDIR=c:\path\to\tcl\sources install
+#
+# For other build options (debug, static etc.),
+# See TIP 477 (https://core.tcl-lang.org/tips/doc/main/tip/477.md) for
+# detailed documentation.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+#
+#------------------------------------------------------------------------------
 
-!ifndef _RULES_EXT_VC
+#-------------------------------------------------------------------------
+# Project specific information
+#-------------------------------------------------------------------------
 
-# We need to run from the directory the parent makefile is located in.
-# nmake does not tell us what makefile was used to invoke it so parent
-# makefile has to set the MAKEFILEVC macro or we just make a guess and
-# warn if we think that is not the case.
-!if "$(MAKEFILEVC)" == ""
+# The name of the package
+PROJECT=tls
 
-!if exist("$(PROJECT).vc")
-MAKEFILEVC = $(PROJECT).vc
-!elseif exist("makefile.vc")
-MAKEFILEVC = makefile.vc
-!endif
-!endif # "$(MAKEFILEVC)" == ""
+!include "rules-ext.vc"
+!message PAB DEBUG After rules-ext.vc: TCLSH=$(TCLSH)
 
-!if !exist("$(MAKEFILEVC)")
-MSG = ^
-You must run nmake from the directory containing the project makefile.^
-If you are doing that and getting this message, set the MAKEFILEVC^
-macro to the name of the project makefile.
-!message WARNING: $(MSG)
-!endif
+# Define the object files and resource file that make up the extension.
+# Note the resource file does not makes sense if doing a static library build
+# hence it is under that condition. TMP_DIR is the output directory
+# defined by rules for object files.
+PRJ_OBJS = $(TMP_DIR)\tls.obj \
+	$(TMP_DIR)\tlsBIO.obj \
+	$(TMP_DIR)\tlsIO.obj \
+	$(TMP_DIR)\tlsX509.obj
 
-!if "$(PROJECT)" == "tcl"
-!error The rules-ext.vc file is not intended for Tcl itself.
-!endif
+# Define any additional project include flags
+# SSL_INSTALL_FOLDER = with the OpenSSL installation folder following.
+PRJ_INCLUDES = -I"$(SSL_INSTALL_FOLDER)\include" -I"$(OPENSSL_INSTALL_DIR)\include" -I"$(TMP_DIR)"
 
-# We extract version numbers using the nmakehlp program. For now use
-# the local copy of nmakehlp. Once we locate Tcl, we will use that
-# one if it is newer.
-!if "$(MACHINE)" == "IX86" || "$(MACHINE)" == "$(NATIVE_ARCH)"
-!if [$(CC) -nologo -DNDEBUG "nmakehlp.c" -link -subsystem:console > nul]
-!endif
-!else
-!if [copy x86_64-w64-mingw32-nmakehlp.exe nmakehlp.exe >NUL]
-!endif
-!endif
+# Define any additional compiler flags that might be required for the project
+PRJ_DEFINES = -D NO_SSL2 -D NO_SSL3 /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_DEPRECATE /D__STDC_WANT_SECURE_LIB__=1
+# /DTCLTLS_SSL_USE_FASTPATH
+# /DTCLEXT_TCLTLS_DEBUG
 
-# First locate the Tcl directory that we are working with.
-!if "$(TCLDIR)" != ""
+#
+# SSL Libs:
+#    1. ${LIBCRYPTO}.dll
+#    2. ${LIBSSL}.dll
+# Where LIBCRYPTO (#1.) and LIBSSL (#2.) are defined as follows:
+#    v1.1: libcrypto-1.1-x64.dll and libssl-1.1-x64.dll
+#    v3: libcrypto-3-x64.dll and libssl-3-x64.dll
+# On *nix libcrypto.so.* and libssl.so.* (where suffix is a version indicator).
+#
+PRJ_LIBS = \
+	"$(SSL_INSTALL_FOLDER)\lib\libssl.lib" \
+	"$(SSL_INSTALL_FOLDER)\lib\libcrypto.lib" \
+	User32.Lib WS2_32.Lib Gdi32.Lib AdvAPI32.Lib Crypt32.Lib
 
-_RULESDIR = $(TCLDIR:/=\)
+# Define the standard targets which calls rules.vc
+!include "targets.vc"
 
-!else
+.SUFFIXES: .c .obj .res .man
 
-# If an installation path is specified, that is also the Tcl directory.
-# Also Tk never builds against an installed Tcl, it needs Tcl sources
-!if defined(INSTALLDIR) && "$(PROJECT)" != "tk"
-_RULESDIR=$(INSTALLDIR:/=\)
-!else
-# Locate Tcl sources
-!if [echo _RULESDIR = \> nmakehlp.out] \
-   || [nmakehlp -L generic\tcl.h >> nmakehlp.out]
-_RULESDIR = ..\..\tcl
-!else
-!include nmakehlp.out
-!endif
+#---------------------------------------------------------------------
+# Project specific targets
+#---------------------------------------------------------------------
 
-!endif # defined(INSTALLDIR)....
+# Implicit rule to generate html from man files
+# NOTE: this requires doctools from tcllib hence it is not intended
+# to be run during install. Rather, use it to generate a new version
+# of HTML docs to be stored in the repository.
+DTPLITE = "$(_INSTALLDIR)\..\bin\dtplite.tcl"
 
-!endif # ifndef TCLDIR
+make-docs-html:
+!IF EXIST($(DTPLITE))
+	"$(TCLSH)" "$(DTPLITE)" -o "$(ROOT)\doc\$(PROJECT).html" html "$(ROOT)\doc\$(PROJECT).man"
+!ENDIF
 
-# Now look for the targets.vc file under the Tcl root. Note we check this
-# file and not rules.vc because the latter also exists on older systems.
-!if exist("$(_RULESDIR)\lib\nmake\targets.vc") # Building against installed Tcl
-_RULESDIR = $(_RULESDIR)\lib\nmake
-!elseif exist("$(_RULESDIR)\win\targets.vc")   # Building against Tcl sources
-_RULESDIR = $(_RULESDIR)\win
-!else
-# If we have not located Tcl's targets file, most likely we are compiling
-# against an older version of Tcl and so must use our own support files.
-_RULESDIR = .
-!endif
+make-docs-n:
+!IF EXIST($(DTPLITE))
+	"$(TCLSH)" "$(DTPLITE)" -o "$(ROOT)\doc\$(PROJECT).n" nroff "$(ROOT)\doc\$(PROJECT).man"
+!ENDIF
 
-!if "$(_RULESDIR)" != "."
-# Potentially using Tcl's support files. If this extension has its own
-# nmake support files, need to compare the versions and pick newer.
+make-docs:
+!IF EXIST($(DTPLITE))
+	"$(TCLSH)" "$(DTPLITE)" -o "$DOCDIR" html "$(ROOT)\doc"
+	"$(TCLSH)" "$(DTPLITE)" -o "$DOCDIR" nroff "$(ROOT)\doc"
+!ENDIF
 
-!if exist("rules.vc") # The extension has its own copy
+docs: make-docs-n make-docs-html
 
-!if [echo TCL_RULES_MAJOR = \> versions.vc] \
-   && [nmakehlp -V "$(_RULESDIR)\rules.vc" RULES_VERSION_MAJOR >> versions.vc]
-!endif
-!if [echo TCL_RULES_MINOR = \>> versions.vc] \
-   && [nmakehlp -V "$(_RULESDIR)\rules.vc" RULES_VERSION_MINOR >> versions.vc]
-!endif
+all: setup default-target
 
-!if [echo OUR_RULES_MAJOR = \>> versions.vc] \
-   && [nmakehlp -V "rules.vc" RULES_VERSION_MAJOR >> versions.vc]
-!endif
-!if [echo OUR_RULES_MINOR = \>> versions.vc] \
-   && [nmakehlp -V "rules.vc" RULES_VERSION_MINOR >> versions.vc]
-!endif
-!include versions.vc
-# We have a newer version of the support files, use them
-!if ($(TCL_RULES_MAJOR) != $(OUR_RULES_MAJOR)) || ($(TCL_RULES_MINOR) < $(OUR_RULES_MINOR))
-_RULESDIR = .
-!endif
+clean: default-clean
 
-!endif # if exist("rules.vc")
+realclean: default-hose
 
-!endif # if $(_RULESDIR) != "."
+# Explicit dependency rules
+$(PRJ_OBJS): $(TMP_DIR)\tls.tcl.h $(TMP_DIR)\tlsUuid.h
 
-# Let rules.vc know what copy of nmakehlp.c to use.
-NMAKEHLPC = $(_RULESDIR)\nmakehlp.c
+# We must define a pkgindex target that will create a pkgIndex.tcl
+# file in the $(OUT_DIR) directory. We can just redirect to the
+# default-pkgindex target for our sample extension.
+pkgindex: default-pkgindex-tea
 
-# Get rid of our internal defines before calling rules.vc
-!undef TCL_RULES_MAJOR
-!undef TCL_RULES_MINOR
-!undef OUR_RULES_MAJOR
-!undef OUR_RULES_MINOR
+# Create a C source file version of the script resources for inclusion in the
+# build so that only the compiled library file is needed for this extension to
+# load and operate.
+!message PAB DEBUG before tls.tcl.h target: TCLSH=$(TCLSH)
+$(TMP_DIR)\tls.tcl.h: $(LIBDIR)\tls.tcl
+	echo TCLSH=$(TCLSH)
+	"$(TCLSH)" << $(LIBDIR)\tls.tcl >$(TMP_DIR)\tls.tcl.h
+	set in [open [lindex $$argv 0] r]
+	while {[gets $$in line] != -1} {
+	    switch -regexp -- $$line "^$$" - {^\s*#} continue
+	    regsub -all {\\} $$line {\\\\} line
+	    regsub -all {"} $$line {\"} line
+	    puts "\"$$line\\n\""
+	}
+<<
 
-!message _RULESDIR=$(_RULESDIR) before include of rules.vc
-!if exist("$(_RULESDIR)\rules.vc")
-!message *** Using $(_RULESDIR)\rules.vc
-!include "$(_RULESDIR)\rules.vc"
-!message TCLSH=$(TCLSH) after include of rules.vc
-!else
-!error *** Could not locate rules.vc in $(_RULESDIR)
-!endif
+# Use manifest file which defines fossil/git commit id for build-info command
+$(TMP_DIR)\manifest.uuid:
+!IF EXIST($(ROOT)\manifest.uuid)
+	@copy "$(ROOT)\manifest.uuid" "$(TMP_DIR)\manifest.uuid"
+!ELSE
+!IF EXIST($(ROOT)\.git)
+	@copy "$(WIN_DIR)\gitmanifest.in" "$(TMP_DIR)\manifest.uuid"
+	@git rev-parse HEAD >>$(TMP_DIR)\manifest.uuid || echo unknown >>$(TMP_DIR)\manifest.uuid
+!ELSE
+	@echo unknown >$(TMP_DIR)\manifest.uuid
+!ENDIF
+!ENDIF
 
+$(TMP_DIR)\tlsUuid.h:	$(TMP_DIR)\manifest.uuid
+	@copy $(WIN_DIR)\tlsUuid.h.in+$(TMP_DIR)\manifest.uuid $(TMP_DIR)\tlsUuid.h
+	@echo: >>$(TMP_DIR)\tlsUuid.h
 
-!endif # _RULES_EXT_VC
+# The default install target only installs binaries and scripts so add
+# an additional target for our documentation. Note this *adds* a target
+# since no commands are listed after it. The original targets for
+# install (from targets.vc) will remain.
+install: pkgindex default-install default-install-docs-html default-install-demos
+!IF EXIST($(SSL_INSTALL_FOLDER)\bin\libcrypto-*-x64.dll)
+	@xcopy /c /y "$(SSL_INSTALL_FOLDER)\bin\libcrypto-*-x64.dll" "$(PRJ_INSTALL_DIR)"
+!ENDIF
+!IF EXIST($(SSL_INSTALL_FOLDER)\bin\libssl-*-x64.dll)
+	@xcopy /c /y "$(SSL_INSTALL_FOLDER)\bin\libssl-*-x64.dll" "$(PRJ_INSTALL_DIR)"
+!ENDIF
+
+# Test package
+test: default-test
+
