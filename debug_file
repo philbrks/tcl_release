@@ -312,6 +312,8 @@ TCLINSTALL	= 0
 _TCL_H          = $(_TCLDIR)\generic\tcl.h
 !endif
 
+!message PAB DEBUG After Case 2(c) or (d) _TCL_H=$(_TCL_H)
+
 !else  #  # Case 2(c) for extensions with TCLDIR undefined
 
 # Need to locate Tcl depending on whether it needs Tcl source or not.
@@ -1186,7 +1188,6 @@ TCLSH		= $(_TCLDIR)\bin\tclsh$(TCL_VERSION)$(SUFX:t=).exe
 TCLSH           = $(_TCLDIR)\bin\tclsh$(TCL_VERSION)t$(SUFX:t=).exe
 !endif
 
-!message PAB DEBUG TCLSH=$(TCLSH)
 
 !if $(TCL_MAJOR_VERSION) == 8
 TCLSTUBLIB	= $(_TCLDIR)\lib\tclstub$(TCL_VERSION).lib
@@ -1210,8 +1211,11 @@ TCL_INCLUDES    = -I"$(_TCLDIR)\include"
 
 TCLSH		= $(_TCLDIR)\win\$(BUILDDIRTOP)\tclsh$(TCL_VERSION)$(SUFX:t=).exe
 !if !exist($(TCLSH))
+!message PAB DEBUG No $(_TCLDIR)\win\$(BUILDDIRTOP)\tclsh$(TCL_VERSION)$(SUFX:t=).exe
 TCLSH		= $(_TCLDIR)\win\$(BUILDDIRTOP)\tclsh$(TCL_VERSION)t$(SUFX:t=).exe
 !endif
+!message PAB DEBUG TCL_VERSION=$(TCL_VERSION)
+!message PAB DEBUG TCLSH=$(TCLSH)
 !if $(TCL_MAJOR_VERSION) == 8
 TCLSTUBLIB	= $(_TCLDIR)\win\$(BUILDDIRTOP)\tclstub$(TCL_VERSION).lib
 !else
