@@ -66,7 +66,7 @@ jobs:
           
           $TCLTLS_DOWNLOAD_URL   = "https://core.tcl-lang.org/tcltls/uv/tcltls-2.0-src.tar.gz"
           $TCLTLS_DOWNLOAD_HASH  = "DAD7549F5FE08B5A4F191A721001C551"
-          $TCLTLS_BUILD_DIR      = "tcltls-2-0"
+          $TCLTLS_BUILD_DIR      = "tcltls-20260121024900-5d3e3c3bf8"
           
           $TCLLIB_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcllib/tcllib-2.0.tar.gz"
           $TCLLIB_DOWNLOAD_HASH = "7A6583B88160FE2040FAB74309881C3E"
@@ -240,6 +240,7 @@ jobs:
       - name: Extract source archives
         shell: powershell
         run: |
+          echo "Tcl Sources:"
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
           # tar -xzf ${{ env.TK_DOWNLOAD_FILE }}
           if (  '${{ matrix.tcl-tag }} ' -match 'main-debug' ) {
@@ -253,7 +254,9 @@ jobs:
             # tar -xzf thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
             # tar -xzf sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
           }
+          echo "Open SSL Sources:"
           tar -xzf ${{ env.OSSL_DOWNLOAD_FILE }}
+          echo "Tcl TLS Sources:"
           tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }}
           # tar -xzf ${{ env.TCLLIB_DOWNLOAD_FILE }}
           # tar -xzf ${{ env.TKLIB_DOWNLOAD_FILE }}
@@ -298,7 +301,6 @@ jobs:
 
       - name: Build TclTLS (${{ matrix.config }})
         run: |
-          copy ..\..\debug_file makefile.vc
           &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=${{ env.SSL_INSTALL_FOLDER }} TCLDIR=..\..\${{ env.TCL_BUILD_DIR }} INSTALLDIR=${{ env.INSTALLDIR }}
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
