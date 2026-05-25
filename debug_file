@@ -300,6 +300,7 @@ _TK_H = ..\generic\tk.h
 
 # If command line has specified Tcl location through TCLDIR, use it
 # else default to the INSTALLDIR setting
+!message PAB DEBUG Case 2(c) or (d) TCLDIR=$(TCLDIR)
 !if "$(TCLDIR)" != ""
 
 _TCLDIR	= $(TCLDIR:/=\)
@@ -1156,6 +1157,7 @@ TCL_ZIP_FILE = libtcl$(TCL_MAJOR_VERSION).$(TCL_MINOR_VERSION)$(TCL_PATCH_LETTER
 TK_ZIP_FILE = libtk$(TK_MAJOR_VERSION).$(TK_MINOR_VERSION)$(TK_PATCH_LETTER)$(TK_RELEASE_SERIAL).zip
 
 !message PAB DEBUG DOING_TCL=$(DOING_TCL)
+!message PAB DEBUG TCLINSTALL=$(TCLINSTALL)
 !if $(DOING_TCL)
 TCLSHNAME       = $(PROJECT)sh$(VERSION)$(SUFX).exe
 TCLSH		= $(OUT_DIR)\$(TCLSHNAME)
