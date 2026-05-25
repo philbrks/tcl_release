@@ -244,16 +244,16 @@ jobs:
         run: |
           tar -xzf ${{ env.TCL_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TK_DOWNLOAD_FILE }}
-          if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
+          if (  '${{ matrix.tcl-tag }} ' -match 'main-debug' ) {
             # Download items included in the Tcl source distribution that come from different repos
-            tar -xzf itcl-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            tar -xzf tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            tar -xzf tdbcodbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            tar -xzf tdbcmysql-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            tar -xzf tdbcpostgres-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            tar -xzf tdbcsqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            tar -xzf thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            tar -xzf sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # tar -xzf itcl-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # tar -xzf tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # tar -xzf tdbcodbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # tar -xzf tdbcmysql-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # tar -xzf tdbcpostgres-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # tar -xzf tdbcsqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # tar -xzf thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            # tar -xzf sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
           }
           tar -xzf ${{ env.OSSL_DOWNLOAD_FILE }}
           tar -xzf ${{ env.TCLTLS_DOWNLOAD_FILE }}
