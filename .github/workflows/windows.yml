@@ -242,10 +242,11 @@ jobs:
         run: |
           function Extract-Download {
             param(
-                [string]$DownloadFile
+                [string]$DownloadFile,
+                [string]$ExtraArgs
             )
             echo "Extracting $DownloadFile"
-            tar -zxvf $DownloadFile
+            tar -zxvf $DownloadFile $ExtraArgs
             if ($lastexitcode -ne 0) {
                throw "nmake exit code: $lastexitcode"
             }
@@ -255,14 +256,14 @@ jobs:
           Extract-Download ${{ env.TK_DOWNLOAD_FILE }}
           if (  '${{ matrix.tcl-tag }} ' -match 'main-debug' ) {
             # Download items included in the Tcl source distribution that come from different repos
-            Extract-Download itcl-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            Extract-Download tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            Extract-Download tdbcodbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            Extract-Download tdbcmysql-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            Extract-Download tdbcpostgres-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            Extract-Download tdbcsqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            Extract-Download thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            Extract-Download sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            Extract-Download itcl-main.tar.gz "-C ${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download tdbc-main.tar.gz "-C ${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download tdbcodbc-main.tar.gz "-C ${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download tdbcmysql-main.tar.gz "-C ${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download tdbcpostgres-main.tar.gz "-C ${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download tdbcsqlite3-main.tar.gz "-C ${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download thread-main.tar.gz "-C ${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download sqlite3-main.tar.gz "-C ${{ env.TCL_BUILD_DIR }}/pkgs"
           }
           Extract-Download ${{ env.OSSL_DOWNLOAD_FILE }}
           Extract-Download ${{ env.TCLTLS_DOWNLOAD_FILE }}
