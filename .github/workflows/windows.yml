@@ -65,7 +65,7 @@ jobs:
           $OSSL_BUILD_DIR      = "openssl-3.5.6"
           
           $TCLTLS_DOWNLOAD_URL   = "https://core.tcl-lang.org/tcltls/uv/tcltls-2.0-src.tar.gz"
-          $TCLTLS_DOWNLOAD_HASH  = "DAD7549F5FE08B5A4F191A721001C551"
+          $TCLTLS_DOWNLOAD_HASH  = "SKIP"
           $TCLTLS_BUILD_DIR      = "tcltls-20260121024900-5d3e3c3bf8"
           
           $TCLLIB_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcllib/tcllib-2.0.tar.gz"
@@ -186,29 +186,29 @@ jobs:
           }
 
           Get-Download -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}'  -Url ${{ env.TCL_DOWNLOAD_URL }}
-          # Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url '${{ env.TK_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url '${{ env.TK_DOWNLOAD_URL }}'
 
           if ('${{ matrix.tcl-tag }} ' -match 'main') {
 
               # These component packages are kept in separate repositories, but they are all released under the official Tcl source release, 
               # so when main is selected as the version, we have to piece together the things that normally make up the Tcl source download.
-              # Get-Download -OutputFile 'itcl-main.tar.gz'              -Url 'https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz'
-              # Get-Download -OutputFile 'tdbc-main.tar.gz'              -Url 'https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz'
-              # Get-Download -OutputFile 'tdbcodbc-main.tar.gz'          -Url 'https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz'
-              # Get-Download -OutputFile 'tdbcmysql-main.tar.gz'         -Url 'https://core.tcl-lang.org/tdbcmysql/tarball/tdbcmysql-main.tar.gz'
-              # Get-Download -OutputFile 'tdbcsqlite3-main.tar.gz'       -Url 'https://core.tcl-lang.org/tdbcsqlite3/tarball/tdbcsqlite3-main.tar.gz'
-              # Get-Download -OutputFile 'tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
-              # Get-Download -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
-              # Get-Download -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
+              Get-Download -OutputFile 'itcl-main.tar.gz'              -Url 'https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz'
+              Get-Download -OutputFile 'tdbc-main.tar.gz'              -Url 'https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz'
+              Get-Download -OutputFile 'tdbcodbc-main.tar.gz'          -Url 'https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz'
+              Get-Download -OutputFile 'tdbcmysql-main.tar.gz'         -Url 'https://core.tcl-lang.org/tdbcmysql/tarball/tdbcmysql-main.tar.gz'
+              Get-Download -OutputFile 'tdbcsqlite3-main.tar.gz'       -Url 'https://core.tcl-lang.org/tdbcsqlite3/tarball/tdbcsqlite3-main.tar.gz'
+              Get-Download -OutputFile 'tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
+              Get-Download -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
+              Get-Download -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
 
           } else {
           }
           Get-Download -OutputFile '${{ env.OSSL_DOWNLOAD_FILE }}' -Url '${{ env.OSSL_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TCLTLS_DOWNLOAD_FILE }}' -Url '${{ env.TCLTLS_DOWNLOAD_URL }}'
-          # Get-Download -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
-          # Get-Download -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
-          # Get-Download -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url '${{ env.IMG_DOWNLOAD_URL }}'
-          # Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url '${{ env.TDOM_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url '${{ env.IMG_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url '${{ env.TDOM_DOWNLOAD_URL }}'
 
           echo "Done downloading source files.  LASTERRORCODE=$LASTERRORCODE"
 
@@ -231,11 +231,11 @@ jobs:
               }
           }
           
-          # Verify-Download "${{ env.TCL_DOWNLOAD_FILE }}" "${{ env.TCL_DOWNLOAD_HASH }}"
-          # Verify-Download "${{ env.OSSL_DOWNLOAD_FILE }}" "${{ env.OSSL_DOWNLOAD_HASH }}"
-          # Verify-Download "${{ env.TCLTLS_DOWNLOAD_FILE }}" "${{ env.TCLTLS_DOWNLOAD_HASH }}"
-          # Verify-Download "${{ env.TK_DOWNLOAD_FILE }}" "${{ env.TK_DOWNLOAD_HASH }}"
-          # Verify-Download "${{ env.TCLLIB_DOWNLOAD_FILE }}" "${{ env.TCLLIB_DOWNLOAD_HASH }}"
+          Verify-Download "${{ env.TCL_DOWNLOAD_FILE }}" "${{ env.TCL_DOWNLOAD_HASH }}"
+          Verify-Download "${{ env.OSSL_DOWNLOAD_FILE }}" "${{ env.OSSL_DOWNLOAD_HASH }}"
+          Verify-Download "${{ env.TCLTLS_DOWNLOAD_FILE }}" "${{ env.TCLTLS_DOWNLOAD_HASH }}"
+          Verify-Download "${{ env.TK_DOWNLOAD_FILE }}" "${{ env.TK_DOWNLOAD_HASH }}"
+          Verify-Download "${{ env.TCLLIB_DOWNLOAD_FILE }}" "${{ env.TCLLIB_DOWNLOAD_HASH }}"
 
       - name: Extract source archives
         shell: powershell
@@ -252,26 +252,24 @@ jobs:
           }
           echo "Tcl Sources:"
           Extract-Download ${{ env.TCL_DOWNLOAD_FILE }}
-          # Extract-Download ${{ env.TK_DOWNLOAD_FILE }}
+          Extract-Download ${{ env.TK_DOWNLOAD_FILE }}
           if (  '${{ matrix.tcl-tag }} ' -match 'main-debug' ) {
             # Download items included in the Tcl source distribution that come from different repos
-            # Extract-Download itcl-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # Extract-Download tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # Extract-Download tdbcodbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # Extract-Download tdbcmysql-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # Extract-Download tdbcpostgres-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # Extract-Download tdbcsqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # Extract-Download thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
-            # Extract-Download sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            Extract-Download itcl-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            Extract-Download tdbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            Extract-Download tdbcodbc-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            Extract-Download tdbcmysql-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            Extract-Download tdbcpostgres-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            Extract-Download tdbcsqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            Extract-Download thread-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
+            Extract-Download sqlite3-main.tar.gz -C ${{ env.TCL_BUILD_DIR }}/pkgs
           }
-          echo "Open SSL Sources:"
           Extract-Download ${{ env.OSSL_DOWNLOAD_FILE }}
-          echo "Tcl TLS Sources:"
           Extract-Download ${{ env.TCLTLS_DOWNLOAD_FILE }}
-          # Extract-Download ${{ env.TCLLIB_DOWNLOAD_FILE }}
-          # Extract-Download ${{ env.TKLIB_DOWNLOAD_FILE }}
-          # Extract-Download ${{ env.IMG_DOWNLOAD_FILE }}
-          # Extract-Download ${{ env.TDOM_DOWNLOAD_FILE }}
+          Extract-Download ${{ env.TCLLIB_DOWNLOAD_FILE }}
+          Extract-Download ${{ env.TKLIB_DOWNLOAD_FILE }}
+          Extract-Download ${{ env.IMG_DOWNLOAD_FILE }}
+          Extract-Download ${{ env.TDOM_DOWNLOAD_FILE }}
           dir
           dir ${{ env.TCL_BUILD_DIR }}/pkgs
           
@@ -280,7 +278,7 @@ jobs:
         with:
           arch: x64
 
-      - name: Build Tcl and included libraries (${{ matrix.config }})
+      - name: Build and install Tcl and included libraries (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
           if ($lastexitcode -ne 0) {
@@ -292,7 +290,7 @@ jobs:
           }
         working-directory: ${{ env.TCL_BUILD_DIR }}\win
 
-      - name: Build OpenSSL (${{ matrix.config }})
+      - name: Build and install OpenSSL (${{ matrix.config }})
         if: 1 == 0
         run: |
           &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="$Env:SSL_INSTALL_FOLDER" --openssldir="$Env:SSL_INSTALL_FOLDER" -DOPENSSL_NO_DEPRECATED
@@ -309,34 +307,51 @@ jobs:
           }
         working-directory: ${{ env.OSSL_BUILD_DIR }}
 
-      - name: Build TclTLS (${{ matrix.config }})
+      - name: Build and install TclTLS (${{ matrix.config }})
         run: |
+          # Temporary patch while we await a fix from Brian.
+          copy ..\..\debug_file makefile.vc
           &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=${{ env.SSL_INSTALL_FOLDER }} TCLDIR=..\..\${{ env.TCL_BUILD_DIR }} INSTALLDIR=${{ env.INSTALLDIR }}
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
           }
           &nmake -f makefile.vc install ${{ matrix.config }} SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake install exit code: $lastexitcode"
+          }
         working-directory: ${{ env.TCLTLS_BUILD_DIR }}\win
 
-      - name: Build Tk (${{ matrix.config }})
+      - name: Build and install Tk (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
           }
+          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake install exit code: $lastexitcode"
+          }
         working-directory: ${{ env.TK_BUILD_DIR }}/win
 
-      - name: Build Img (${{ matrix.config }})
+      - name: Build and install Img (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc all ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
           }
+          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake exit code: $lastexitcode"
+          }
         working-directory: ${{ env.IMG_BUILD_DIR }}/win
 
-      - name: Build tDom (${{ matrix.config }})
+      - name: Build and install tDom (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake exit code: $lastexitcode"
+          }
+          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
           }
@@ -365,30 +380,6 @@ jobs:
         env:
           ERROR_ON_FAILURES: 1
 
-      - name: Install Tk (${{ matrix.config }})
-        run: |
-          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
-        working-directory: ${{ env.TK_BUILD_DIR }}/win
-
-      - name: Install Img (${{ matrix.config }})
-        run: |
-          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
-        working-directory: ${{ env.IMG_BUILD_DIR }}/win
-
-      - name: Install tDom (${{ matrix.config }})
-        run: |
-          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
-        working-directory: ${{ env.TDOM_BUILD_DIR }}/win
-        
       - name: Install tcllib and tklib
         if: 1 == 1
         shell: powershell
