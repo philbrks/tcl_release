@@ -291,7 +291,6 @@ jobs:
         working-directory: ${{ env.TCL_BUILD_DIR }}\win
 
       - name: Build and install OpenSSL (${{ matrix.config }})
-        if: 1 == 0
         run: |
           &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="$Env:SSL_INSTALL_FOLDER" --openssldir="$Env:SSL_INSTALL_FOLDER" -DOPENSSL_NO_DEPRECATED
           if ($lastexitcode -ne 0) {
