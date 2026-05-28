@@ -245,8 +245,8 @@ jobs:
                 [string]$DownloadFile,
                 [string]$ExtraArgs
             )
-            echo "Extracting $DownloadFile"
-            tar -zxvf $DownloadFile $ExtraArgs
+            echo "Extracting $DownloadFile $ExtraArgs"
+            tar -zxf $DownloadFile $ExtraArgs
             if ($lastexitcode -ne 0) {
                throw "nmake exit code: $lastexitcode"
             }
@@ -254,7 +254,7 @@ jobs:
           echo "Tcl Sources:"
           Extract-Download ${{ env.TCL_DOWNLOAD_FILE }}
           Extract-Download ${{ env.TK_DOWNLOAD_FILE }}
-          if (  '${{ matrix.tcl-tag }} ' -match 'main-debug' ) {
+          if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
             # Download items included in the Tcl source distribution that come from different repos
             Extract-Download itcl-main.tar.gz "-C ${{ env.TCL_BUILD_DIR }}/pkgs"
             Extract-Download tdbc-main.tar.gz "-C ${{ env.TCL_BUILD_DIR }}/pkgs"
