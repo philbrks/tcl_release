@@ -64,9 +64,10 @@ jobs:
           $OSSL_DOWNLOAD_HASH  = "1BB3506C580865A0A464E09288AC157E"
           $OSSL_BUILD_DIR      = "openssl-3.5.6"
           
-          $TCLTLS_DOWNLOAD_URL   = "https://core.tcl-lang.org/tcltls/uv/tcltls-2.0-src.tar.gz"
+          $TCLTLS_DOWNLOAD_URL   =  "https://core.tcl-lang.org/tcltls/tarball/tcltls-main.tar.gz"
+          #$TCLTLS_DOWNLOAD_URL   = "https://core.tcl-lang.org/tcltls/uv/tcltls-2.0-src.tar.gz"
           $TCLTLS_DOWNLOAD_HASH  = "SKIP"
-          $TCLTLS_BUILD_DIR      = "tcltls-20260121024900-5d3e3c3bf8"
+          $TCLTLS_BUILD_DIR      = "tcltls-main"
           
           $TCLLIB_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcllib/tcllib-2.0.tar.gz"
           $TCLLIB_DOWNLOAD_HASH = "7A6583B88160FE2040FAB74309881C3E"
@@ -310,7 +311,6 @@ jobs:
       - name: Build and install TclTLS (${{ matrix.config }})
         run: |
           # Temporary patch while we await a fix from Brian.
-          copy ..\..\debug_file makefile.vc
           &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=${{ env.SSL_INSTALL_FOLDER }} TCLDIR=..\..\${{ env.TCL_BUILD_DIR }} INSTALLDIR=${{ env.INSTALLDIR }}
           if ($lastexitcode -ne 0) {
              throw "nmake exit code: $lastexitcode"
