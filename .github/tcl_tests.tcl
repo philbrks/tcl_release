@@ -15,6 +15,7 @@ set packages {
     Img
     tdom
     itcl
+    tls
     dde
 }
 
