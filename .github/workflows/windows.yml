@@ -64,6 +64,7 @@ jobs:
           $OSSL_DOWNLOAD_HASH  = "1BB3506C580865A0A464E09288AC157E"
           $OSSL_BUILD_DIR      = "openssl-3.5.6"
           
+          # Get TLS from main to pick up required fix.
           $TCLTLS_DOWNLOAD_URL   =  "https://core.tcl-lang.org/tcltls/tarball/tcltls-main.tar.gz"
           #$TCLTLS_DOWNLOAD_URL   = "https://core.tcl-lang.org/tcltls/uv/tcltls-2.0-src.tar.gz"
           $TCLTLS_DOWNLOAD_HASH  = "SKIP"
@@ -84,6 +85,15 @@ jobs:
           $TDOM_DOWNLOAD_URL   = "https://core.tcl-lang.org/tdom/tarball/tDom-0-9-6.tar.gz"
           $TDOM_DOWNLOAD_HASH  = "SKIP"
           $TDOM_BUILD_DIR      = "tDom-0-9-6"
+
+          $TKTABLE_DOWNLOAD_URL   = "https://chiselapp.com/user/bohagan/repository/TkTable/uv/tktable-2.12.1-src.tar.gz"
+          $TKTABLE_DOWNLOAD_HASH  = "SKIP"
+          $TKTABLE_BUILD_DIR      = "tktable-35d3f2fa4d"
+
+          # tkcon
+          # $TKCON_DOWNLOAD_URL  = "https://github.com/bohagan1/TkCon/releases/download/v2.8/tkcon-2.8.tar.gz"
+          # $TKCON_DOWNLOAD_HASH  = "SKIP"
+          # $TKCON_BUILD_DIR      = "tkcon-2.8"
 
           mkdir "C:\Tcl-tk"
           # Common Tcl/Tk Settings
@@ -165,6 +175,12 @@ jobs:
           $TDOM_DOWNLOAD_FILE = Split-Path -Leaf $TDOM_DOWNLOAD_URL
           Export-ToGitHubEnv TDOM_DOWNLOAD_URL, TDOM_DOWNLOAD_FILE, TDOM_DOWNLOAD_HASH, TDOM_BUILD_DIR
 
+          $TKTABLE_DOWNLOAD_FILE = Split-Path -Leaf $TKTABLE_DOWNLOAD_URL
+          Export-ToGitHubEnv TKTABLE_DOWNLOAD_URL, TKTABLE_DOWNLOAD_FILE, TKTABLE_DOWNLOAD_HASH, TKTABLE_BUILD_DIR
+
+          # $TKCON_DOWNLOAD_FILE = Split-Path -Leaf $TKCON_DOWNLOAD_URL
+          # Export-ToGitHubEnv TKCON_DOWNLOAD_URL, TKCON_DOWNLOAD_FILE, TKCON_DOWNLOAD_HASH, TKCON_BUILD_DIR
+
           # type $env:GITHUB_ENV
 
         working-directory: .
@@ -210,6 +226,8 @@ jobs:
           Get-Download -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url '${{ env.IMG_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url '${{ env.TDOM_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.TKTABLE_DOWNLOAD_FILE }}' -Url '${{ env.TKTABLE_DOWNLOAD_URL }}'
+          # Get-Download -OutputFile '${{ env.TKCON_DOWNLOAD_FILE }}' -Url '${{ env.TKCON_DOWNLOAD_URL }}'
 
           echo "Done downloading source files.  LASTERRORCODE=$LASTERRORCODE"
 
@@ -272,6 +290,8 @@ jobs:
           Extract-Download ${{ env.TKLIB_DOWNLOAD_FILE }}
           Extract-Download ${{ env.IMG_DOWNLOAD_FILE }}
           Extract-Download ${{ env.TDOM_DOWNLOAD_FILE }}
+          Extract-Download ${{ env.TKTABLE_DOWNLOAD_FILE }}
+          # Extract-Download ${{ env.TKCON_DOWNLOAD_FILE }}
           dir
           dir ${{ env.TCL_BUILD_DIR }}/pkgs
           
@@ -356,6 +376,32 @@ jobs:
              throw "nmake exit code: $lastexitcode"
           }
         working-directory: ${{ env.TDOM_BUILD_DIR }}/win
+
+      - name: Build and install TkTable (${{ matrix.config }})
+        run: |
+          # Temporary fix while we await a checkin from Brian.
+          copy ..\..\debug_file makefile.vc
+          &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake exit code: $lastexitcode"
+          }
+          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+          if ($lastexitcode -ne 0) {
+             throw "nmake exit code: $lastexitcode"
+          }
+        working-directory: ${{ env.TKTABLE_BUILD_DIR }}/win
+
+        # - name: Build and install tkcon (${{ matrix.config }})
+        #   run: |
+        #     &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+        #     if ($lastexitcode -ne 0) {
+        #        throw "nmake exit code: $lastexitcode"
+        #     }
+        #     &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+        #     if ($lastexitcode -ne 0) {
+        #        throw "nmake exit code: $lastexitcode"
+        #     }
+        #   working-directory: ${{ env.TKCON_BUILD_DIR }}/win
 
       - name: Build Test Harness ${{ matrix.config }}
         if: 1 == 0

@@ -1,6 +1,6 @@
 #------------------------------------------------------------- -*- makefile -*-
 #
-# Makefile for TCL TLS extension
+# Makefile for TkTable Extension
 #
 # Basic build, test and install
 #   nmake /f makefile.vc INSTALLDIR=c:\path\to\tcl TCLDIR=c:\path\to\tcl\sources
@@ -21,42 +21,54 @@
 #-------------------------------------------------------------------------
 
 # The name of the package
-PROJECT=tls
+PROJECT = Tktable
+TBL_COMMAND = table
+TBL_RUNTIME = tkTable.tcl
+
+# Note this extension needs Tk *source* to build
+PROJECT_REQUIRES_TK=1
 
 !include "rules-ext.vc"
-!message PAB DEBUG After rules-ext.vc: TCLSH=$(TCLSH)
+INST_RUNTIMEU = "$(PRJ_INSTALL_DIR:\=/)"
+
+# Get version
+!include "$(GENERICDIR)\version.h"
 
 # Define the object files and resource file that make up the extension.
 # Note the resource file does not makes sense if doing a static library build
 # hence it is under that condition. TMP_DIR is the output directory
 # defined by rules for object files.
-PRJ_OBJS = $(TMP_DIR)\tls.obj \
-	$(TMP_DIR)\tlsBIO.obj \
-	$(TMP_DIR)\tlsIO.obj \
-	$(TMP_DIR)\tlsX509.obj
+PRJ_OBJS = $(TMP_DIR)\tkTable.obj \
+	$(TMP_DIR)\tkTableWin.obj \
+	$(TMP_DIR)\tkTableTag.obj \
+	$(TMP_DIR)\tkTableEdit.obj \
+	$(TMP_DIR)\tkTableCell.obj \
+	$(TMP_DIR)\tkTableCellSort.obj \
+	$(TMP_DIR)\tkTableCmds.obj \
+	$(TMP_DIR)\tkTableUtil.obj
+# $(TMP_DIR)\tkTablePs.obj
 
 # Define any additional project include flags
-# SSL_INSTALL_FOLDER = with the OpenSSL installation folder following.
-PRJ_INCLUDES = -I"$(SSL_INSTALL_FOLDER)\include" -I"$(OPENSSL_INSTALL_DIR)\include" -I"$(TMP_DIR)"
+PRJ_INCLUDES = -I"$(TMP_DIR)"
 
 # Define any additional compiler flags that might be required for the project
-PRJ_DEFINES = -D NO_SSL2 -D NO_SSL3 /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_DEPRECATE /D__STDC_WANT_SECURE_LIB__=1
-# /DTCLTLS_SSL_USE_FASTPATH
-# /DTCLEXT_TCLTLS_DEBUG
+PRJ_DEFINES = -DDLL_BUILD -DBUILD_$(PROJECT) -D_WIN32 \
+		-DTBL_COMMAND=\"$(TBL_COMMAND)\" \
+		-DTBL_RUNTIME="\"$(TBL_RUNTIME)\"" \
+		-DTBL_RUNTIME_DIR="\"$(INST_RUNTIMEU)\"" \
+		-D_CRT_SECURE_NO_WARNINGS \
+		-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE \
+		-D__STDC_WANT_SECURE_LIB__=1
 
-#
-# SSL Libs:
-#    1. ${LIBCRYPTO}.dll
-#    2. ${LIBSSL}.dll
-# Where LIBCRYPTO (#1.) and LIBSSL (#2.) are defined as follows:
-#    v1.1: libcrypto-1.1-x64.dll and libssl-1.1-x64.dll
-#    v3: libcrypto-3-x64.dll and libssl-3-x64.dll
-# On *nix libcrypto.so.* and libssl.so.* (where suffix is a version indicator).
-#
-PRJ_LIBS = \
-	"$(SSL_INSTALL_FOLDER)\lib\libssl.lib" \
-	"$(SSL_INSTALL_FOLDER)\lib\libcrypto.lib" \
-	User32.Lib WS2_32.Lib Gdi32.Lib AdvAPI32.Lib Crypt32.Lib
+# Define any additional project needed libraries
+PRJ_LIBS = WS2_32.Lib
+
+# NO_EMBEDDED_RUNTIME means that the tkTable.tcl file will not be embedded
+# into the executable, thus the default tkTable.tcl library file will not
+# be available when the library is loaded.
+# If this is defined, the tkTable.tcl file must be available in a
+# predefined set of directories (see docs).
+#PRJ_DEFINES	+= -DNO_EMBEDDED_RUNTIME
 
 # Define the standard targets which calls rules.vc
 !include "targets.vc"
@@ -98,7 +110,7 @@ clean: default-clean
 realclean: default-hose
 
 # Explicit dependency rules
-$(PRJ_OBJS): $(TMP_DIR)\tls.tcl.h $(TMP_DIR)\tlsUuid.h
+$(PRJ_OBJS): $(TMP_DIR)\tkTable.tcl.h $(TMP_DIR)\TkTableUuid.h
 
 # We must define a pkgindex target that will create a pkgIndex.tcl
 # file in the $(OUT_DIR) directory. We can just redirect to the
@@ -108,10 +120,8 @@ pkgindex: default-pkgindex-tea
 # Create a C source file version of the script resources for inclusion in the
 # build so that only the compiled library file is needed for this extension to
 # load and operate.
-!message PAB DEBUG before tls.tcl.h target: TCLSH=$(TCLSH)
-$(TMP_DIR)\tls.tcl.h: $(LIBDIR)\tls.tcl
-	echo TCLSH=$(TCLSH)
-	"$(TCLSH)" << $(LIBDIR)\tls.tcl >$(TMP_DIR)\tls.tcl.h
+$(TMP_DIR)\tkTable.tcl.h: $(LIBDIR)\tkTable.tcl
+	"$(TCLSH)" << $(LIBDIR)\tkTable.tcl >$(TMP_DIR)\tkTable.tcl.h
 	set in [open [lindex $$argv 0] r]
 	while {[gets $$in line] != -1} {
 	    switch -regexp -- $$line "^$$" - {^\s*#} continue
@@ -123,10 +133,10 @@ $(TMP_DIR)\tls.tcl.h: $(LIBDIR)\tls.tcl
 
 # Use manifest file which defines fossil/git commit id for build-info command
 $(TMP_DIR)\manifest.uuid:
-!IF EXIST($(ROOT)\manifest.uuid)
+!IF exist($(ROOT)\manifest.uuid)
 	@copy "$(ROOT)\manifest.uuid" "$(TMP_DIR)\manifest.uuid"
 !ELSE
-!IF EXIST($(ROOT)\.git)
+!IF exist($(ROOT)\.git)
 	@copy "$(WIN_DIR)\gitmanifest.in" "$(TMP_DIR)\manifest.uuid"
 	@git rev-parse HEAD >>$(TMP_DIR)\manifest.uuid || echo unknown >>$(TMP_DIR)\manifest.uuid
 !ELSE
@@ -134,21 +144,21 @@ $(TMP_DIR)\manifest.uuid:
 !ENDIF
 !ENDIF
 
-$(TMP_DIR)\tlsUuid.h:	$(TMP_DIR)\manifest.uuid
-	@copy $(WIN_DIR)\tlsUuid.h.in+$(TMP_DIR)\manifest.uuid $(TMP_DIR)\tlsUuid.h
-	@echo: >>$(TMP_DIR)\tlsUuid.h
+$(TMP_DIR)\tkTableUuid.h:	$(TMP_DIR)\manifest.uuid
+	@copy $(WIN_DIR)\tkTableUuid.h.in+$(TMP_DIR)\manifest.uuid $(TMP_DIR)\tkTableUuid.h
+	@echo: >>$(TMP_DIR)\tkTableUuid.h
+
+install-tktabletcl:
+	@echo Installing package entrypoint in '$(SCRIPT_INSTALL_DIR)'
+	@$(CPY) $(LIBDIR)\tkTable.tcl "$(SCRIPT_INSTALL_DIR)"
+
+default-install-libraries: install-tktabletcl
 
 # The default install target only installs binaries and scripts so add
 # an additional target for our documentation. Note this *adds* a target
 # since no commands are listed after it. The original targets for
 # install (from targets.vc) will remain.
 install: pkgindex default-install default-install-docs-html default-install-demos
-!IF EXIST($(SSL_INSTALL_FOLDER)\bin\libcrypto-*-x64.dll)
-	@xcopy /c /y "$(SSL_INSTALL_FOLDER)\bin\libcrypto-*-x64.dll" "$(PRJ_INSTALL_DIR)"
-!ENDIF
-!IF EXIST($(SSL_INSTALL_FOLDER)\bin\libssl-*-x64.dll)
-	@xcopy /c /y "$(SSL_INSTALL_FOLDER)\bin\libssl-*-x64.dll" "$(PRJ_INSTALL_DIR)"
-!ENDIF
 
 # Test package
 test: default-test
