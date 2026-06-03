@@ -1,0 +1,102 @@
+name: Windows Sign
+on:
+  # Automatically trigger when the build workflow completes successfully
+  workflow_run:
+    workflows: ["Windows"]
+    types:
+      - completed
+
+  # Also allow manual triggering, supplying the build run ID and TCL version
+  workflow_dispatch:
+    inputs:
+      build-run-id:
+        description: 'Run ID of the Windows Build workflow that produced the unsigned installer'
+        required: true
+        type: string
+      tcl-version:
+        description: 'TCL version string used in the installer filename (e.g. 9.0.3, 9.1.main)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read   # needed by dawidd6/action-download-artifact to fetch cross-run artifacts
+
+jobs:
+  sign:
+    # For workflow_run triggers, only proceed if the build actually succeeded
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: windows-2025
+    defaults:
+      run:
+        shell: powershell
+
+    steps:
+      # Resolve the run ID and TCL version regardless of which trigger fired.
+      # For workflow_run, pull the version from the triggering run's name; for
+      # workflow_dispatch the user supplies it directly.
+      - name: Resolve inputs
+        run: |
+          if ('${{ github.event_name }}' -eq 'workflow_run') {
+            $runId = '${{ github.event.workflow_run.id }}'
+          } else {
+            $runId = '${{ github.event.inputs.build-run-id }}'
+          }
+          Add-Content -Path $env:GITHUB_ENV -Value "BUILD_RUN_ID=$runId"
+
+          if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+            $tclVersion = '${{ github.event.inputs.tcl-version }}'
+            Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=$tclVersion"
+          }
+          # For workflow_run, TCL_VERSION will be set after we download and
+          # inspect the artifact, or you can encode it in the artifact name.
+          # Here we derive it from the artifact name using the REST API if needed.
+          # For simplicity, if triggering via workflow_run you may prefer to
+          # always use workflow_dispatch for the signing step.
+
+      - name: Download unsigned installer from build run
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
+          run_id: ${{ env.BUILD_RUN_ID }}
+          name: "Tcl-Tk-unsigned"
+          path: ".github/Output"
+
+      # If triggered via workflow_run, discover the TCL version from the
+      # filename of whatever was downloaded.
+      - name: Detect TCL version from filename (workflow_run trigger only)
+        if: ${{ github.event_name == 'workflow_run' }}
+        run: |
+          $exe = Get-ChildItem ".github/Output" -Filter "Tcl-Tk-*-win64-setup.exe" | Select-Object -First 1
+          if (-not $exe) { throw "Could not find unsigned installer in .github/Output" }
+          # Filename format: Tcl-Tk-<version>-win64-setup.exe
+          $version = $exe.Name -replace '^Tcl-Tk-','' -replace '-win64-setup\.exe$',''
+          echo "Detected TCL_VERSION: $version"
+          Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=$version"
+
+      # Upload the unsigned installer as an artifact so SignPath can reference
+      # it by artifact ID within this workflow run.
+      - name: Upload unsigned installer for SignPath
+        id: upload-unsigned-installer
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: "Tcl-Tk-unsigned"
+          path: ".github/Output/Tcl-Tk-${{ env.TCL_VERSION }}-win64-setup.exe"
+
+      - name: Sign installer via SignPath
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '743c7475-eba0-4faf-8370-3c0574005a3f'
+          project-slug: 'tcl_release'
+          signing-policy-slug: 'test-signing'
+          github-artifact-id: '${{ steps.upload-unsigned-installer.outputs.artifact-id }}'
+          wait-for-completion: true
+          output-artifact-directory: '.github/Output/signed'
+
+      - name: Upload signed installer
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: "Tcl-Tk Windows Installer (Win64, signed)"
+          path: ".github/Output/signed/Tcl-Tk-${{ env.TCL_VERSION }}-win64-setup.exe"

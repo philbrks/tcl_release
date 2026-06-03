@@ -21,15 +21,13 @@ jobs:
     defaults:
       run:
         shell: powershell
-        # Using powershell means we need to explicitly stop on failure
 
     strategy:
       matrix:
         config:
           - ""
-          # - "OPTS=symbols"
-          # - "OPTS=static"
         tcl-tag: ${{ fromJSON(github.event.inputs.tcl-tags) }}
+
     steps:
       - uses: shogo82148/actions-setup-perl@v1
         with:
@@ -56,7 +54,6 @@ jobs:
                     echo "$env:GITHUB_ENV"
                     Add-Content -Path $env:GITHUB_ENV -Value "$name=$(Get-Variable -Name $name -ValueOnly)"
                     echo "Done Processing $name"
-                    
                 }
             }
           }
@@ -64,9 +61,7 @@ jobs:
           $OSSL_DOWNLOAD_HASH  = "1BB3506C580865A0A464E09288AC157E"
           $OSSL_BUILD_DIR      = "openssl-3.5.6"
           
-          # Get TLS from main to pick up required fix.
           $TCLTLS_DOWNLOAD_URL   =  "https://core.tcl-lang.org/tcltls/tarball/tcltls-main.tar.gz"
-          #$TCLTLS_DOWNLOAD_URL   = "https://core.tcl-lang.org/tcltls/uv/tcltls-2.0-src.tar.gz"
           $TCLTLS_DOWNLOAD_HASH  = "SKIP"
           $TCLTLS_BUILD_DIR      = "tcltls-main"
           
@@ -90,66 +85,48 @@ jobs:
           $TKTABLE_DOWNLOAD_HASH  = "SKIP"
           $TKTABLE_BUILD_DIR      = "tktable-35d3f2fa4d"
 
-          # tkcon
-          # $TKCON_DOWNLOAD_URL  = "https://github.com/bohagan1/TkCon/releases/download/v2.8/tkcon-2.8.tar.gz"
-          # $TKCON_DOWNLOAD_HASH  = "SKIP"
-          # $TKCON_BUILD_DIR      = "tkcon-2.8"
-
           mkdir "C:\Tcl-tk"
-          # Common Tcl/Tk Settings
           Add-Content -Path $env:GITHUB_ENV -Value "INSTALLDIR=C:\Tcl-tk"
           Add-Content -Path $env:GITHUB_ENV -Value "SSL_INSTALL_FOLDER=C:\OpenSSL"
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
 
- 
           if ( '${{ matrix.tcl-tag }}' -match 'core-9-0-3' ) {
-            # Tcl and Tk settings
             $TCLSH             = "C:\Tcl-tk\bin\tclsh90.exe"
             $TCL_MAJOR_MINOR   = "9.0"
-
             $TCL_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcl/tcl9.0.3-src.tar.gz"
             $TCL_DOWNLOAD_HASH = "820AEED1E4E1A89038D0302D2F839E84"
             $TCL_VERSION       = "9.0.3"
             $TCL_BUILD_DIR     = "tcl9.0.3"
-
             $TK_DOWNLOAD_URL   = "http://prdownloads.sourceforge.net/tcl/tk9.0.3-src.tar.gz"
             $TK_DOWNLOAD_HASH  = "72F9C4005EAAF3B9C994BDA74324C28E"
             $TK_VERSION        = "9.0.3"
             $TK_BUILD_DIR      = "tk9.0.3"
-
           } elseif ( '${{ matrix.tcl-tag }}' -match 'core-9-1-.*' ) {
             $TCLSH             = "C:\Tcl-tk\bin\tclsh91.exe"
             $TCL_MAJOR_MINOR   = "9.1"
-
-            $TCL_DOWNLOAD_URL  = http://prdownloads.sourceforge.net/tcl/tcl9.1a1-src.tar.gz"
+            $TCL_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcl/tcl9.1a1-src.tar.gz"
             $TCL_DOWNLOAD_HASH = "DFAF19E2D9CA72A91EED1B90C189ABAA"
             $TCL_VERSION       = "9.1.a1"
             $TCL_BUILD_DIR     = "tcl9.1a1"
-
-            $TK_DOWNLOAD_URL   = http://prdownloads.sourceforge.net/tk/tk9.1a1-src.tar.gz"
+            $TK_DOWNLOAD_URL   = "http://prdownloads.sourceforge.net/tk/tk9.1a1-src.tar.gz"
             $TK_DOWNLOAD_HASH  = "4AA84FD5DC39F0544FDEF1535AEE0189"
-            $TK_VERSION       = "9.1.a1"
+            $TK_VERSION        = "9.1.a1"
             $TK_BUILD_DIR      = "tk9.1a1"
           } elseif ( '${{ matrix.tcl-tag }} ' -match 'main' ) {
             $TCLSH             = "C:\Tcl-tk\bin\tclsh91.exe"
             $TCL_MAJOR_MINOR   = "9.1"
-
             $TCL_DOWNLOAD_URL  = "https://core.tcl-lang.org/tcl/tarball/tcl-main.tar.gz"
             $TCL_DOWNLOAD_HASH = "SKIP"
             $TCL_VERSION       = "9.1.main"
             $TCL_BUILD_DIR     = "tcl-main"
-
-            $TK_DOWNLOAD_URL = "https://core.tcl-lang.org/tk/tarball/tk-main.tar.gz"
-            $TK_DOWNLOAD_HASH = "SKIP"
-            $TK_VERSION = "9.1.main"
-            $TK_BUILD_DIR = "tk-main"
-
+            $TK_DOWNLOAD_URL   = "https://core.tcl-lang.org/tk/tarball/tk-main.tar.gz"
+            $TK_DOWNLOAD_HASH  = "SKIP"
+            $TK_VERSION        = "9.1.main"
+            $TK_BUILD_DIR      = "tk-main"
           } else {
             throw "Unable to set values for TCLSH build variables"
           }
-          # Common library settings
-          
-          # Save needed variables to GITHUB_ENV
+
           $TCL_DOWNLOAD_FILE = Split-Path -Leaf $TCL_DOWNLOAD_URL
           Export-ToGitHubEnv TCLSH, TCL_MAJOR_MINOR 
           Export-ToGitHubEnv TCL_DOWNLOAD_URL, TCL_DOWNLOAD_FILE, TCL_DOWNLOAD_HASH, TCL_VERSION, TCL_BUILD_DIR
@@ -178,11 +155,6 @@ jobs:
           $TKTABLE_DOWNLOAD_FILE = Split-Path -Leaf $TKTABLE_DOWNLOAD_URL
           Export-ToGitHubEnv TKTABLE_DOWNLOAD_URL, TKTABLE_DOWNLOAD_FILE, TKTABLE_DOWNLOAD_HASH, TKTABLE_BUILD_DIR
 
-          # $TKCON_DOWNLOAD_FILE = Split-Path -Leaf $TKCON_DOWNLOAD_URL
-          # Export-ToGitHubEnv TKCON_DOWNLOAD_URL, TKCON_DOWNLOAD_FILE, TKCON_DOWNLOAD_HASH, TKCON_BUILD_DIR
-
-          # type $env:GITHUB_ENV
-
         working-directory: .
 
       - name: Download All source
@@ -206,9 +178,6 @@ jobs:
           Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url '${{ env.TK_DOWNLOAD_URL }}'
 
           if ('${{ matrix.tcl-tag }} ' -match 'main') {
-
-              # These component packages are kept in separate repositories, but they are all released under the official Tcl source release, 
-              # so when main is selected as the version, we have to piece together the things that normally make up the Tcl source download.
               Get-Download -OutputFile 'itcl-main.tar.gz'              -Url 'https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz'
               Get-Download -OutputFile 'tdbc-main.tar.gz'              -Url 'https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz'
               Get-Download -OutputFile 'tdbcodbc-main.tar.gz'          -Url 'https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz'
@@ -217,8 +186,6 @@ jobs:
               Get-Download -OutputFile 'tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
               Get-Download -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
               Get-Download -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
-
-          } else {
           }
           Get-Download -OutputFile '${{ env.OSSL_DOWNLOAD_FILE }}' -Url '${{ env.OSSL_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TCLTLS_DOWNLOAD_FILE }}' -Url '${{ env.TCLTLS_DOWNLOAD_URL }}'
@@ -227,7 +194,6 @@ jobs:
           Get-Download -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url '${{ env.IMG_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url '${{ env.TDOM_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TKTABLE_DOWNLOAD_FILE }}' -Url '${{ env.TKTABLE_DOWNLOAD_URL }}'
-          # Get-Download -OutputFile '${{ env.TKCON_DOWNLOAD_FILE }}' -Url '${{ env.TKCON_DOWNLOAD_URL }}'
 
           echo "Done downloading source files.  LASTERRORCODE=$LASTERRORCODE"
 
@@ -270,11 +236,9 @@ jobs:
                throw "nmake exit code: $lastexitcode"
             }
           }
-          echo "Tcl Sources:"
           Extract-Download ${{ env.TCL_DOWNLOAD_FILE }}
           Extract-Download ${{ env.TK_DOWNLOAD_FILE }}
           if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
-            # Download items included in the Tcl source distribution that come from different repos
             Extract-Download itcl-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
             Extract-Download tdbc-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
             Extract-Download tdbcodbc-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
@@ -291,7 +255,6 @@ jobs:
           Extract-Download ${{ env.IMG_DOWNLOAD_FILE }}
           Extract-Download ${{ env.TDOM_DOWNLOAD_FILE }}
           Extract-Download ${{ env.TKTABLE_DOWNLOAD_FILE }}
-          # Extract-Download ${{ env.TKCON_DOWNLOAD_FILE }}
           dir
           dir ${{ env.TCL_BUILD_DIR }}/pkgs
           
@@ -303,113 +266,67 @@ jobs:
       - name: Build and install Tcl and included libraries (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
         working-directory: ${{ env.TCL_BUILD_DIR }}\win
 
       - name: Build and install OpenSSL (${{ matrix.config }})
         run: |
           &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="$Env:SSL_INSTALL_FOLDER" --openssldir="$Env:SSL_INSTALL_FOLDER" -DOPENSSL_NO_DEPRECATED
-          if ($lastexitcode -ne 0) {
-             throw "perl Configure OSSL exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "perl Configure OSSL exit code: $lastexitcode" }
           &nmake
-          if ($lastexitcode -ne 0) {
-             throw "nmake OSSL exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake OSSL exit code: $lastexitcode" }
           &nmake install
-          if ($lastexitcode -ne 0) {
-             throw "nmake install OSSL exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake install OSSL exit code: $lastexitcode" }
         working-directory: ${{ env.OSSL_BUILD_DIR }}
 
       - name: Build and install TclTLS (${{ matrix.config }})
         run: |
-          # Temporary patch while we await a fix from Brian.
           &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=${{ env.SSL_INSTALL_FOLDER }} TCLDIR=..\..\${{ env.TCL_BUILD_DIR }} INSTALLDIR=${{ env.INSTALLDIR }}
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           &nmake -f makefile.vc install ${{ matrix.config }} SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake install exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake install exit code: $lastexitcode" }
         working-directory: ${{ env.TCLTLS_BUILD_DIR }}\win
 
       - name: Build and install Tk (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake install exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
         working-directory: ${{ env.TK_BUILD_DIR }}/win
 
       - name: Build and install Img (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc all ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
         working-directory: ${{ env.IMG_BUILD_DIR }}/win
 
       - name: Build and install tDom (${{ matrix.config }})
         run: |
           &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
         working-directory: ${{ env.TDOM_BUILD_DIR }}/win
 
       - name: Build and install TkTable (${{ matrix.config }})
         run: |
-          # Temporary fix while we await a checkin from Brian.
           copy ..\..\debug_file makefile.vc
           &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
         working-directory: ${{ env.TKTABLE_BUILD_DIR }}/win
-
-        # - name: Build and install tkcon (${{ matrix.config }})
-        #   run: |
-        #     &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-        #     if ($lastexitcode -ne 0) {
-        #        throw "nmake exit code: $lastexitcode"
-        #     }
-        #     &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-        #     if ($lastexitcode -ne 0) {
-        #        throw "nmake exit code: $lastexitcode"
-        #     }
-        #   working-directory: ${{ env.TKCON_BUILD_DIR }}/win
 
       - name: Build Test Harness ${{ matrix.config }}
         if: 1 == 0
         run: |
           &nmake -f makefile.vc ${{ matrix.config }} tcltest
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
         timeout-minutes: 5
         working-directory: ${{ env.TCL_BUILD_DIR }}/win
 
@@ -418,9 +335,7 @@ jobs:
         run: |
           Write-Output "::add-matcher::.github\tcltest.json"
           &nmake -f makefile.vc ${{ matrix.config }} test
-          if ($lastexitcode -ne 0) {
-             throw "nmake exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
         timeout-minutes: 30
         working-directory: ${{ env.TCL_BUILD_DIR }}/win
         env:
@@ -431,24 +346,16 @@ jobs:
         shell: powershell
         run: |
             ${{ env.TCLSH }} ${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
-            if ($lastexitcode -ne 0) {
-             throw "tcllib installer exit code: $lastexitcode"
-            }
+            if ($lastexitcode -ne 0) { throw "tcllib installer exit code: $lastexitcode" }
             ${{ env.TCLSH }} ${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
-            if ($lastexitcode -ne 0) {
-             throw "tklib installer exit code: $lastexitcode"
-            }
+            if ($lastexitcode -ne 0) { throw "tklib installer exit code: $lastexitcode" }
         working-directory: .
 
       - name: Generate Installed file manifest for Install Test.
         shell: powershell
         run: |
             ${{ env.TCLSH }} .github\generate_manifest.tcl ${{ env.INSTALLDIR }} tcl_installer_files.txt
-            if ($lastexitcode -ne 0) {
-             throw "tklib installer exit code: $lastexitcode"
-            }
-            pwd
-            dir
+            if ($lastexitcode -ne 0) { throw "generate_manifest exit code: $lastexitcode" }
         working-directory: .
 
       - name: Upload distribution
@@ -457,26 +364,18 @@ jobs:
           name: "Tcl-Tk Release Distribution (Win64)"
           path: ${{ env.INSTALLDIR }}
 
-
       # -----------------------------------------------------------------------
       # Installer build
       # -----------------------------------------------------------------------
 
       - name: Install Inno Setup
         run: |
-          # Inno Setup 6 is not pre-installed on windows-2025 runners.
-          # Chocolatey is available on all GitHub-hosted Windows runners.
           choco install innosetup --yes --no-progress
-          if ($lastexitcode -ne 0) {
-            throw "Inno Setup installation failed (exit code $lastexitcode)"
-          }
-          # Add ISCC to PATH for subsequent steps
+          if ($lastexitcode -ne 0) { throw "Inno Setup installation failed (exit code $lastexitcode)" }
           Add-Content -Path $env:GITHUB_PATH -Value "C:\Program Files (x86)\Inno Setup 6"
 
       - name: Build Installer
         run: |
-          # Drive ISCC entirely via /D defines so the .iss file itself needs no
-          # edits when the Tcl version changes.
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
             /DMyAppVersion="${{ env.TCL_VERSION }}" `
             /DMyMajorMinor="${{ env.TCL_MAJOR_MINOR }}" `
@@ -484,43 +383,22 @@ jobs:
             /DMyIconFile="${{ github.workspace }}\${{ env.TCL_BUILD_DIR }}\win\tclsh.ico" `
             /DMyAppGuid="${{ env.TCL_APP_GUID }}" `
             ".github\tcl_windows.iss"
-          if ($lastexitcode -ne 0) {
-            throw "ISCC.exe exit code: $lastexitcode"
-          }
+          if ($lastexitcode -ne 0) { throw "ISCC.exe exit code: $lastexitcode" }
         working-directory: .
-          
 
-      - name: Upload unsigned installer for signing
-        id: upload-unsigned-installer
+      - name: Upload unsigned installer
         uses: actions/upload-artifact@v7.0.1
         with:
           name: "Tcl-Tk-unsigned"
           path: ".github/Output/Tcl-Tk-${{ env.TCL_VERSION }}-win64-setup.exe"
 
-      - name: Sign installer via SignPath
-        uses: signpath/github-action-submit-signing-request@v2
-        with:
-          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
-          organization-id: '743c7475-eba0-4faf-8370-3c0574005a3f'
-          project-slug: 'tcl_release'
-          signing-policy-slug: 'test-signing'
-          github-artifact-id: '${{ steps.upload-unsigned-installer.outputs.artifact-id }}'
-          wait-for-completion: true
-          output-artifact-directory: '.github/Output/signed'
-
-      - name: Upload signed installer
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: "Tcl-Tk Windows Installer (Win64, signed)"
-          path: ".github/Output/signed/Tcl-Tk-${{ env.TCL_VERSION }}-win64-setup.exe"
-          
       # -----------------------------------------------------------------------
       # Installer test
       # -----------------------------------------------------------------------
       - name: Test Installer
         run: |
           .github\test_installer.ps1
-          if ($lastexitcode -ne 0) {
-            throw "Installer test suite failed (exit code $lastexitcode)"
-          }
-        working-directory: .  
+          if ($lastexitcode -ne 0) { throw "Installer test suite failed (exit code $lastexitcode)" }
+        working-directory: .
+
+
