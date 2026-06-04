@@ -26,7 +26,7 @@ jobs:
   sign:
     # For workflow_run triggers, only proceed if the build actually succeeded
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: windows-2025
+    runs-on: windows-2026
     defaults:
       run:
         shell: powershell
@@ -63,17 +63,22 @@ jobs:
           name: "Tcl-Tk-unsigned"
           path: ".github/Output"
 
-      # If triggered via workflow_run, discover the TCL version from the
-      # filename of whatever was downloaded.
-      - name: Detect TCL version from filename (workflow_run trigger only)
-        if: ${{ github.event_name == 'workflow_run' }}
+      - name: Download build variables
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
+          run_id: ${{ env.BUILD_RUN_ID }}
+          name: "build-vars"
+          path: "."
+
+      - name: Load build variables
         run: |
-          $exe = Get-ChildItem ".github/Output" -Filter "Tcl-Tk-*-win64-setup.exe" | Select-Object -First 1
-          if (-not $exe) { throw "Could not find unsigned installer in .github/Output" }
-          # Filename format: Tcl-Tk-<version>-win64-setup.exe
-          $version = $exe.Name -replace '^Tcl-Tk-','' -replace '-win64-setup\.exe$',''
-          echo "Detected TCL_VERSION: $version"
-          Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=$version"
+          $vars = Get-Content "build-vars.json" | ConvertFrom-Json
+          foreach ($prop in $vars.PSObject.Properties) {
+            echo "Restoring $($prop.Name)=$($prop.Value)"
+            Add-Content -Path $env:GITHUB_ENV -Value "$($prop.Name)=$($prop.Value)"
+          }
 
       # Upload the unsigned installer as an artifact so SignPath can reference
       # it by artifact ID within this workflow run.
