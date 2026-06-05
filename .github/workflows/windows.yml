@@ -43,7 +43,7 @@ jobs:
       - name: Prepare
         run: |
           # Hashtable to accumulate variables for downstream workflows
-          $script:buildVars = @{}
+          $script:buildVars = [ordered]@{}
 
           function Export-ToGitHubEnv {
             param(
