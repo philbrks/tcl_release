@@ -17,7 +17,7 @@ env:
   ERROR_ON_FAILURES: 1
 jobs:
   msvc:
-    runs-on: windows-2026
+    runs-on: windows-2025
     defaults:
       run:
         shell: powershell
