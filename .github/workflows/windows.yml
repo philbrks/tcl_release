@@ -15,6 +15,7 @@ permissions:
   contents: read
 env:
   ERROR_ON_FAILURES: 1
+
 jobs:
   msvc:
     runs-on: windows-2025
@@ -40,127 +41,43 @@ jobs:
         uses: actions/checkout@v6
         timeout-minutes: 5
 
-      - name: Prepare
+      - name: Load build variables from JSON
         run: |
-          # Hashtable to accumulate variables for downstream workflows
-          $script:buildVars = [ordered]@{}
-
-          function Export-ToGitHubEnv {
-            param(
-                [Parameter(Mandatory, ValueFromPipeline)]
-                [string[]]$VariableNames
-            )
-            process {
-                foreach ($name in $VariableNames) {
-                    $value = Get-Variable -Name $name -ValueOnly
-                    echo "Processing $name=$value"
-                    Add-Content -Path $env:GITHUB_ENV -Value "$name=$value"
-                    $script:buildVars[$name] = $value
-                }
-            }
+          # Map the tcl-tag choice to the corresponding JSON file
+          $tag = '${{ matrix.tcl-tag }}'
+          if ($tag -match 'core-9-0-3') {
+            $varsFile = ".github/build-vars-tcl-9.0.json"
+          } elseif ($tag -match 'core-9-1-.*') {
+            $varsFile = ".github/build-vars-tcl-9.1.json"
+          } elseif ($tag -match 'main') {
+            $varsFile = ".github/build-vars-tcl-main.json"
+          } else {
+            throw "No build-vars JSON file defined for tcl-tag: $tag"
           }
-          $OSSL_DOWNLOAD_URL   = "https://github.com/openssl/openssl/releases/download/openssl-3.5.6/openssl-3.5.6.tar.gz"
-          $OSSL_DOWNLOAD_HASH  = "1BB3506C580865A0A464E09288AC157E"
-          $OSSL_BUILD_DIR      = "openssl-3.5.6"
-          
-          $TCLTLS_DOWNLOAD_URL   =  "https://core.tcl-lang.org/tcltls/tarball/tcltls-main.tar.gz"
-          $TCLTLS_DOWNLOAD_HASH  = "SKIP"
-          $TCLTLS_BUILD_DIR      = "tcltls-main"
-          
-          $TCLLIB_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcllib/tcllib-2.0.tar.gz"
-          $TCLLIB_DOWNLOAD_HASH = "7A6583B88160FE2040FAB74309881C3E"
-          $TCLLIB_BUILD_DIR     = "tcllib-2.0"
 
-          $TKLIB_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcllib/tklib-0.9.tar.gz"
-          $TKLIB_DOWNLOAD_HASH = "650A65B431987EB1AFC4481D91B9CF0F"
-          $TKLIB_BUILD_DIR     = "tklib-0.9"
+          echo "Loading build variables from $varsFile"
+          if (-not (Test-Path $varsFile)) {
+            throw "Build vars file not found: $varsFile"
+          }
 
-          $IMG_DOWNLOAD_URL    = "https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz"
-          $IMG_DOWNLOAD_HASH   = "F1CBC25121CDBE9D037FED327B6B810C"
-          $IMG_BUILD_DIR       = "Img-2.1.1"
+          $vars = Get-Content $varsFile | ConvertFrom-Json
+          foreach ($prop in $vars.PSObject.Properties) {
+            echo "Setting $($prop.Name)=$($prop.Value)"
+            Add-Content -Path $env:GITHUB_ENV -Value "$($prop.Name)=$($prop.Value)"
+          }
 
-          $TDOM_DOWNLOAD_URL   = "https://core.tcl-lang.org/tdom/tarball/tDom-0-9-6.tar.gz"
-          $TDOM_DOWNLOAD_HASH  = "SKIP"
-          $TDOM_BUILD_DIR      = "tDom-0-9-6"
+          # Also record which file was used, for reference
+          Add-Content -Path $env:GITHUB_ENV -Value "BUILD_VARS_FILE=$varsFile"
 
-          $TKTABLE_DOWNLOAD_URL   = "https://chiselapp.com/user/bohagan/repository/TkTable/uv/tktable-2.12.1-src.tar.gz"
-          $TKTABLE_DOWNLOAD_HASH  = "SKIP"
-          $TKTABLE_BUILD_DIR      = "tktable-35d3f2fa4d"
+        working-directory: .
 
-          mkdir "C:\Tcl-tk"
+      - name: Set fixed environment variables
+        run: |
+          # These are constant across all TCL versions
           Add-Content -Path $env:GITHUB_ENV -Value "INSTALLDIR=C:\Tcl-tk"
           Add-Content -Path $env:GITHUB_ENV -Value "SSL_INSTALL_FOLDER=C:\OpenSSL"
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
-
-          if ( '${{ matrix.tcl-tag }}' -match 'core-9-0-3' ) {
-            $TCLSH             = "C:\Tcl-tk\bin\tclsh90.exe"
-            $TCL_MAJOR_MINOR   = "9.0"
-            $TCL_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcl/tcl9.0.3-src.tar.gz"
-            $TCL_DOWNLOAD_HASH = "820AEED1E4E1A89038D0302D2F839E84"
-            $TCL_VERSION       = "9.0.3"
-            $TCL_BUILD_DIR     = "tcl9.0.3"
-            $TK_DOWNLOAD_URL   = "http://prdownloads.sourceforge.net/tcl/tk9.0.3-src.tar.gz"
-            $TK_DOWNLOAD_HASH  = "72F9C4005EAAF3B9C994BDA74324C28E"
-            $TK_VERSION        = "9.0.3"
-            $TK_BUILD_DIR      = "tk9.0.3"
-          } elseif ( '${{ matrix.tcl-tag }}' -match 'core-9-1-.*' ) {
-            $TCLSH             = "C:\Tcl-tk\bin\tclsh91.exe"
-            $TCL_MAJOR_MINOR   = "9.1"
-            $TCL_DOWNLOAD_URL  = "http://prdownloads.sourceforge.net/tcl/tcl9.1a1-src.tar.gz"
-            $TCL_DOWNLOAD_HASH = "DFAF19E2D9CA72A91EED1B90C189ABAA"
-            $TCL_VERSION       = "9.1.a1"
-            $TCL_BUILD_DIR     = "tcl9.1a1"
-            $TK_DOWNLOAD_URL   = "http://prdownloads.sourceforge.net/tk/tk9.1a1-src.tar.gz"
-            $TK_DOWNLOAD_HASH  = "4AA84FD5DC39F0544FDEF1535AEE0189"
-            $TK_VERSION        = "9.1.a1"
-            $TK_BUILD_DIR      = "tk9.1a1"
-          } elseif ( '${{ matrix.tcl-tag }} ' -match 'main' ) {
-            $TCLSH             = "C:\Tcl-tk\bin\tclsh91.exe"
-            $TCL_MAJOR_MINOR   = "9.1"
-            $TCL_DOWNLOAD_URL  = "https://core.tcl-lang.org/tcl/tarball/tcl-main.tar.gz"
-            $TCL_DOWNLOAD_HASH = "SKIP"
-            $TCL_VERSION       = "9.1.main"
-            $TCL_BUILD_DIR     = "tcl-main"
-            $TK_DOWNLOAD_URL   = "https://core.tcl-lang.org/tk/tarball/tk-main.tar.gz"
-            $TK_DOWNLOAD_HASH  = "SKIP"
-            $TK_VERSION        = "9.1.main"
-            $TK_BUILD_DIR      = "tk-main"
-          } else {
-            throw "Unable to set values for TCLSH build variables"
-          }
-
-          $TCL_DOWNLOAD_FILE = Split-Path -Leaf $TCL_DOWNLOAD_URL
-          Export-ToGitHubEnv TCLSH, TCL_MAJOR_MINOR 
-          Export-ToGitHubEnv TCL_DOWNLOAD_URL, TCL_DOWNLOAD_FILE, TCL_DOWNLOAD_HASH, TCL_VERSION, TCL_BUILD_DIR
-
-          $OSSL_DOWNLOAD_FILE = Split-Path -Leaf $OSSL_DOWNLOAD_URL
-          Export-ToGitHubEnv OSSL_DOWNLOAD_URL, OSSL_DOWNLOAD_FILE, OSSL_DOWNLOAD_HASH, OSSL_BUILD_DIR
-
-          $TCLTLS_DOWNLOAD_FILE = Split-Path -Leaf $TCLTLS_DOWNLOAD_URL
-          Export-ToGitHubEnv TCLTLS_DOWNLOAD_URL, TCLTLS_DOWNLOAD_FILE, TCLTLS_DOWNLOAD_HASH, TCLTLS_BUILD_DIR
-
-          $TK_DOWNLOAD_FILE = Split-Path -Leaf $TK_DOWNLOAD_URL
-          Export-ToGitHubEnv TK_DOWNLOAD_URL, TK_DOWNLOAD_FILE, TK_DOWNLOAD_HASH, TK_VERSION, TK_BUILD_DIR
-
-          $TCLLIB_DOWNLOAD_FILE = Split-Path -Leaf $TCLLIB_DOWNLOAD_URL 
-          Export-ToGitHubEnv TCLLIB_DOWNLOAD_URL, TCLLIB_DOWNLOAD_FILE, TCLLIB_DOWNLOAD_HASH, TCLLIB_BUILD_DIR     
-
-          $TKLIB_DOWNLOAD_FILE = Split-Path -Leaf $TKLIB_DOWNLOAD_URL
-          Export-ToGitHubEnv TKLIB_DOWNLOAD_URL, TKLIB_DOWNLOAD_FILE, TKLIB_DOWNLOAD_HASH, TKLIB_BUILD_DIR
-
-          $IMG_DOWNLOAD_FILE = Split-Path -Leaf $IMG_DOWNLOAD_URL
-          Export-ToGitHubEnv IMG_DOWNLOAD_URL, IMG_DOWNLOAD_FILE, IMG_DOWNLOAD_HASH, IMG_BUILD_DIR
-
-          $TDOM_DOWNLOAD_FILE = Split-Path -Leaf $TDOM_DOWNLOAD_URL
-          Export-ToGitHubEnv TDOM_DOWNLOAD_URL, TDOM_DOWNLOAD_FILE, TDOM_DOWNLOAD_HASH, TDOM_BUILD_DIR
-
-          $TKTABLE_DOWNLOAD_FILE = Split-Path -Leaf $TKTABLE_DOWNLOAD_URL
-          Export-ToGitHubEnv TKTABLE_DOWNLOAD_URL, TKTABLE_DOWNLOAD_FILE, TKTABLE_DOWNLOAD_HASH, TKTABLE_BUILD_DIR
-
-          $script:buildVars | ConvertTo-Json | Out-File -FilePath "build-vars.json" -Encoding utf8
-          echo "Saved build-vars.json:"
-          cat build-vars.json
-
+          mkdir "C:\Tcl-tk"
         working-directory: .
 
       - name: Download All source
@@ -180,7 +97,7 @@ jobs:
               echo "Done downloading $Url to $OutputFile"
           }
 
-          Get-Download -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}'  -Url ${{ env.TCL_DOWNLOAD_URL }}
+          Get-Download -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}'  -Url '${{ env.TCL_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url '${{ env.TK_DOWNLOAD_URL }}'
 
           if ('${{ matrix.tcl-tag }} ' -match 'main') {
@@ -193,15 +110,16 @@ jobs:
               Get-Download -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
               Get-Download -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
           }
-          Get-Download -OutputFile '${{ env.OSSL_DOWNLOAD_FILE }}' -Url '${{ env.OSSL_DOWNLOAD_URL }}'
+
+          Get-Download -OutputFile '${{ env.OSSL_DOWNLOAD_FILE }}'   -Url '${{ env.OSSL_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TCLTLS_DOWNLOAD_FILE }}' -Url '${{ env.TCLTLS_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'  -Url '${{ env.IMG_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}' -Url '${{ env.TDOM_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'    -Url '${{ env.IMG_DOWNLOAD_URL }}'
+          Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}'   -Url '${{ env.TDOM_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TKTABLE_DOWNLOAD_FILE }}' -Url '${{ env.TKTABLE_DOWNLOAD_URL }}'
 
-          echo "Done downloading source files.  LASTERRORCODE=$LASTERRORCODE"
+          echo "Done downloading source files."
 
       - name: Verify downloads
         if: 1 == 1
@@ -216,16 +134,16 @@ jobs:
                   echo "Verifying $DownloadFile"
                   $FileHash = (Get-FileHash $DownloadFile -Algorithm MD5).HASH
                   if ( $FileHash -ne $DownloadHash ) {
-                      Write-Error "MD5 hash check failed for $DownlaodFile"
+                      Write-Error "MD5 hash check failed for $DownloadFile"
                       throw 14
                   }
               }
           }
-          
-          Verify-Download "${{ env.TCL_DOWNLOAD_FILE }}" "${{ env.TCL_DOWNLOAD_HASH }}"
-          Verify-Download "${{ env.OSSL_DOWNLOAD_FILE }}" "${{ env.OSSL_DOWNLOAD_HASH }}"
+
+          Verify-Download "${{ env.TCL_DOWNLOAD_FILE }}"   "${{ env.TCL_DOWNLOAD_HASH }}"
+          Verify-Download "${{ env.OSSL_DOWNLOAD_FILE }}"  "${{ env.OSSL_DOWNLOAD_HASH }}"
           Verify-Download "${{ env.TCLTLS_DOWNLOAD_FILE }}" "${{ env.TCLTLS_DOWNLOAD_HASH }}"
-          Verify-Download "${{ env.TK_DOWNLOAD_FILE }}" "${{ env.TK_DOWNLOAD_HASH }}"
+          Verify-Download "${{ env.TK_DOWNLOAD_FILE }}"    "${{ env.TK_DOWNLOAD_HASH }}"
           Verify-Download "${{ env.TCLLIB_DOWNLOAD_FILE }}" "${{ env.TCLLIB_DOWNLOAD_HASH }}"
 
       - name: Extract source archives
@@ -239,31 +157,31 @@ jobs:
             echo "Extracting $DownloadFile $ExtraArg"
             tar -zxf $DownloadFile $ExtraArg
             if ($lastexitcode -ne 0) {
-               throw "nmake exit code: $lastexitcode"
+               throw "tar exit code: $lastexitcode"
             }
           }
-          Extract-Download ${{ env.TCL_DOWNLOAD_FILE }}
-          Extract-Download ${{ env.TK_DOWNLOAD_FILE }}
-          if (  '${{ matrix.tcl-tag }} ' -match 'main' ) {
-            Extract-Download itcl-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download tdbc-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download tdbcodbc-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download tdbcmysql-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+          Extract-Download '${{ env.TCL_DOWNLOAD_FILE }}'
+          Extract-Download '${{ env.TK_DOWNLOAD_FILE }}'
+          if ('${{ matrix.tcl-tag }} ' -match 'main') {
+            Extract-Download itcl-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download tdbc-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download tdbcodbc-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download tdbcmysql-main.tar.gz   "-C${{ env.TCL_BUILD_DIR }}/pkgs"
             Extract-Download tdbcpostgres-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
             Extract-Download tdbcsqlite3-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download thread-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download thread-main.tar.gz  "-C${{ env.TCL_BUILD_DIR }}/pkgs"
             Extract-Download sqlite3-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
           }
-          Extract-Download ${{ env.OSSL_DOWNLOAD_FILE }}
-          Extract-Download ${{ env.TCLTLS_DOWNLOAD_FILE }}
-          Extract-Download ${{ env.TCLLIB_DOWNLOAD_FILE }}
-          Extract-Download ${{ env.TKLIB_DOWNLOAD_FILE }}
-          Extract-Download ${{ env.IMG_DOWNLOAD_FILE }}
-          Extract-Download ${{ env.TDOM_DOWNLOAD_FILE }}
-          Extract-Download ${{ env.TKTABLE_DOWNLOAD_FILE }}
+          Extract-Download '${{ env.OSSL_DOWNLOAD_FILE }}'
+          Extract-Download '${{ env.TCLTLS_DOWNLOAD_FILE }}'
+          Extract-Download '${{ env.TCLLIB_DOWNLOAD_FILE }}'
+          Extract-Download '${{ env.TKLIB_DOWNLOAD_FILE }}'
+          Extract-Download '${{ env.IMG_DOWNLOAD_FILE }}'
+          Extract-Download '${{ env.TDOM_DOWNLOAD_FILE }}'
+          Extract-Download '${{ env.TKTABLE_DOWNLOAD_FILE }}'
           dir
           dir ${{ env.TCL_BUILD_DIR }}/pkgs
-          
+
       - name: Init MSVC
         uses: ilammy/msvc-dev-cmd@v1.13.0
         with:
@@ -348,20 +266,19 @@ jobs:
           ERROR_ON_FAILURES: 1
 
       - name: Install tcllib and tklib
-        if: 1 == 1
         shell: powershell
         run: |
-            ${{ env.TCLSH }} ${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
-            if ($lastexitcode -ne 0) { throw "tcllib installer exit code: $lastexitcode" }
-            ${{ env.TCLSH }} ${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
-            if ($lastexitcode -ne 0) { throw "tklib installer exit code: $lastexitcode" }
+          ${{ env.TCLSH }} ${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
+          if ($lastexitcode -ne 0) { throw "tcllib installer exit code: $lastexitcode" }
+          ${{ env.TCLSH }} ${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
+          if ($lastexitcode -ne 0) { throw "tklib installer exit code: $lastexitcode" }
         working-directory: .
 
-      - name: Generate Installed file manifest for Install Test.
+      - name: Generate Installed file manifest for Install Test
         shell: powershell
         run: |
-            ${{ env.TCLSH }} .github\generate_manifest.tcl ${{ env.INSTALLDIR }} tcl_installer_files.txt
-            if ($lastexitcode -ne 0) { throw "generate_manifest exit code: $lastexitcode" }
+          ${{ env.TCLSH }} .github\generate_manifest.tcl ${{ env.INSTALLDIR }} tcl_installer_files.txt
+          if ($lastexitcode -ne 0) { throw "generate_manifest exit code: $lastexitcode" }
         working-directory: .
 
       - name: Upload distribution
@@ -398,6 +315,14 @@ jobs:
           name: "Tcl-Tk-unsigned"
           path: ".github/Output/Tcl-Tk-${{ env.TCL_VERSION }}-win64-setup.exe"
 
+      # Upload the build-vars JSON so the signing workflow can restore all
+      # variables without having to re-derive them.
+      - name: Upload build variables for signing workflow
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: "build-vars"
+          path: "build-vars.json"
+
       # -----------------------------------------------------------------------
       # Installer test
       # -----------------------------------------------------------------------
@@ -406,10 +331,3 @@ jobs:
           .github\test_installer.ps1
           if ($lastexitcode -ne 0) { throw "Installer test suite failed (exit code $lastexitcode)" }
         working-directory: .
-
-      - name: Upload build variables
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: "build-vars"
-          path: "build-vars.json"
-

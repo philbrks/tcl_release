@@ -13,14 +13,10 @@ on:
         description: 'Run ID of the Windows Build workflow that produced the unsigned installer'
         required: true
         type: string
-      tcl-version:
-        description: 'TCL version string used in the installer filename (e.g. 9.0.3, 9.1.main)'
-        required: true
-        type: string
 
 permissions:
   contents: read
-  actions: read   # needed by dawidd6/action-download-artifact to fetch cross-run artifacts
+  actions: read
 
 jobs:
   sign:
@@ -32,10 +28,7 @@ jobs:
         shell: powershell
 
     steps:
-      # Resolve the run ID and TCL version regardless of which trigger fired.
-      # For workflow_run, pull the version from the triggering run's name; for
-      # workflow_dispatch the user supplies it directly.
-      - name: Resolve inputs
+      - name: Resolve build run ID
         run: |
           if ('${{ github.event_name }}' -eq 'workflow_run') {
             $runId = '${{ github.event.workflow_run.id }}'
@@ -43,25 +36,6 @@ jobs:
             $runId = '${{ github.event.inputs.build-run-id }}'
           }
           Add-Content -Path $env:GITHUB_ENV -Value "BUILD_RUN_ID=$runId"
-
-          if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
-            $tclVersion = '${{ github.event.inputs.tcl-version }}'
-            Add-Content -Path $env:GITHUB_ENV -Value "TCL_VERSION=$tclVersion"
-          }
-          # For workflow_run, TCL_VERSION will be set after we download and
-          # inspect the artifact, or you can encode it in the artifact name.
-          # Here we derive it from the artifact name using the REST API if needed.
-          # For simplicity, if triggering via workflow_run you may prefer to
-          # always use workflow_dispatch for the signing step.
-
-      - name: Download unsigned installer from build run
-        uses: dawidd6/action-download-artifact@v6
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          repo: ${{ github.repository }}
-          run_id: ${{ env.BUILD_RUN_ID }}
-          name: "Tcl-Tk-unsigned"
-          path: ".github/Output"
 
       - name: Download build variables
         uses: dawidd6/action-download-artifact@v6
@@ -80,8 +54,21 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "$($prop.Name)=$($prop.Value)"
           }
 
-      # Upload the unsigned installer as an artifact so SignPath can reference
-      # it by artifact ID within this workflow run.
+      - name: Set fixed environment variables
+        run: |
+          Add-Content -Path $env:GITHUB_ENV -Value "INSTALLDIR=C:\Tcl-tk"
+          Add-Content -Path $env:GITHUB_ENV -Value "SSL_INSTALL_FOLDER=C:\OpenSSL"
+          Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
+
+      - name: Download unsigned installer
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
+          run_id: ${{ env.BUILD_RUN_ID }}
+          name: "Tcl-Tk-unsigned"
+          path: ".github/Output"
+
       - name: Upload unsigned installer for SignPath
         id: upload-unsigned-installer
         uses: actions/upload-artifact@v7.0.1
