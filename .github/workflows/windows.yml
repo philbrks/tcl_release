@@ -59,6 +59,8 @@ jobs:
           if (-not (Test-Path $varsFile)) {
             throw "Build vars file not found: $varsFile"
           }
+          # Make a copy to pass on to downstream actions, so that they can see what we used:
+          copy $varsFile build-vars.json
 
           $vars = Get-Content $varsFile | ConvertFrom-Json
           foreach ($prop in $vars.PSObject.Properties) {
@@ -321,7 +323,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: "build-vars"
-          path: "${{ env.BUILD_VARS_FILE }}"
+          path: "build-vars.json"
 
       # -----------------------------------------------------------------------
       # Installer test
