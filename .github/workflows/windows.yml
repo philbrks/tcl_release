@@ -321,7 +321,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: "build-vars"
-          path: "build-vars.json"
+          path: "${{ env.BUILD_VARS_FILE }}"
 
       # -----------------------------------------------------------------------
       # Installer test
