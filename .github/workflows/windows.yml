@@ -192,36 +192,40 @@ jobs:
       - name: Build and install Tcl and included libraries (${{ matrix.config }})
         run: |
           # Tcl
-          & {
-            cd ${{ env.TCL_BUILD_DIR }}\win
+          try {
+            Push-Location ${{ env.TCL_BUILD_DIR }}\win
             nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
             if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
             nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
             if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           }
+          finally { Pop-Location }
           # Tk
-          & {
-            cd ${{ env.TK_BUILD_DIR }}/win
+          try {
+            Push-Location ${{ env.TK_BUILD_DIR }}/win
             nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
             if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
             nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
             if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           }
+          finally { Pop-Location }
           # TDom
-          & {
-            cd ${{ env.TDOM_BUILD_DIR }}/win
+          try {
+            Push-Location ${{ env.TDOM_BUILD_DIR }}/win
             nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
             if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
             nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
             if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           }
+          finally { Pop-Location }
           # TclLib and TkLib
-          & {
+          try {
             ${{ env.TCLSH }} ${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
             if ($lastexitcode -ne 0) { throw "tcllib installer exit code: $lastexitcode" }
             ${{ env.TCLSH }} ${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
             if ($lastexitcode -ne 0) { throw "tklib installer exit code: $lastexitcode" }
           }
+          finally { Pop-Location }
 
       - name: Build and install OpenSSL (${{ matrix.config }})
         run: |
@@ -276,7 +280,6 @@ jobs:
         working-directory: ${{ env.TCL_BUILD_DIR }}/win
         env:
           ERROR_ON_FAILURES: 1
-
 
       - name: Generate Installed file manifest for Install Test
         shell: powershell
