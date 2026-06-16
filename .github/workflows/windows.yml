@@ -191,11 +191,14 @@ jobs:
 
       - name: Build and install Tcl and included libraries (${{ matrix.config }})
         run: |
-          &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
-          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
-          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-        working-directory: ${{ env.TCL_BUILD_DIR }}\win
+          & {
+            cd ${{ env.TCL_BUILD_DIR }}\win
+            nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
+            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+            nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
+            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+          }
+        working-directory: .  
 
       - name: Build and install OpenSSL (${{ matrix.config }})
         run: |
