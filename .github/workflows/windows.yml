@@ -253,22 +253,27 @@ jobs:
           }
           finally { Pop-Location }
 
-      - name: Build and install Img (${{ matrix.config }})
-        run: |
-          &nmake -f makefile.vc all ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
-          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
-          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-        working-directory: ${{ env.IMG_BUILD_DIR }}/win
+          # Tk-Img
+          try {
+            Push-Location  ${{ env.IMG_BUILD_DIR }}/win
+            nmake -f makefile.vc all ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+            f ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+            nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+            f ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+          }
+          finally { Pop-Location }
 
-      - name: Build and install TkTable (${{ matrix.config }})
-        run: |
-          copy ..\..\debug_file makefile.vc
-          &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-          &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-        working-directory: ${{ env.TKTABLE_BUILD_DIR }}/win
+          # TkTable
+          try {
+            # Temporary fix for out of date makefile.vc
+            copy ..\..\debug_file makefile.vc
+            nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+            nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+          }
+          finally { Pop-Location }
+            
 
       - name: Build Test Harness ${{ matrix.config }}
         if: 1 == 0
