@@ -246,14 +246,14 @@ jobs:
           finally { Pop-Location }
 
           # TclTLS
-#          try {
-#            Push-Location ${{ env.TCLTLS_BUILD_DIR }}\win
-#            &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=${{ env.SSL_INSTALL_FOLDER }} TCLDIR=..\..\${{ env.TCL_BUILD_DIR }} INSTALLDIR=${{ env.INSTALLDIR }}
-#            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-#            &nmake -f makefile.vc install ${{ matrix.config }} SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-#            if ($lastexitcode -ne 0) { throw "nmake install exit code: $lastexitcode" }
-#          }
-#          finally { Pop-Location }
+          #try {
+          #  Push-Location ${{ env.TCLTLS_BUILD_DIR }}\win
+          #  &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=${{ env.SSL_INSTALL_FOLDER }} TCLDIR=..\..\${{ env.TCL_BUILD_DIR }} INSTALLDIR=${{ env.INSTALLDIR }}
+          #  if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+          #  &nmake -f makefile.vc install ${{ matrix.config }} SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+          #  if ($lastexitcode -ne 0) { throw "nmake install exit code: $lastexitcode" }
+          #}
+          #finally { Pop-Location }
 
           # Tk-Img
           try {
