@@ -191,6 +191,7 @@ jobs:
 
       - name: Build and install Tcl and included libraries (${{ matrix.config }})
         run: |
+
           # Tcl
           try {
             Push-Location ${{ env.TCL_BUILD_DIR }}\win
@@ -200,6 +201,7 @@ jobs:
             if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           }
           finally { Pop-Location }
+
           # Tk
           try {
             Push-Location ${{ env.TK_BUILD_DIR }}/win
@@ -209,6 +211,7 @@ jobs:
             if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           }
           finally { Pop-Location }
+
           # TDom
           try {
             Push-Location ${{ env.TDOM_BUILD_DIR }}/win
@@ -218,6 +221,7 @@ jobs:
             if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           }
           finally { Pop-Location }
+
           # TclLib and TkLib
           try {
             ${{ env.TCLSH }} ${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
@@ -227,23 +231,27 @@ jobs:
           }
           finally { Pop-Location }
 
-      - name: Build and install OpenSSL (${{ matrix.config }})
-        run: |
-          &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="$Env:SSL_INSTALL_FOLDER" --openssldir="$Env:SSL_INSTALL_FOLDER" -DOPENSSL_NO_DEPRECATED
-          if ($lastexitcode -ne 0) { throw "perl Configure OSSL exit code: $lastexitcode" }
-          &nmake
-          if ($lastexitcode -ne 0) { throw "nmake OSSL exit code: $lastexitcode" }
-          &nmake install
-          if ($lastexitcode -ne 0) { throw "nmake install OSSL exit code: $lastexitcode" }
-        working-directory: ${{ env.OSSL_BUILD_DIR }}
+          # OpenSSL
+          try {
+            Push-Location ${{ env.OSSL_BUILD_DIR }}
+            &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="$Env:SSL_INSTALL_FOLDER" --openssldir="$Env:SSL_INSTALL_FOLDER" -DOPENSSL_NO_DEPRECATED
+            if ($lastexitcode -ne 0) { throw "perl Configure OSSL exit code: $lastexitcode" }
+            &nmake
+            if ($lastexitcode -ne 0) { throw "nmake OSSL exit code: $lastexitcode" }
+            &nmake install
+            if ($lastexitcode -ne 0) { throw "nmake install OSSL exit code: $lastexitcode" }
+          }
+          finally { Pop-Location }
 
-      - name: Build and install TclTLS (${{ matrix.config }})
-        run: |
-          &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=${{ env.SSL_INSTALL_FOLDER }} TCLDIR=..\..\${{ env.TCL_BUILD_DIR }} INSTALLDIR=${{ env.INSTALLDIR }}
-          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-          &nmake -f makefile.vc install ${{ matrix.config }} SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          if ($lastexitcode -ne 0) { throw "nmake install exit code: $lastexitcode" }
-        working-directory: ${{ env.TCLTLS_BUILD_DIR }}\win
+          # TclTLS
+          try {
+            Push-Location ${{ env.TCLTLS_BUILD_DIR }}\win
+            &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=${{ env.SSL_INSTALL_FOLDER }} TCLDIR=..\..\${{ env.TCL_BUILD_DIR }} INSTALLDIR=${{ env.INSTALLDIR }}
+            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+            &nmake -f makefile.vc install ${{ matrix.config }} SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+            if ($lastexitcode -ne 0) { throw "nmake install exit code: $lastexitcode" }
+          }
+          finally { Pop-Location }
 
       - name: Build and install Img (${{ matrix.config }})
         run: |
