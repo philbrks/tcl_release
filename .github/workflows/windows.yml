@@ -30,13 +30,13 @@ jobs:
         tcl-tag: ${{ fromJSON(github.event.inputs.tcl-tags) }}
 
     steps:
-      - uses: shogo82148/actions-setup-perl@v1
-        with:
-          perl-version: "5.42"
-          distribution: strawberry
-          install-modules-with: cpanm
-          install-modules-args: --with-develop --with-configure
-      - uses: ilammy/setup-nasm@v1
+      #- uses: shogo82148/actions-setup-perl@v1
+      #  with:
+      #    perl-version: "5.42"
+      #    distribution: strawberry
+      #    install-modules-with: cpanm
+      #    install-modules-args: --with-develop --with-configure
+      #- uses: ilammy/setup-nasm@v1
       - name: Checkout
         uses: actions/checkout@v6
         timeout-minutes: 5
