@@ -267,6 +267,9 @@ jobs:
 
           # TkTable
           try {
+            pwd
+            echo "TKTABLE_BUILD_DIR = ${{ env.TKTABLE_BUILD_DIR }}"
+            dir
             Push-Location ${{ env.TKTABLE_BUILD_DIR }}
             # Temporary fix for out of date makefile.vc
             pwd
