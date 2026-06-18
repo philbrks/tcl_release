@@ -227,23 +227,23 @@ jobs:
           finally { Pop-Location }
 
           # TDom
-          try {
-            Push-Location ${{ env.TDOM_BUILD_DIR }}/win
-            &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-            &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-          }
-          finally { Pop-Location }
+          # try {
+          #   Push-Location ${{ env.TDOM_BUILD_DIR }}/win
+          #   &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+          #   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+          #   &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+          #   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+          # }
+          # finally { Pop-Location }
 
           # TclLib and TkLib
-          try {
-            & ${{ env.TCLSH }} ${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
-            if ($lastexitcode -ne 0) { throw "tcllib installer exit code: $lastexitcode" }
-            & ${{ env.TCLSH }} ${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
-            if ($lastexitcode -ne 0) { throw "tklib installer exit code: $lastexitcode" }
-          }
-          finally { Pop-Location }
+          # try {
+          #   & ${{ env.TCLSH }} ${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
+          #   if ($lastexitcode -ne 0) { throw "tcllib installer exit code: $lastexitcode" }
+          #   & ${{ env.TCLSH }} ${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
+          #   if ($lastexitcode -ne 0) { throw "tklib installer exit code: $lastexitcode" }
+          # }
+          # finally { Pop-Location }
 
           # TclTLS
           #try {
@@ -256,19 +256,22 @@ jobs:
           #finally { Pop-Location }
 
           # Tk-Img
-          try {
-            Push-Location  ${{ env.IMG_BUILD_DIR }}/win
-            &nmake -f makefile.vc all ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
-            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-            &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
-            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-          }
-          finally { Pop-Location }
+          # try {
+          #   Push-Location  ${{ env.IMG_BUILD_DIR }}/win
+          #   &nmake -f makefile.vc all ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+          #   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+          #   &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+          #   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+          # }
+          # finally { Pop-Location }
 
           # TkTable
           try {
             Push-Location ${{ env.TKTABLE_BUILD_DIR }}
             # Temporary fix for out of date makefile.vc
+            pwd
+            dir ..
+            dir ..\..
             copy ..\..\debug_file makefile.vc
             &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
             if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
