@@ -10,9 +10,14 @@ on:
           - '["core-9-1-a1"]'
           - '["main"]'
         default: '["main"]'
+      openssl-run-id:
+        description: 'Run ID of OpenSSL-Windows workflow to use (leave blank for latest successful run)'
+        required: false
+        default: ''
 
 permissions:
   contents: read
+  actions: read   # needed by dawidd6/action-download-artifact
 env:
   ERROR_ON_FAILURES: 1
 
@@ -30,20 +35,12 @@ jobs:
         tcl-tag: ${{ fromJSON(github.event.inputs.tcl-tags) }}
 
     steps:
-      - uses: shogo82148/actions-setup-perl@v1
-        with:
-          perl-version: "5.42"
-          distribution: strawberry
-          install-modules-with: cpanm
-          install-modules-args: --with-develop --with-configure
-      - uses: ilammy/setup-nasm@v1
       - name: Checkout
         uses: actions/checkout@v6
         timeout-minutes: 5
 
       - name: Load build variables from JSON
         run: |
-          # Map the tcl-tag choice to the corresponding JSON file
           $tag = '${{ matrix.tcl-tag }}'
           if ($tag -match 'core-9-0-3') {
             $varsFile = ".github/build-vars-tcl-9.0.json"
@@ -59,7 +56,6 @@ jobs:
           if (-not (Test-Path $varsFile)) {
             throw "Build vars file not found: $varsFile"
           }
-          # Make a copy to pass on to downstream actions, so that they can see what we used:
           copy $varsFile build-vars.json
 
           $vars = Get-Content $varsFile | ConvertFrom-Json
@@ -68,19 +64,38 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value "$($prop.Name)=$($prop.Value)"
           }
 
-          # Also record which file was used, for reference
           Add-Content -Path $env:GITHUB_ENV -Value "BUILD_VARS_FILE=$varsFile"
-
         working-directory: .
 
       - name: Set fixed environment variables
         run: |
-          # These are constant across all TCL versions
           Add-Content -Path $env:GITHUB_ENV -Value "INSTALLDIR=C:\Tcl-tk"
           Add-Content -Path $env:GITHUB_ENV -Value "SSL_INSTALL_FOLDER=C:\OpenSSL"
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
           mkdir "C:\Tcl-tk"
         working-directory: .
+
+      # -----------------------------------------------------------------------
+      # Restore the pre-built OpenSSL install from the OpenSSL-Windows workflow
+      # -----------------------------------------------------------------------
+      - name: Download OpenSSL artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
+          workflow: OpenSSL-Windows.yml
+          workflow_conclusion: success
+          run_id: ${{ github.event.inputs.openssl-run-id }}
+          name: "OpenSSL-Windows-Install"
+          path: "C:\\OpenSSL"
+
+      - name: Verify OpenSSL restore
+        run: |
+          if (-not (Test-Path "C:\OpenSSL\bin")) {
+            throw "OpenSSL install directory was not restored correctly to C:\OpenSSL"
+          }
+          echo "OpenSSL restored:"
+          dir C:\OpenSSL
 
       - name: Download All source
         shell: powershell
@@ -113,7 +128,6 @@ jobs:
               Get-Download -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
           }
 
-          Get-Download -OutputFile '${{ env.OSSL_DOWNLOAD_FILE }}'   -Url '${{ env.OSSL_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TCLTLS_DOWNLOAD_FILE }}' -Url '${{ env.TCLTLS_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
           Get-Download -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
@@ -143,7 +157,6 @@ jobs:
           }
 
           Verify-Download "${{ env.TCL_DOWNLOAD_FILE }}"   "${{ env.TCL_DOWNLOAD_HASH }}"
-          Verify-Download "${{ env.OSSL_DOWNLOAD_FILE }}"  "${{ env.OSSL_DOWNLOAD_HASH }}"
           Verify-Download "${{ env.TCLTLS_DOWNLOAD_FILE }}" "${{ env.TCLTLS_DOWNLOAD_HASH }}"
           Verify-Download "${{ env.TK_DOWNLOAD_FILE }}"    "${{ env.TK_DOWNLOAD_HASH }}"
           Verify-Download "${{ env.TCLLIB_DOWNLOAD_FILE }}" "${{ env.TCLLIB_DOWNLOAD_HASH }}"
@@ -174,7 +187,6 @@ jobs:
             Extract-Download thread-main.tar.gz  "-C${{ env.TCL_BUILD_DIR }}/pkgs"
             Extract-Download sqlite3-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
           }
-          Extract-Download '${{ env.OSSL_DOWNLOAD_FILE }}'
           Extract-Download '${{ env.TCLTLS_DOWNLOAD_FILE }}'
           Extract-Download '${{ env.TCLLIB_DOWNLOAD_FILE }}'
           Extract-Download '${{ env.TKLIB_DOWNLOAD_FILE }}'
@@ -189,20 +201,6 @@ jobs:
         with:
           arch: x64
 
-      - name: Build and install OpenSSL
-        run: |
-          # OpenSSL
-          try {
-            Push-Location ${{ env.OSSL_BUILD_DIR }}
-            &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="$Env:SSL_INSTALL_FOLDER" --openssldir="$Env:SSL_INSTALL_FOLDER" -DOPENSSL_NO_DEPRECATED
-            if ($lastexitcode -ne 0) { throw "perl Configure OSSL exit code: $lastexitcode" }
-            &nmake
-            if ($lastexitcode -ne 0) { throw "nmake OSSL exit code: $lastexitcode" }
-            &nmake install
-            if ($lastexitcode -ne 0) { throw "nmake install OSSL exit code: $lastexitcode" }
-          }
-          finally { Pop-Location }
-
       - name: Build and install Tcl and included libraries (${{ matrix.config }})
         run: |
 
@@ -215,11 +213,6 @@ jobs:
             if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           }
           finally { Pop-Location }
-
-          pwd
-          echo "TKTABLE_BUILD_DIR = ${{ env.TKTABLE_BUILD_DIR }}"
-          dir
-          dir  "${{ env.TKTABLE_BUILD_DIR }}"
 
           # Tk
           try {
@@ -341,8 +334,6 @@ jobs:
           name: "Tcl-Tk-unsigned"
           path: ".github/Output/Tcl-Tk-${{ env.TCL_VERSION }}-win64-setup.exe"
 
-      # Upload the build-vars JSON so the signing workflow can restore all
-      # variables without having to re-derive them.
       - name: Upload build variables for signing workflow
         uses: actions/upload-artifact@v7.0.1
         with:

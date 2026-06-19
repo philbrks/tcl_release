@@ -1,0 +1,100 @@
+name: OpenSSL-Windows
+on:
+  workflow_dispatch:
+    inputs:
+      ossl-download-url:
+        description: 'OpenSSL source tarball URL'
+        required: true
+        default: 'https://github.com/openssl/openssl/releases/download/openssl-3.5.6/openssl-3.5.6.tar.gz'
+      ossl-download-hash:
+        description: 'MD5 hash of the tarball, or SKIP'
+        required: true
+        default: '1BB3506C580865A0A464E09288AC157E'
+
+permissions:
+  contents: read
+env:
+  ERROR_ON_FAILURES: 1
+
+jobs:
+  build-openssl:
+    runs-on: windows-2025
+    defaults:
+      run:
+        shell: powershell
+
+    steps:
+      - uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: "5.42"
+          distribution: strawberry
+          install-modules-with: cpanm
+          install-modules-args: --with-develop --with-configure
+      - uses: ilammy/setup-nasm@v1
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        timeout-minutes: 5
+
+      - name: Set variables
+        run: |
+          $url  = '${{ github.event.inputs.ossl-download-url }}'
+          $file = Split-Path -Leaf $url
+          # Derive the build directory name from the tarball filename,
+          # e.g. openssl-3.5.6.tar.gz -> openssl-3.5.6
+          $buildDir = $file -replace '\.tar\.gz$',''
+
+          Add-Content -Path $env:GITHUB_ENV -Value "OSSL_DOWNLOAD_URL=$url"
+          Add-Content -Path $env:GITHUB_ENV -Value "OSSL_DOWNLOAD_FILE=$file"
+          Add-Content -Path $env:GITHUB_ENV -Value "OSSL_DOWNLOAD_HASH=${{ github.event.inputs.ossl-download-hash }}"
+          Add-Content -Path $env:GITHUB_ENV -Value "OSSL_BUILD_DIR=$buildDir"
+          Add-Content -Path $env:GITHUB_ENV -Value "SSL_INSTALL_FOLDER=C:\OpenSSL"
+
+      - name: Download OpenSSL source
+        run: |
+          echo "Downloading $Env:OSSL_DOWNLOAD_URL to $Env:OSSL_DOWNLOAD_FILE"
+          curl.exe -L --ssl-no-revoke -o $Env:OSSL_DOWNLOAD_FILE $Env:OSSL_DOWNLOAD_URL
+          if ($LASTEXITCODE -ne 0) {
+              throw "curl failed (exit code $LASTEXITCODE) downloading OpenSSL source"
+          }
+
+      - name: Verify download
+        run: |
+          if ( $Env:OSSL_DOWNLOAD_HASH -ne "SKIP" ) {
+              $FileHash = (Get-FileHash $Env:OSSL_DOWNLOAD_FILE -Algorithm MD5).HASH
+              if ( $FileHash -ne $Env:OSSL_DOWNLOAD_HASH ) {
+                  throw "MD5 hash check failed for $Env:OSSL_DOWNLOAD_FILE"
+              }
+          }
+
+      - name: Extract source
+        run: |
+          tar -zxf $Env:OSSL_DOWNLOAD_FILE
+          if ($lastexitcode -ne 0) { throw "tar exit code: $lastexitcode" }
+          dir
+
+      - name: Init MSVC
+        uses: ilammy/msvc-dev-cmd@v1.13.0
+        with:
+          arch: x64
+
+      - name: Build and install OpenSSL
+        run: |
+          try {
+              Push-Location $Env:OSSL_BUILD_DIR
+              &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="$Env:SSL_INSTALL_FOLDER" --openssldir="$Env:SSL_INSTALL_FOLDER" -DOPENSSL_NO_DEPRECATED
+              if ($lastexitcode -ne 0) { throw "perl Configure OSSL exit code: $lastexitcode" }
+              &nmake
+              if ($lastexitcode -ne 0) { throw "nmake OSSL exit code: $lastexitcode" }
+              &nmake install
+              if ($lastexitcode -ne 0) { throw "nmake install OSSL exit code: $lastexitcode" }
+          }
+          finally {
+              Pop-Location
+          }
+
+      - name: Upload OpenSSL install directory
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: "OpenSSL-Windows-Install"
+          path: ${{ env.SSL_INSTALL_FOLDER }}
