@@ -30,13 +30,13 @@ jobs:
         tcl-tag: ${{ fromJSON(github.event.inputs.tcl-tags) }}
 
     steps:
-      #- uses: shogo82148/actions-setup-perl@v1
-      #  with:
-      #    perl-version: "5.42"
-      #    distribution: strawberry
-      #    install-modules-with: cpanm
-      #    install-modules-args: --with-develop --with-configure
-      #- uses: ilammy/setup-nasm@v1
+      - uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: "5.42"
+          distribution: strawberry
+          install-modules-with: cpanm
+          install-modules-args: --with-develop --with-configure
+      - uses: ilammy/setup-nasm@v1
       - name: Checkout
         uses: actions/checkout@v6
         timeout-minutes: 5
@@ -189,19 +189,19 @@ jobs:
         with:
           arch: x64
 
-#      - name: Build and install OpenSSL
-#        run: |
-#          # OpenSSL
-#          try {
-#            Push-Location ${{ env.OSSL_BUILD_DIR }}
-#            &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="$Env:SSL_INSTALL_FOLDER" --openssldir="$Env:SSL_INSTALL_FOLDER" -DOPENSSL_NO_DEPRECATED
-#            if ($lastexitcode -ne 0) { throw "perl Configure OSSL exit code: $lastexitcode" }
-#            &nmake
-#            if ($lastexitcode -ne 0) { throw "nmake OSSL exit code: $lastexitcode" }
-#            &nmake install
-#            if ($lastexitcode -ne 0) { throw "nmake install OSSL exit code: $lastexitcode" }
-#          }
-#          finally { Pop-Location }
+      - name: Build and install OpenSSL
+        run: |
+          # OpenSSL
+          try {
+            Push-Location ${{ env.OSSL_BUILD_DIR }}
+            &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="$Env:SSL_INSTALL_FOLDER" --openssldir="$Env:SSL_INSTALL_FOLDER" -DOPENSSL_NO_DEPRECATED
+            if ($lastexitcode -ne 0) { throw "perl Configure OSSL exit code: $lastexitcode" }
+            &nmake
+            if ($lastexitcode -ne 0) { throw "nmake OSSL exit code: $lastexitcode" }
+            &nmake install
+            if ($lastexitcode -ne 0) { throw "nmake install OSSL exit code: $lastexitcode" }
+          }
+          finally { Pop-Location }
 
       - name: Build and install Tcl and included libraries (${{ matrix.config }})
         run: |
@@ -232,73 +232,53 @@ jobs:
           finally { Pop-Location }
 
           # TDom
-          # try {
-          #   Push-Location ${{ env.TDOM_BUILD_DIR }}/win
-          #   &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          #   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-          #   &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          #   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-          # }
-          # finally { Pop-Location }
+          try {
+            Push-Location ${{ env.TDOM_BUILD_DIR }}/win
+            &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+            &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+          }
+          finally { Pop-Location }
 
           # TclLib and TkLib
-          # try {
-          #   & ${{ env.TCLSH }} ${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
-          #   if ($lastexitcode -ne 0) { throw "tcllib installer exit code: $lastexitcode" }
-          #   & ${{ env.TCLSH }} ${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
-          #   if ($lastexitcode -ne 0) { throw "tklib installer exit code: $lastexitcode" }
-          # }
-          # finally { Pop-Location }
+          try {
+            & ${{ env.TCLSH }} ${{ env.TCLLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
+            if ($lastexitcode -ne 0) { throw "tcllib installer exit code: $lastexitcode" }
+            & ${{ env.TCLSH }} ${{ env.TKLIB_BUILD_DIR }}/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path ${{ env.INSTALLDIR }}/lib -no-apps -no-nroff -no-wait
+            if ($lastexitcode -ne 0) { throw "tklib installer exit code: $lastexitcode" }
+          }
+          finally { Pop-Location }
 
           # TclTLS
-          #try {
-          #  Push-Location ${{ env.TCLTLS_BUILD_DIR }}\win
-          #  &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=${{ env.SSL_INSTALL_FOLDER }} TCLDIR=..\..\${{ env.TCL_BUILD_DIR }} INSTALLDIR=${{ env.INSTALLDIR }}
-          #  if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-          #  &nmake -f makefile.vc install ${{ matrix.config }} SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-          #  if ($lastexitcode -ne 0) { throw "nmake install exit code: $lastexitcode" }
-          #}
-          #finally { Pop-Location }
+          try {
+            Push-Location ${{ env.TCLTLS_BUILD_DIR }}\win
+            &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=${{ env.SSL_INSTALL_FOLDER }} TCLDIR=..\..\${{ env.TCL_BUILD_DIR }} INSTALLDIR=${{ env.INSTALLDIR }}
+            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+            &nmake -f makefile.vc install ${{ matrix.config }} SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+            if ($lastexitcode -ne 0) { throw "nmake install exit code: $lastexitcode" }
+          }
+          finally { Pop-Location }
 
           # Tk-Img
-          # try {
-          #   Push-Location  ${{ env.IMG_BUILD_DIR }}/win
-          #   &nmake -f makefile.vc all ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
-          #   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-          #   &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
-          #   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-          # }
-          # finally { Pop-Location }
+          try {
+            Push-Location  ${{ env.IMG_BUILD_DIR }}/win
+            &nmake -f makefile.vc all ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+            &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+          }
+          finally { Pop-Location }
 
           # TkTable
           try {
-              Write-Output "STEP 1: about to Push-Location"
               Push-Location "${{ env.TKTABLE_BUILD_DIR }}\win"
-              Write-Output "STEP 2: pushed, now at $(Get-Location)"
-
-              Write-Output "STEP 3: listing parent"
-              Get-ChildItem .. | Out-String | Write-Output
-
-              Write-Output "STEP 4: listing grandparent"
-              Get-ChildItem ..\.. | Out-String | Write-Output
-
-              Write-Output "STEP 5: about to copy"
               Copy-Item ..\..\debug_file makefile.vc -ErrorAction Stop
-              Write-Output "STEP 6: copy succeeded"
-
-              Write-Output "STEP 7: about to nmake"
               &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
               if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           }
-          catch {
-              Write-Output "CAUGHT ERROR: $($_.Exception.GetType().FullName)"
-              Write-Output "MESSAGE: $($_.Exception.Message)"
-              Write-Output "AT: $($_.InvocationInfo.PositionMessage)"
-              throw
-          }
           finally {
-              Write-Output "FINALLY: popping location"
-              Pop-Location -ErrorAction SilentlyContinue
+              Pop-Location
           }
 
       - name: Build Test Harness ${{ matrix.config }}
