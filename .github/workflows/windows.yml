@@ -272,19 +272,34 @@ jobs:
 
           # TkTable
           try {
-            Push-Location ${{ env.TKTABLE_BUILD_DIR }}
-            # Temporary fix for out of date makefile.vc
-            pwd
-            dir ..
-            dir ..\..
-            copy ..\..\debug_file makefile.vc
-            &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-            &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
-            if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+              Write-Output "STEP 1: about to Push-Location"
+              Push-Location ${{ env.TKTABLE_BUILD_DIR }}
+              Write-Output "STEP 2: pushed, now at $(Get-Location)"
+
+              Write-Output "STEP 3: listing parent"
+              Get-ChildItem .. | Out-String | Write-Output
+
+              Write-Output "STEP 4: listing grandparent"
+              Get-ChildItem ..\.. | Out-String | Write-Output
+
+              Write-Output "STEP 5: about to copy"
+              Copy-Item ..\..\debug_file makefile.vc -ErrorAction Stop
+              Write-Output "STEP 6: copy succeeded"
+
+              Write-Output "STEP 7: about to nmake"
+              &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+              if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           }
-          finally { Pop-Location }
-            
+          catch {
+              Write-Output "CAUGHT ERROR: $($_.Exception.GetType().FullName)"
+              Write-Output "MESSAGE: $($_.Exception.Message)"
+              Write-Output "AT: $($_.InvocationInfo.PositionMessage)"
+              throw
+          }
+          finally {
+              Write-Output "FINALLY: popping location"
+              Pop-Location -ErrorAction SilentlyContinue
+          }
 
       - name: Build Test Harness ${{ matrix.config }}
         if: 1 == 0
