@@ -216,6 +216,11 @@ jobs:
           }
           finally { Pop-Location }
 
+          pwd
+          echo "TKTABLE_BUILD_DIR = ${{ env.TKTABLE_BUILD_DIR }}"
+          dir
+          dir  "${{ env.TKTABLE_BUILD_DIR }}"
+
           # Tk
           try {
             Push-Location ${{ env.TK_BUILD_DIR }}/win
@@ -266,10 +271,6 @@ jobs:
           # finally { Pop-Location }
 
           # TkTable
-          pwd
-          echo "TKTABLE_BUILD_DIR = ${{ env.TKTABLE_BUILD_DIR }}"
-          dir
-          dir  "${{ env.TKTABLE_BUILD_DIR }}"
           try {
             Push-Location ${{ env.TKTABLE_BUILD_DIR }}
             # Temporary fix for out of date makefile.vc
