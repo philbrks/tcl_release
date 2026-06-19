@@ -273,7 +273,7 @@ jobs:
           # TkTable
           try {
               Write-Output "STEP 1: about to Push-Location"
-              Push-Location ${{ env.TKTABLE_BUILD_DIR }}
+              Push-Location "${{ env.TKTABLE_BUILD_DIR }}\win"
               Write-Output "STEP 2: pushed, now at $(Get-Location)"
 
               Write-Output "STEP 3: listing parent"
