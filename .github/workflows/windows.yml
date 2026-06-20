@@ -277,7 +277,7 @@ jobs:
           finally {
               Pop-Location
           }
-        working-directory: bld/${{ env.TCL_BUILD_DIR }}/win
+        working-directory: bld
 
       - name: Generate Installed file manifest for Install Test
         shell: powershell
