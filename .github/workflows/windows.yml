@@ -113,27 +113,28 @@ jobs:
               }
               echo "Done downloading $Url to $OutputFile"
           }
+          New-Item -Path downloads -ItemType Directory
 
-          Get-Download -OutputFile '${{ env.TCL_DOWNLOAD_FILE }}'  -Url '${{ env.TCL_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.TK_DOWNLOAD_FILE }}'   -Url '${{ env.TK_DOWNLOAD_URL }}'
+          Get-Download -OutputFile 'downloads\${{ env.TCL_DOWNLOAD_FILE }}'  -Url '${{ env.TCL_DOWNLOAD_URL }}'
+          Get-Download -OutputFile 'downloads\${{ env.TK_DOWNLOAD_FILE }}'   -Url '${{ env.TK_DOWNLOAD_URL }}'
 
           if ('${{ matrix.tcl-tag }} ' -match 'main') {
-              Get-Download -OutputFile 'itcl-main.tar.gz'              -Url 'https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz'
-              Get-Download -OutputFile 'tdbc-main.tar.gz'              -Url 'https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz'
-              Get-Download -OutputFile 'tdbcodbc-main.tar.gz'          -Url 'https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz'
-              Get-Download -OutputFile 'tdbcmysql-main.tar.gz'         -Url 'https://core.tcl-lang.org/tdbcmysql/tarball/tdbcmysql-main.tar.gz'
-              Get-Download -OutputFile 'tdbcsqlite3-main.tar.gz'       -Url 'https://core.tcl-lang.org/tdbcsqlite3/tarball/tdbcsqlite3-main.tar.gz'
-              Get-Download -OutputFile 'tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
-              Get-Download -OutputFile 'thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
-              Get-Download -OutputFile 'sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
+              Get-Download -OutputFile 'downloads\itcl-main.tar.gz'              -Url 'https://core.tcl-lang.org/itcl/tarball/itcl-main.tar.gz'
+              Get-Download -OutputFile 'downloads\tdbc-main.tar.gz'              -Url 'https://core.tcl-lang.org/tdbc/tarball/tdbc-main.tar.gz'
+              Get-Download -OutputFile 'downloads\tdbcodbc-main.tar.gz'          -Url 'https://core.tcl-lang.org/tdbcodbc/tarball/tdbcodbc-main.tar.gz'
+              Get-Download -OutputFile 'downloads\tdbcmysql-main.tar.gz'         -Url 'https://core.tcl-lang.org/tdbcmysql/tarball/tdbcmysql-main.tar.gz'
+              Get-Download -OutputFile 'downloads\tdbcsqlite3-main.tar.gz'       -Url 'https://core.tcl-lang.org/tdbcsqlite3/tarball/tdbcsqlite3-main.tar.gz'
+              Get-Download -OutputFile 'downloads\tdbcpostgres-main.tar.gz'      -Url 'https://core.tcl-lang.org/tdbcpostgres/tarball/tdbcpostgres-main.tar.gz'
+              Get-Download -OutputFile 'downloads\thread-main.tar.gz'            -Url 'https://core.tcl-lang.org/thread/tarball/thread-main.tar.gz'
+              Get-Download -OutputFile 'downloads\sqlite3-main.tar.gz'           -Url 'https://cyqlite.sourceforge.io/cgi-bin/sqlite/tarball/sqlite3-main.tar.gz'
           }
 
-          Get-Download -OutputFile '${{ env.TCLTLS_DOWNLOAD_FILE }}' -Url '${{ env.TCLTLS_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.IMG_DOWNLOAD_FILE }}'    -Url '${{ env.IMG_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.TDOM_DOWNLOAD_FILE }}'   -Url '${{ env.TDOM_DOWNLOAD_URL }}'
-          Get-Download -OutputFile '${{ env.TKTABLE_DOWNLOAD_FILE }}' -Url '${{ env.TKTABLE_DOWNLOAD_URL }}'
+          Get-Download -OutputFile 'downloads\${{ env.TCLTLS_DOWNLOAD_FILE }}' -Url '${{ env.TCLTLS_DOWNLOAD_URL }}'
+          Get-Download -OutputFile 'downloads\${{ env.TCLLIB_DOWNLOAD_FILE }}' -Url '${{ env.TCLLIB_DOWNLOAD_URL }}'
+          Get-Download -OutputFile 'downloads\${{ env.TKLIB_DOWNLOAD_FILE }}'  -Url '${{ env.TKLIB_DOWNLOAD_URL }}'
+          Get-Download -OutputFile 'downloads\${{ env.IMG_DOWNLOAD_FILE }}'    -Url '${{ env.IMG_DOWNLOAD_URL }}'
+          Get-Download -OutputFile 'downloads\${{ env.TDOM_DOWNLOAD_FILE }}'   -Url '${{ env.TDOM_DOWNLOAD_URL }}'
+          Get-Download -OutputFile 'downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}' -Url '${{ env.TKTABLE_DOWNLOAD_URL }}'
 
           echo "Done downloading source files."
 
@@ -156,10 +157,10 @@ jobs:
               }
           }
 
-          Verify-Download "${{ env.TCL_DOWNLOAD_FILE }}"   "${{ env.TCL_DOWNLOAD_HASH }}"
-          Verify-Download "${{ env.TCLTLS_DOWNLOAD_FILE }}" "${{ env.TCLTLS_DOWNLOAD_HASH }}"
-          Verify-Download "${{ env.TK_DOWNLOAD_FILE }}"    "${{ env.TK_DOWNLOAD_HASH }}"
-          Verify-Download "${{ env.TCLLIB_DOWNLOAD_FILE }}" "${{ env.TCLLIB_DOWNLOAD_HASH }}"
+          Verify-Download "downloads\${{ env.TCL_DOWNLOAD_FILE }}"   "${{ env.TCL_DOWNLOAD_HASH }}"
+          Verify-Download "downloads\${{ env.TCLTLS_DOWNLOAD_FILE }}" "${{ env.TCLTLS_DOWNLOAD_HASH }}"
+          Verify-Download "downloads\${{ env.TK_DOWNLOAD_FILE }}"    "${{ env.TK_DOWNLOAD_HASH }}"
+          Verify-Download "downloads\${{ env.TCLLIB_DOWNLOAD_FILE }}" "${{ env.TCLLIB_DOWNLOAD_HASH }}"
 
       - name: Extract source archives
         shell: powershell
@@ -175,26 +176,27 @@ jobs:
                throw "tar exit code: $lastexitcode"
             }
           }
-          Extract-Download '${{ env.TCL_DOWNLOAD_FILE }}'
-          Extract-Download '${{ env.TK_DOWNLOAD_FILE }}'
+          Extract-Download 'downloads\${{ env.TCL_DOWNLOAD_FILE }}'
+          Extract-Download 'downloads\${{ env.TK_DOWNLOAD_FILE }}'
           if ('${{ matrix.tcl-tag }} ' -match 'main') {
-            Extract-Download itcl-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download tdbc-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download tdbcodbc-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download tdbcmysql-main.tar.gz   "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download tdbcpostgres-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download tdbcsqlite3-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download thread-main.tar.gz  "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download sqlite3-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download downloads\itcl-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download downloads\tdbc-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download downloads\tdbcodbc-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download downloads\tdbcmysql-main.tar.gz   "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download downloads\tdbcpostgres-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download downloads\tdbcsqlite3-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download downloads\thread-main.tar.gz  "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download downloads\sqlite3-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
           }
-          Extract-Download '${{ env.TCLTLS_DOWNLOAD_FILE }}'
-          Extract-Download '${{ env.TCLLIB_DOWNLOAD_FILE }}'
-          Extract-Download '${{ env.TKLIB_DOWNLOAD_FILE }}'
-          Extract-Download '${{ env.IMG_DOWNLOAD_FILE }}'
-          Extract-Download '${{ env.TDOM_DOWNLOAD_FILE }}'
-          Extract-Download '${{ env.TKTABLE_DOWNLOAD_FILE }}'
+          Extract-Download 'downloads\${{ env.TCLTLS_DOWNLOAD_FILE }}'
+          Extract-Download 'downloads\${{ env.TCLLIB_DOWNLOAD_FILE }}'
+          Extract-Download 'downloads\${{ env.TKLIB_DOWNLOAD_FILE }}'
+          Extract-Download 'downloads\${{ env.IMG_DOWNLOAD_FILE }}'
+          Extract-Download 'downloads\${{ env.TDOM_DOWNLOAD_FILE }}'
+          Extract-Download 'downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}'
           dir
-          dir ${{ env.TCL_BUILD_DIR }}/pkgs
+          dir downloads
+          dir ${{ env.TCL_BUILD_DIR }}\pkgs
 
       - name: Init MSVC
         uses: ilammy/msvc-dev-cmd@v1.13.0
