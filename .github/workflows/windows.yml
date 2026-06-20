@@ -171,7 +171,7 @@ jobs:
                 [string]$ExtraArg
             )
             echo "Extracting $DownloadFile $ExtraArg"
-            tar -zxf $DownloadFile $ExtraArg
+            tar -zxvf $DownloadFile $ExtraArg
             if ($lastexitcode -ne 0) {
                throw "tar exit code: $lastexitcode"
             }
