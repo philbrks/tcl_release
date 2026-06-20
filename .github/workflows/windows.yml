@@ -176,27 +176,28 @@ jobs:
                throw "tar exit code: $lastexitcode"
             }
           }
-          Extract-Download 'downloads\${{ env.TCL_DOWNLOAD_FILE }}'
-          Extract-Download 'downloads\${{ env.TK_DOWNLOAD_FILE }}'
+          New-Item -Path bld -ItemType Directory
+          cd bld
+          Extract-Download '..\downloads\${{ env.TCL_DOWNLOAD_FILE }}'
+          Extract-Download '..\downloads\${{ env.TK_DOWNLOAD_FILE }}'
           if ('${{ matrix.tcl-tag }} ' -match 'main') {
-            Extract-Download downloads\itcl-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download downloads\tdbc-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download downloads\tdbcodbc-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download downloads\tdbcmysql-main.tar.gz   "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download downloads\tdbcpostgres-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download downloads\tdbcsqlite3-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download downloads\thread-main.tar.gz  "-C${{ env.TCL_BUILD_DIR }}/pkgs"
-            Extract-Download downloads\sqlite3-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download ..\downloads\itcl-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download ..\downloads\tdbc-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download ..\downloads\tdbcodbc-main.tar.gz    "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download ..\downloads\tdbcmysql-main.tar.gz   "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download ..\downloads\tdbcpostgres-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download ..\downloads\tdbcsqlite3-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download ..\downloads\thread-main.tar.gz  "-C${{ env.TCL_BUILD_DIR }}/pkgs"
+            Extract-Download ..\downloads\sqlite3-main.tar.gz "-C${{ env.TCL_BUILD_DIR }}/pkgs"
           }
-          Extract-Download 'downloads\${{ env.TCLTLS_DOWNLOAD_FILE }}'
-          Extract-Download 'downloads\${{ env.TCLLIB_DOWNLOAD_FILE }}'
-          Extract-Download 'downloads\${{ env.TKLIB_DOWNLOAD_FILE }}'
-          Extract-Download 'downloads\${{ env.IMG_DOWNLOAD_FILE }}'
-          Extract-Download 'downloads\${{ env.TDOM_DOWNLOAD_FILE }}'
-          Extract-Download 'downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}'
+          Extract-Download '..\downloads\${{ env.TCLTLS_DOWNLOAD_FILE }}'
+          Extract-Download '..\downloads\${{ env.TCLLIB_DOWNLOAD_FILE }}'
+          Extract-Download '..\downloads\${{ env.TKLIB_DOWNLOAD_FILE }}'
+          Extract-Download '..\downloads\${{ env.IMG_DOWNLOAD_FILE }}'
+          Extract-Download '..\downloads\${{ env.TDOM_DOWNLOAD_FILE }}'
+          Extract-Download '..\downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}'
           dir
-          dir downloads
-          dir bld
+          dir ..\downloads
           dir ${{ env.TCL_BUILD_DIR }}\pkgs
 
       - name: Init MSVC
