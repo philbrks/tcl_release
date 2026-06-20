@@ -211,14 +211,15 @@ jobs:
           $BuildScript = @"
           # Tcl
           try {
-            Push-Location ${{ env.TCL_BUILD_DIR }}\win
-            &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
+            Push-Location `$Env:TCL_BUILD_DIR\win
+            &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=`$Env:INSTALLDIR
             if (`$lastexitcode -ne 0) { throw "nmake exit code: `$lastexitcode" }
-            &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR
+            &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=`$Env:INSTALLDIR
             if (`$lastexitcode -ne 0) { throw "nmake exit code: `$lastexitcode" }
           }
           finally { Pop-Location }
-
+          Write-Output "Tcl build done."
+          throw "bail out now"
           # Tk
           try {
             Push-Location ${{ env.TK_BUILD_DIR }}/win
