@@ -196,6 +196,7 @@ jobs:
           Extract-Download 'downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}'
           dir
           dir downloads
+          dir bld
           dir ${{ env.TCL_BUILD_DIR }}\pkgs
 
       - name: Init MSVC
