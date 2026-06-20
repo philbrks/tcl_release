@@ -277,30 +277,12 @@ jobs:
           finally {
               Pop-Location
           }
-
-      - name: Build Test Harness ${{ matrix.config }}
-        if: 1 == 0
-        run: |
-          &nmake -f makefile.vc ${{ matrix.config }} tcltest
-          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-        timeout-minutes: 5
-        working-directory: ${{ env.TCL_BUILD_DIR }}/win
-
-      - name: Run Tests ${{ matrix.config }}
-        if: 1 == 0
-        run: |
-          Write-Output "::add-matcher::.github\tcltest.json"
-          &nmake -f makefile.vc ${{ matrix.config }} test
-          if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-        timeout-minutes: 30
-        working-directory: ${{ env.TCL_BUILD_DIR }}/win
-        env:
-          ERROR_ON_FAILURES: 1
+        working-directory: bld/${{ env.TCL_BUILD_DIR }}/win
 
       - name: Generate Installed file manifest for Install Test
         shell: powershell
         run: |
-          ${{ env.TCLSH }} .github\generate_manifest.tcl ${{ env.INSTALLDIR }} tcl_installer_files.txt
+          ${{ env.TCLSH }} ${{ github.workspace }}\bld\.github\generate_manifest.tcl ${{ env.INSTALLDIR }} tcl_installer_files.txt
           if ($lastexitcode -ne 0) { throw "generate_manifest exit code: $lastexitcode" }
         working-directory: .
 
@@ -326,7 +308,7 @@ jobs:
             /DMyAppVersion="${{ env.TCL_VERSION }}" `
             /DMyMajorMinor="${{ env.TCL_MAJOR_MINOR }}" `
             /DMyInstallDir="${{ env.INSTALLDIR }}" `
-            /DMyIconFile="${{ github.workspace }}\${{ env.TCL_BUILD_DIR }}\win\tclsh.ico" `
+            /DMyIconFile="${{ github.workspace }}\bld\${{ env.TCL_BUILD_DIR }}\win\tclsh.ico" `
             /DMyAppGuid="${{ env.TCL_APP_GUID }}" `
             ".github\tcl_windows.iss"
           if ($lastexitcode -ne 0) { throw "ISCC.exe exit code: $lastexitcode" }
