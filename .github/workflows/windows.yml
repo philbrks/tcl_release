@@ -270,7 +270,7 @@ jobs:
           # TkTable
           try {
               Push-Location "${{ env.TKTABLE_BUILD_DIR }}\win"
-              Copy-Item ..\..\debug_file makefile.vc -ErrorAction Stop
+              Copy-Item ..\..\..\debug_file makefile.vc -ErrorAction Stop
               &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
               if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
           }
