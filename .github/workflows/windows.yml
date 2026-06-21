@@ -207,7 +207,7 @@ jobs:
       - name: Build and install Tcl and included libraries (${{ matrix.config }})
         run: |
 
-          `$Env:BUILD_CONFIG = ${{ matrix.config }}
+          $Env:BUILD_CONFIG = ${{ matrix.config }}
 
           $BuildScript = @"
           mkdir "`$Env:INSTALLDIR"
