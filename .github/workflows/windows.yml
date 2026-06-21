@@ -291,7 +291,7 @@ jobs:
       - name: Generate Installed file manifest for Install Test
         shell: powershell
         run: |
-          `$Env:BUILD_CONFIG ${{ github.workspace }}\.github\generate_manifest.tcl ${{ env.INSTALLDIR }} tcl_installer_files.txt
+          $Env:TCLSH ${{ github.workspace }}\.github\generate_manifest.tcl ${{ env.INSTALLDIR }} tcl_installer_files.txt
           if ($lastexitcode -ne 0) { throw "generate_manifest exit code: $lastexitcode" }
         working-directory: .
 
