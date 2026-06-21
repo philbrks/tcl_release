@@ -41,6 +41,7 @@ jobs:
 
       - name: Load build variables from JSON
         run: |
+          New-Item -Path bld -ItemType Directory
           $tag = '${{ matrix.tcl-tag }}'
           if ($tag -match 'core-9-0-3') {
             $varsFile = ".github/build-vars-tcl-9.0.json"
@@ -56,9 +57,10 @@ jobs:
           if (-not (Test-Path $varsFile)) {
             throw "Build vars file not found: $varsFile"
           }
-          copy $varsFile build-vars.json
+          copy $varsFile bld\build-vars.json
+          copy build_windows.ps1 bld
 
-          $vars = Get-Content $varsFile | ConvertFrom-Json
+          $vars = Get-Content bld\build-vars.json | ConvertFrom-Json
           foreach ($prop in $vars.PSObject.Properties) {
             echo "Setting $($prop.Name)=$($prop.Value)"
             Add-Content -Path $env:GITHUB_ENV -Value "$($prop.Name)=$($prop.Value)"
@@ -175,8 +177,6 @@ jobs:
                throw "tar exit code: $lastexitcode"
             }
           }
-          New-Item -Path bld -ItemType Directory
-          cd bld
           Extract-Download '..\downloads\${{ env.TCL_DOWNLOAD_FILE }}'
           Extract-Download '..\downloads\${{ env.TK_DOWNLOAD_FILE }}'
           if ('${{ matrix.tcl-tag }} ' -match 'main') {
@@ -195,11 +195,8 @@ jobs:
           Extract-Download '..\downloads\${{ env.IMG_DOWNLOAD_FILE }}'
           Extract-Download '..\downloads\${{ env.TDOM_DOWNLOAD_FILE }}'
           Extract-Download '..\downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}'
-          copy ..\build_windows.ps1 .
 
-          dir
-          dir ..\downloads
-          dir ${{ env.TCL_BUILD_DIR }}\pkgs
+        working-directory: bld
 
       - name: Init MSVC
         uses: ilammy/msvc-dev-cmd@v1.13.0
