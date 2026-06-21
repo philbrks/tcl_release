@@ -207,14 +207,16 @@ jobs:
       - name: Build and install Tcl and included libraries (${{ matrix.config }})
         run: |
 
+          `$Env:BUILD_CONFIG = ${{ matrix.config }}
+
           $BuildScript = @"
           mkdir "`$Env:INSTALLDIR"
           # Tcl
           try {
             Push-Location `$Env:TCL_BUILD_DIR\win
-            &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=`$Env:INSTALLDIR
+            &nmake -f makefile.vc release `$Env:BUILD_CONFIG INSTALLDIR=`$Env:INSTALLDIR
             if (`$lastexitcode -ne 0) { throw "nmake exit code: `$lastexitcode" }
-            &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=`$Env:INSTALLDIR
+            &nmake -f makefile.vc install `$Env:BUILD_CONFIG INSTALLDIR=`$Env:INSTALLDIR
             if (`$lastexitcode -ne 0) { throw "nmake exit code: `$lastexitcode" }
           }
           finally { Pop-Location }
@@ -222,9 +224,9 @@ jobs:
           # Tk
           try {
             Push-Location `$Env:TK_BUILD_DIR/win
-            &nmake -f makefile.vc release ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+            &nmake -f makefile.vc release `$Env:BUILD_CONFIG INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
             if (`$lastexitcode -ne 0) { throw "nmake exit code: `$lastexitcode" }
-            &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+            &nmake -f makefile.vc install `$Env:BUILD_CONFIG INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
             if (`$lastexitcode -ne 0) { throw "nmake exit code: `$lastexitcode" }
           }
           finally { Pop-Location }
@@ -232,9 +234,9 @@ jobs:
           # TDom
           try {
             Push-Location `$Env:TDOM_BUILD_DIR/win
-            &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+            &nmake -f makefile.vc `$Env:BUILD_CONFIG INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
             if (`$lastexitcode -ne 0) { throw "nmake exit code: `$lastexitcode" }
-            &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+            &nmake -f makefile.vc install `$Env:BUILD_CONFIG INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
             if (`$lastexitcode -ne 0) { throw "nmake exit code: `$lastexitcode" }
           }
           finally { Pop-Location }
@@ -251,9 +253,9 @@ jobs:
           # TclTLS
           try {
             Push-Location `$Env:TCLTLS_BUILD_DIR\win
-            &nmake -f makefile.vc ${{ matrix.config }} SSL_INSTALL_FOLDER=`$Env:SSL_INSTALL_FOLDER TCLDIR=..\..\`$Env:TCL_BUILD_DIR INSTALLDIR=`$Env:INSTALLDIR
+            &nmake -f makefile.vc `$Env:BUILD_CONFIG SSL_INSTALL_FOLDER=`$Env:SSL_INSTALL_FOLDER TCLDIR=..\..\`$Env:TCL_BUILD_DIR INSTALLDIR=`$Env:INSTALLDIR
             if (`$lastexitcode -ne 0) { throw "nmake exit code: `$lastexitcode" }
-            &nmake -f makefile.vc install ${{ matrix.config }} SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+            &nmake -f makefile.vc install `$Env:BUILD_CONFIG SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
             if (`$lastexitcode -ne 0) { throw "nmake install exit code: `$lastexitcode" }
           }
           finally { Pop-Location }
@@ -261,9 +263,9 @@ jobs:
           # Tk-Img
           try {
             Push-Location  `$Env:IMG_BUILD_DIR/win
-            &nmake -f makefile.vc all ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+            &nmake -f makefile.vc all `$Env:BUILD_CONFIG INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
             if (`$lastexitcode -ne 0) { throw "nmake exit code: `$lastexitcode" }
-            &nmake -f makefile.vc install ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+            &nmake -f makefile.vc install `$Env:BUILD_CONFIG INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
             if (`$lastexitcode -ne 0) { throw "nmake exit code: `$lastexitcode" }
           }
           finally { Pop-Location }
@@ -272,7 +274,7 @@ jobs:
           try {
               Push-Location "`$Env:TKTABLE_BUILD_DIR\win"
               Copy-Item ..\..\..\debug_file makefile.vc -ErrorAction Stop
-              &nmake -f makefile.vc ${{ matrix.config }} INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
+              &nmake -f makefile.vc `$Env:BUILD_CONFIG INSTALLDIR=$Env:INSTALLDIR TCLDIR=..\..\$Env:TCL_BUILD_DIR
               if (`$lastexitcode -ne 0) { throw "nmake exit code: `$lastexitcode" }
           }
           finally {
@@ -289,7 +291,7 @@ jobs:
       - name: Generate Installed file manifest for Install Test
         shell: powershell
         run: |
-          ${{ env.TCLSH }} ${{ github.workspace }}\.github\generate_manifest.tcl ${{ env.INSTALLDIR }} tcl_installer_files.txt
+          `$Env:BUILD_CONFIG ${{ github.workspace }}\.github\generate_manifest.tcl ${{ env.INSTALLDIR }} tcl_installer_files.txt
           if ($lastexitcode -ne 0) { throw "generate_manifest exit code: $lastexitcode" }
         working-directory: .
 
