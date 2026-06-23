@@ -6,14 +6,10 @@ on:
         required: true
         type: choice
         options:
-          - '["core-9-0-3"]'
-          - '["core-9-1-a1"]'
+          - '["9.0"]'
+          - '["9.1"]'
           - '["main"]'
         default: '["main"]'
-      openssl-run-id:
-        description: 'Run ID of OpenSSL-Windows workflow to use (leave blank for latest successful run)'
-        required: false
-        default: ''
 
 permissions:
   contents: read
@@ -41,32 +37,25 @@ jobs:
 
       - name: Load build variables from JSON
         run: |
-          New-Item -Path bld -ItemType Directory
           $tag = '${{ matrix.tcl-tag }}'
-          if ($tag -match 'core-9-0-3') {
-            $varsFile = ".github/build-vars-tcl-9.0.json"
-          } elseif ($tag -match 'core-9-1-.*') {
-            $varsFile = ".github/build-vars-tcl-9.1.json"
-          } elseif ($tag -match 'main') {
-            $varsFile = ".github/build-vars-tcl-main.json"
-          } else {
-            throw "No build-vars JSON file defined for tcl-tag: $tag"
-          }
+          $varsFile = ".github/build-vars-tcl-$tag.json"
 
           echo "Loading build variables from $varsFile"
           if (-not (Test-Path $varsFile)) {
             throw "Build vars file not found: $varsFile"
           }
-          copy $varsFile bld\build-vars.json
-          copy build_windows.ps1 bld
-
-          $vars = Get-Content bld\build-vars.json | ConvertFrom-Json
+          $vars = Get-Content $varsFile | ConvertFrom-Json
           foreach ($prop in $vars.PSObject.Properties) {
             echo "Setting $($prop.Name)=$($prop.Value)"
             Add-Content -Path $env:GITHUB_ENV -Value "$($prop.Name)=$($prop.Value)"
           }
 
           Add-Content -Path $env:GITHUB_ENV -Value "BUILD_VARS_FILE=$varsFile"
+
+          New-Item -Path bld -ItemType Directory
+          copy $varsFile bld\build-vars.json
+          copy build_windows.ps1 bld
+
         working-directory: .
 
       - name: Set fixed environment variables
@@ -76,19 +65,24 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
         working-directory: .
 
-      # -----------------------------------------------------------------------
-      # Restore the pre-built OpenSSL install from the OpenSSL-Windows workflow
-      # -----------------------------------------------------------------------
-      - name: Download OpenSSL artifact
-        uses: dawidd6/action-download-artifact@v6
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          repo: ${{ github.repository }}
-          workflow: OpenSSL-Windows.yml
-          workflow_conclusion: success
-          run_id: ${{ github.event.inputs.openssl-run-id }}
-          name: "OpenSSL-Windows-Install"
-          path: "C:\\OpenSSL"
+      - name: Download OpenSSL build cache
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download "$Env:OSSL_BUILD_DIR-build-cache" `
+            --repo ${{ github.repository }} `
+            --pattern "$Env:OSSL_BUILD_DIR.zip" `
+            --output $Env:OSSL_BUILD_DIR.zip
+
+          if ($lastexitcode -ne 0) {
+            throw "gh release download failed with exit code: $lastexitcode"
+          }
+
+      - name: Extract OpenSSL build cache
+        run: |
+          mkdir C:\OpenSSL -Force
+          Expand-Archive -Path $Env:OSSL_BUILD_DIR.zip -DestinationPath C:\OpenSSL -Force
+      
 
       - name: Verify OpenSSL restore
         run: |

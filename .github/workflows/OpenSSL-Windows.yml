@@ -2,14 +2,14 @@ name: OpenSSL-Windows
 on:
   workflow_dispatch:
     inputs:
-      ossl-download-url:
-        description: 'OpenSSL source tarball URL'
+      tcl-tag:
+        description: 'Build OpenSSL for which Tcl tag?'
         required: true
-        default: 'https://github.com/openssl/openssl/releases/download/openssl-3.5.6/openssl-3.5.6.tar.gz'
-      ossl-download-hash:
-        description: 'MD5 hash of the tarball, or SKIP'
-        required: true
-        default: '1BB3506C580865A0A464E09288AC157E'
+        options:
+          - '["9.0"]'
+          - '["9.1"]'
+          - '["main"]'
+        default: '["main"]'
 
 permissions:
   contents: write
@@ -38,16 +38,21 @@ jobs:
 
       - name: Set variables
         run: |
-          $url  = '${{ github.event.inputs.ossl-download-url }}'
-          $file = Split-Path -Leaf $url
-          # Derive the build directory name from the tarball filename,
-          # e.g. openssl-3.5.6.tar.gz -> openssl-3.5.6
-          $buildDir = $file -replace '\.tar\.gz$',''
 
-          Add-Content -Path $env:GITHUB_ENV -Value "OSSL_DOWNLOAD_URL=$url"
-          Add-Content -Path $env:GITHUB_ENV -Value "OSSL_DOWNLOAD_FILE=$file"
-          Add-Content -Path $env:GITHUB_ENV -Value "OSSL_DOWNLOAD_HASH=${{ github.event.inputs.ossl-download-hash }}"
-          Add-Content -Path $env:GITHUB_ENV -Value "OSSL_BUILD_DIR=$buildDir"
+          $tag = '${{ matrix.tcl-tag }}'
+          $varsFile = ".github/build-vars-tcl-$tag.json"
+
+          echo "Loading build variables from $varsFile"
+          if (-not (Test-Path $varsFile)) {
+            throw "Build vars file not found: $varsFile"
+          }
+          $vars = Get-Content $varsFile | ConvertFrom-Json
+          foreach ($prop in $vars.PSObject.Properties) {
+            if ( $prop.Name -match "OSSL_.*" ) {
+                echo "Setting $($prop.Name)=$($prop.Value)"
+                Add-Content -Path $env:GITHUB_ENV -Value "$($prop.Name)=$($prop.Value)"
+            }
+          }
           Add-Content -Path $env:GITHUB_ENV -Value "SSL_INSTALL_FOLDER=C:\OpenSSL"
 
       - name: Download OpenSSL source
@@ -95,21 +100,27 @@ jobs:
 
       - name: Package OpenSSL build
         run: |
-          Compress-Archive -Path "$Env:SSL_INSTALL_FOLDER\*" -DestinationPath "openssl-windows-build-3.5.6.zip" -Force
+          Compress-Archive -Path "$Env:SSL_INSTALL_FOLDER\*" -DestinationPath "$Env:OSSL_BUILD_DIR.zip" -Force
 
       - name: Create or update draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $tag = "openssl-3.5.6-build-cache"
+          $tag = "$Env:OSSL_BUILD_DIR-build-cache"
 
-          $oldErrorActionPreference = $ErrorActionPreference
-          $ErrorActionPreference = "SilentlyContinue"
-          gh release delete $tag --yes --cleanup-tag *>$null
-          $ErrorActionPreference = $oldErrorActionPreference
-
+          gh release view $tag 2>&1 | Out-Null
+          if ($lastexitcode -eq 0) {
+            echo "Existing release found for tag $tag, deleting it"
+            gh release delete $tag --yes --cleanup-tag
+            if ($lastexitcode -ne 0) {
+              throw "gh release delete failed with exit code: $lastexitcode"
+            }
+          } else {
+            echo "No existing release for tag $tag, nothing to delete"
+          }
+          
           gh release create $tag `
-            openssl-windows-build-3.5.6.zip `
+            $Env:OSSL_BUILD_DIR.zip `
             --draft `
             --title "OpenSSL Windows build cache (internal)" `
             --notes "Internal build cache used by Windows.yml. Not a project release. Source: $Env:OSSL_DOWNLOAD_URL"
