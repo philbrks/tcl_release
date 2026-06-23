@@ -12,7 +12,7 @@ on:
         default: '1BB3506C580865A0A464E09288AC157E'
 
 permissions:
-  contents: read
+  contents: write
 env:
   ERROR_ON_FAILURES: 1
 
@@ -95,17 +95,18 @@ jobs:
 
       - name: Package OpenSSL build
         run: |
-          Compress-Archive -Path "$Env:SSL_INSTALL_FOLDER\*" -DestinationPath "openssl-windows-build.zip" -Force
+          Compress-Archive -Path "$Env:SSL_INSTALL_FOLDER\*" -DestinationPath "openssl-windows-build-3.5.6.zip" -Force
 
       - name: Create or update draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $tag = "openssl-build-cache"
+          $tag = "openssl-3.5.6-build-cache"
 
-          # Delete any existing release with this tag so we can replace its asset.
-          # --cleanup-tag also removes the underlying git tag so it doesn't pile up.
-          gh release delete $tag --yes --cleanup-tag 2>$null
+          $oldErrorActionPreference = $ErrorActionPreference
+          $ErrorActionPreference = "SilentlyContinue"
+          gh release delete $tag --yes --cleanup-tag *>$null
+          $ErrorActionPreference = $oldErrorActionPreference
 
           gh release create $tag `
             openssl-windows-build.zip `
