@@ -93,8 +93,26 @@ jobs:
               Pop-Location
           }
 
-      - name: Upload OpenSSL install directory
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: "OpenSSL-Windows-Install"
-          path: ${{ env.SSL_INSTALL_FOLDER }}
+      - name: Package OpenSSL build
+        run: |
+          Compress-Archive -Path "$Env:SSL_INSTALL_FOLDER\*" -DestinationPath "openssl-windows-build.zip" -Force
+
+      - name: Create or update draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = "openssl-build-cache"
+
+          # Delete any existing release with this tag so we can replace its asset.
+          # --cleanup-tag also removes the underlying git tag so it doesn't pile up.
+          gh release delete $tag --yes --cleanup-tag 2>$null
+
+          gh release create $tag `
+            openssl-windows-build.zip `
+            --draft `
+            --title "OpenSSL Windows build cache (internal)" `
+            --notes "Internal build cache used by Windows.yml. Not a project release. Source: $Env:OSSL_DOWNLOAD_URL"
+
+          if ($lastexitcode -ne 0) {
+            throw "gh release create failed with exit code: $lastexitcode"
+          }
