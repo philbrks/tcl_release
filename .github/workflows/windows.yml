@@ -266,7 +266,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: "build-vars"
-          path: "build-vars.json"
+          path: "bld/build-vars.json"
 
       # -----------------------------------------------------------------------
       # Installer test
