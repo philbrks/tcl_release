@@ -5,6 +5,7 @@ on:
       tcl-tag:
         description: 'Build OpenSSL for which Tcl tag?'
         required: true
+        type: choice
         options:
           - '["9.0"]'
           - '["9.1"]'
