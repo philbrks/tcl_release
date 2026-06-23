@@ -2,8 +2,7 @@ name: OpenSSL-Windows
 on:
   workflow_dispatch:
     inputs:
-      tcl-tag:
-        description: 'Build OpenSSL for which Tcl tag?'
+      tcl-tags:
         required: true
         type: choice
         options:
@@ -23,6 +22,12 @@ jobs:
     defaults:
       run:
         shell: powershell
+
+    strategy:
+      matrix:
+        config:
+          - ""
+        tcl-tag: ${{ fromJSON(github.event.inputs.tcl-tags) }}
 
     steps:
       - uses: shogo82148/actions-setup-perl@v1
