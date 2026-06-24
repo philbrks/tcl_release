@@ -119,7 +119,8 @@ jobs:
             echo "Existing release found for tag $tag, deleting it"
             gh release delete $tag --yes --cleanup-tag
             if ($lastexitcode -ne 0) {
-              throw "gh release delete failed with exit code: $lastexitcode"
+              echo "gh release delete failed with exit code: $lastexitcode"
+              echo "Forging ahead anyway..."
             }
           } else {
             echo "No existing release for tag $tag, nothing to delete"
