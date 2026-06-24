@@ -114,6 +114,8 @@ jobs:
         run: |
           $tag = "$Env:OSSL_BUILD_DIR-build-cache"
 
+          $oldErrorActionPreference = $ErrorActionPreference
+          $ErrorActionPreference = "SilentlyContinue"
           gh release view $tag 2>&1 | Out-Null
           if ($lastexitcode -eq 0) {
             echo "Existing release found for tag $tag, deleting it"
@@ -125,6 +127,7 @@ jobs:
           } else {
             echo "No existing release for tag $tag, nothing to delete"
           }
+          $ErrorActionPreference = $oldErrorActionPreference
           
           gh release create $tag `
             $Env:OSSL_BUILD_DIR.zip `
