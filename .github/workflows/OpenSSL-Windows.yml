@@ -63,24 +63,24 @@ jobs:
 
       - name: Download OpenSSL source
         run: |
-          echo "Downloading $Env:OSSL_DOWNLOAD_URL to $Env:OSSL_DOWNLOAD_FILE"
-          curl.exe -L --ssl-no-revoke -o $Env:OSSL_DOWNLOAD_FILE $Env:OSSL_DOWNLOAD_URL
+          echo "Downloading ${Env:OSSL_DOWNLOAD_URL} to ${Env:OSSL_DOWNLOAD_FILE}"
+          curl.exe -L --ssl-no-revoke -o ${Env:OSSL_DOWNLOAD_FILE} ${Env:OSSL_DOWNLOAD_URL}
           if ($LASTEXITCODE -ne 0) {
               throw "curl failed (exit code $LASTEXITCODE) downloading OpenSSL source"
           }
 
       - name: Verify download
         run: |
-          if ( $Env:OSSL_DOWNLOAD_HASH -ne "SKIP" ) {
-              $FileHash = (Get-FileHash $Env:OSSL_DOWNLOAD_FILE -Algorithm MD5).HASH
-              if ( $FileHash -ne $Env:OSSL_DOWNLOAD_HASH ) {
-                  throw "MD5 hash check failed for $Env:OSSL_DOWNLOAD_FILE"
+          if ( ${Env:OSSL_DOWNLOAD_HASH} -ne "SKIP" ) {
+              $FileHash = (Get-FileHash ${Env:OSSL_DOWNLOAD_FILE} -Algorithm MD5).HASH
+              if ( $FileHash -ne ${Env:OSSL_DOWNLOAD_HASH} ) {
+                  throw "MD5 hash check failed for ${Env:OSSL_DOWNLOAD_FILE}"
               }
           }
 
       - name: Extract source
         run: |
-          tar -zxf $Env:OSSL_DOWNLOAD_FILE
+          tar -zxf ${Env:OSSL_DOWNLOAD_FILE}
           if ($lastexitcode -ne 0) { throw "tar exit code: $lastexitcode" }
           dir
 
@@ -92,8 +92,8 @@ jobs:
       - name: Build and install OpenSSL
         run: |
           try {
-              Push-Location $Env:OSSL_BUILD_DIR
-              &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="$Env:SSL_INSTALL_FOLDER" --openssldir="$Env:SSL_INSTALL_FOLDER" -DOPENSSL_NO_DEPRECATED
+              Push-Location ${Env:OSSL_BUILD_DIR}
+              &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="${Env:SSL_INSTALL_FOLDER}" --openssldir="${Env:SSL_INSTALL_FOLDER}" -DOPENSSL_NO_DEPRECATED
               if ($lastexitcode -ne 0) { throw "perl Configure OSSL exit code: $lastexitcode" }
               &nmake
               if ($lastexitcode -ne 0) { throw "nmake OSSL exit code: $lastexitcode" }
@@ -106,13 +106,13 @@ jobs:
 
       - name: Package OpenSSL build
         run: |
-          Compress-Archive -Path "$Env:SSL_INSTALL_FOLDER\*" -DestinationPath "$Env:OSSL_BUILD_DIR.zip" -Force
+          Compress-Archive -Path "${Env:SSL_INSTALL_FOLDER}\*" -DestinationPath "${Env:OSSL_BUILD_DIR}.zip" -Force
 
       - name: Create or update draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $tag = "$Env:OSSL_BUILD_DIR-build-cache"
+          $tag = "${Env:OSSL_BUILD_DIR}-build-cache"
 
           $oldErrorActionPreference = $ErrorActionPreference
           $ErrorActionPreference = "SilentlyContinue"
@@ -130,10 +130,10 @@ jobs:
           $ErrorActionPreference = $oldErrorActionPreference
           
           gh release create $tag `
-            $Env:OSSL_BUILD_DIR.zip `
+            ${Env:OSSL_BUILD_DIR}.zip `
             --draft `
             --title "OpenSSL Windows build cache (internal)" `
-            --notes "Internal build cache used by Windows.yml. Not a project release. Source: $Env:OSSL_DOWNLOAD_URL"
+            --notes "Internal build cache used by Windows.yml. Not a project release. Source: ${Env:OSSL_DOWNLOAD_URL}"
 
           if ($lastexitcode -ne 0) {
             throw "gh release create failed with exit code: $lastexitcode"

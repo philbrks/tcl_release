@@ -82,7 +82,7 @@ jobs:
       - name: Extract OpenSSL build cache
         run: |
           mkdir C:\OpenSSL -Force
-          Expand-Archive -Path $Env:OSSL_BUILD_DIR.zip -DestinationPath C:\OpenSSL -Force
+          Expand-Archive -Path ${Env:OSSL_BUILD_DIR}.zip -DestinationPath C:\OpenSSL -Force
       
 
       - name: Verify OpenSSL restore
@@ -211,7 +211,7 @@ jobs:
       - name: Build and install Tcl and included libraries (${{ matrix.config }})
         run: |
 
-          $Env:BUILD_CONFIG = "${{ matrix.config }}"
+          ${Env:BUILD_CONFIG} = "${{ matrix.config }}"
           .\build_windows.ps1
 
         working-directory: bld
