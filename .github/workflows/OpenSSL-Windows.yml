@@ -107,6 +107,7 @@ jobs:
       - name: Package OpenSSL build
         run: |
           Compress-Archive -Path "${Env:SSL_INSTALL_FOLDER}\*" -DestinationPath "${Env:OSSL_BUILD_DIR}.zip" -Force
+          dir 
 
       - name: Create or update draft release
         env:
@@ -129,11 +130,15 @@ jobs:
           }
           $ErrorActionPreference = $oldErrorActionPreference
           
+          dir 
+
           gh release create $tag `
             ${Env:OSSL_BUILD_DIR}.zip `
             --draft `
             --title "OpenSSL Windows build cache (internal)" `
             --notes "Internal build cache used by Windows.yml. Not a project release. Source: ${Env:OSSL_DOWNLOAD_URL}"
+
+          gh release view $tag
 
           if ($lastexitcode -ne 0) {
             throw "gh release create failed with exit code: $lastexitcode"
