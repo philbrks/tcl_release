@@ -12,8 +12,8 @@ on:
         default: '["main"]'
 
 permissions:
-  contents: write
-  actions: read   # needed by dawidd6/action-download-artifact
+  contents: read
+  actions: write # needed to trigger another workflow via `gh workflow run`
 env:
   ERROR_ON_FAILURES: 1
 
@@ -65,25 +65,30 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
         working-directory: .
 
-      - name: Download OpenSSL build cache
+      - name: Try to download OpenSSL artifact
+        id: download-ossl
+        uses: dawidd6/action-download-artifact@v6
+        continue-on-error: true
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
+          workflow: OpenSSL-Windows.yml
+          workflow_conclusion: success
+          name: "OpenSSL-Windows-Install"
+          path: "C:\\OpenSSL"
+
+      - name: Trigger OpenSSL rebuild if artifact missing or expired
+        if: steps.download-ossl.outcome == 'failure'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Downloading release... Env:OSSL_BUILD_DIR=${Env:OSSL_BUILD_DIR}"
-          gh release download "${Env:OSSL_BUILD_DIR}-build-cache" `
-            --repo ${{ github.repository }} `
-            --pattern "${Env:OSSL_BUILD_DIR}.zip" `
-            --output "${Env:OSSL_BUILD_DIR}.zip"
-
+          Write-Output "No usable OpenSSL artifact found (missing or expired)."
+          Write-Output "Triggering OpenSSL-Windows.yml to rebuild it now..."
+          gh workflow run OpenSSL-Windows.yml --ref ${{ github.ref_name }}
           if ($lastexitcode -ne 0) {
-            throw "gh release download failed with exit code: $lastexitcode"
+            throw "Failed to trigger OpenSSL-Windows.yml rebuild, exit code: $lastexitcode"
           }
-
-      - name: Extract OpenSSL build cache
-        run: |
-          mkdir C:\OpenSSL -Force
-          Expand-Archive -Path ${Env:OSSL_BUILD_DIR}.zip -DestinationPath C:\OpenSSL -Force
-      
+          throw "OpenSSL artifact was unavailable, so a rebuild has been triggered. Please wait for OpenSSL-Windows.yml to complete, then re-run this workflow."
 
       - name: Verify OpenSSL restore
         run: |
@@ -91,7 +96,7 @@ jobs:
             throw "OpenSSL install directory was not restored correctly to C:\OpenSSL"
           }
           echo "OpenSSL restored:"
-          dir C:\OpenSSL
+          dir C:\OpenSSL      
 
       - name: Download All source
         shell: powershell
