@@ -69,10 +69,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release download "$Env:OSSL_BUILD_DIR-build-cache" `
+          echo "Downloading release... Env:OSSL_BUILD_DIR=${Env:OSSL_BUILD_DIR}"
+          gh release download "${Env:OSSL_BUILD_DIR}-build-cache" `
             --repo ${{ github.repository }} `
-            --pattern "$Env:OSSL_BUILD_DIR.zip" `
-            --output $Env:OSSL_BUILD_DIR.zip
+            --pattern "${Env:OSSL_BUILD_DIR}.zip" `
+            --output "${Env:OSSL_BUILD_DIR}.zip"
 
           if ($lastexitcode -ne 0) {
             throw "gh release download failed with exit code: $lastexitcode"
