@@ -159,9 +159,13 @@ jobs:
           }
 
           Verify-Download "downloads\${{ env.TCL_DOWNLOAD_FILE }}"   "${{ env.TCL_DOWNLOAD_HASH }}"
-          Verify-Download "downloads\${{ env.TCLTLS_DOWNLOAD_FILE }}" "${{ env.TCLTLS_DOWNLOAD_HASH }}"
           Verify-Download "downloads\${{ env.TK_DOWNLOAD_FILE }}"    "${{ env.TK_DOWNLOAD_HASH }}"
+          Verify-Download "downloads\${{ env.TCLTLS_DOWNLOAD_FILE }}" "${{ env.TCLTLS_DOWNLOAD_HASH }}"
           Verify-Download "downloads\${{ env.TCLLIB_DOWNLOAD_FILE }}" "${{ env.TCLLIB_DOWNLOAD_HASH }}"
+          Verify-Download "downloads\${{ env.TKLIB_DOWNLOAD_FILE }}" "${{ env.TKLIB_DOWNLOAD_HASH }}"
+          Verify-Download "downloads\${{ env.IMG_DOWNLOAD_FILE }}" "${{ env.IMG_DOWNLOAD_HASH }}"
+          Verify-Download "downloads\${{ env.TDOM_DOWNLOAD_FILE }}" "${{ env.TDOM_DOWNLOAD_HASH }}"
+          Verify-Download "downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}" "${{ env.TKTABLE_DOWNLOAD_HASH }}"
 
       - name: Extract source archives
         shell: powershell
