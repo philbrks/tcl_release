@@ -2,8 +2,12 @@ mkdir "$Env:INSTALLDIR"
 # Tcl
 try {
   Push-Location $Env:TCL_BUILD_DIR\win
+  echo "Building Tcl and subprojects"
   &nmake -f makefile.vc release $Env:BUILD_CONFIG INSTALLDIR=$Env:INSTALLDIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+  echo "Done building Tcl and subprojects - installing..."
+  echo "pkgs directory contains:"
+  dir ..\pkgs
   &nmake -f makefile.vc install $Env:BUILD_CONFIG INSTALLDIR=$Env:INSTALLDIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
 }
