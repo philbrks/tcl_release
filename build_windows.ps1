@@ -60,9 +60,9 @@ finally { Pop-Location }
 try {
   echo "Building Img"
   Push-Location  $Env:IMG_BUILD_DIR/win
-  &nmake -f makefile.vc all $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\tk-main
+  &nmake -f makefile.vc all $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-  &nmake -f makefile.vc install $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\tk-main
+  &nmake -f makefile.vc install $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
 }
 finally { Pop-Location }
