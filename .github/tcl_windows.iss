@@ -52,7 +52,7 @@ DisableWelcomePage       = no
 
 ; Output
 OutputDir                = Output
-OutputBaseFilename       = Tcl-Tk-{#MyAppVersion}-win64-setup
+OutputBaseFilename       = Tcl-Tk-{#MyMajorMinor}-win64-setup
 SetupIconFile            = {#MyIconFile}
 
 ; Target 64-bit Windows only

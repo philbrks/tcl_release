@@ -264,7 +264,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: "Tcl-Tk-unsigned"
-          path: ".github/Output/Tcl-Tk-${{ env.TCL_VERSION }}-win64-setup.exe"
+          path: ".github/Output/Tcl-Tk-${{ env.TCL_MAJOR_MINOR }}-win64-setup.exe"
 
       - name: Upload build variables for signing workflow
         uses: actions/upload-artifact@v7.0.1
