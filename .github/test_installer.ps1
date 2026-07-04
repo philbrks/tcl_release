@@ -50,7 +50,7 @@ function RunAndTestInstaller([bool]$AllUserMode) {
     Write-Host "Running as elevated: $isElevated  ->  InstallRoot: $InstallRoot"
 
     $TclshName   = "tclsh" + $MajorMinor.Replace(".", "") + ".exe"   # tclsh91.exe
-    $InstallerExe = ".github\Output\Tcl-Tk-$MajorMinor.exe"
+    $InstallerExe = ".github\Output\Tcl-Tk-${MajorMinor}-win64.exe"
 
     # Path to the expected-files manifest (one relative path per line, # comments ok)
     $ManifestPath = "tcl_installer_files.txt"
