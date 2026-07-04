@@ -2,11 +2,10 @@ mkdir "$Env:INSTALLDIR"
 # Tcl
 dir
 try {
-  Push-Location $Env:TCL_BUILD_DIR\win
   echo "Building Tcl and subprojects"
+  Push-Location $Env:TCL_BUILD_DIR\win
   &nmake -f makefile.vc release $Env:BUILD_CONFIG INSTALLDIR=$Env:INSTALLDIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-  echo "Done building Tcl and subprojects - installing..."
   &nmake -f makefile.vc install $Env:BUILD_CONFIG INSTALLDIR=$Env:INSTALLDIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
 }
@@ -16,11 +15,10 @@ finally { Pop-Location }
 try {
   echo "Building Tk"
   Push-Location $Env:TK_BUILD_DIR/win
-  echo "Current Directory:"
   pwd
-  &nmake -f makefile.vc release $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\tcl-main
+  &nmake -f makefile.vc release $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-  &nmake -f makefile.vc install $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\tcl-main
+  &nmake -f makefile.vc install $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
 }
 finally { Pop-Location }
@@ -29,9 +27,9 @@ finally { Pop-Location }
 try {
   echo "Building TDom"
   Push-Location $Env:TDOM_BUILD_DIR/win
-  &nmake -f makefile.vc $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\tcl-main
+  &nmake -f makefile.vc $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-  &nmake -f makefile.vc install $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\tcl-main
+  &nmake -f makefile.vc install $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
 }
 finally { Pop-Location }
@@ -53,7 +51,7 @@ try {
   Push-Location $Env:TCLTLS_BUILD_DIR\win
   &nmake -f makefile.vc $Env:BUILD_CONFIG SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER TCLDIR=..\..\$Env:TCL_BUILD_DIR INSTALLDIR=$Env:INSTALLDIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-  &nmake -f makefile.vc install $Env:BUILD_CONFIG SSL_INSTALL_FOLDER=C:\OpenSSL INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\tcl-main
+  &nmake -f makefile.vc install $Env:BUILD_CONFIG SSL_INSTALL_FOLDER=C:\OpenSSL INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR
   if ($lastexitcode -ne 0) { throw "nmake install exit code: $lastexitcode" }
 }
 finally { Pop-Location }
@@ -62,9 +60,9 @@ finally { Pop-Location }
 try {
   echo "Building Img"
   Push-Location  $Env:IMG_BUILD_DIR/win
-  &nmake -f makefile.vc all $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\tcl-main TKDIR=..\..\tk-main
+  &nmake -f makefile.vc all $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\tk-main
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
-  &nmake -f makefile.vc install $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\tcl-main TKDIR=..\..\tk-main
+  &nmake -f makefile.vc install $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\tk-main
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
 }
 finally { Pop-Location }
@@ -74,7 +72,7 @@ try {
   echo "Building TkTable"
   Push-Location "$Env:TKTABLE_BUILD_DIR\win"
   # Copy-Item ..\..\..\debug_file makefile.vc -ErrorAction Stop
-  &nmake -f makefile.vc $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\tcl-main
+  &nmake -f makefile.vc $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
 }
 finally {
