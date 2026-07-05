@@ -78,3 +78,15 @@ try {
 finally {
     Pop-Location
 }
+
+# TclUDP
+try {
+  echo "Building TclUDP"
+  Push-Location "$Env:TKTABLE_BUILD_DIR\win"
+  # Copy-Item ..\..\..\debug_file makefile.vc -ErrorAction Stop
+  &nmake -f makefile.vc $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR
+  if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+}
+finally {
+    Pop-Location
+}
