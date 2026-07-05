@@ -35,10 +35,17 @@
     "TKTABLE_DOWNLOAD_FILE":  "tktable-2.12.1-src.tar.gz",
     "TKTABLE_DOWNLOAD_HASH":  "SKIP",
     "TKTABLE_BUILD_DIR":  "tktable-35d3f2fa4d",
+
     "TKUDP_DOWNLOAD_URL":  "https://github.com/bohagan1/TclUDP/releases/download/tcludp-1-0-13/tcludp1.0.13.tar.gz",
     "TKUDP_DOWNLOAD_FILE":  "tcludp1.0.13.tar.gz",
     "TKUDP_DOWNLOAD_HASH":  "B98EC97C829FCA53FDC84EC9A4F15B6A",
     "TKUDP_BUILD_DIR":  "tcludp1.0.13",
+
+    "TWAPI_DOWNLOAD_URL":  "https://github.com/apnadkarni/twapi/archive/refs/tags/v5.2.tar.gz",
+    "TWAPI_DOWNLOAD_FILE":  "twapiv5.2.tar.gz",
+    "TWAPI_DOWNLOAD_HASH":  "D07C6563D4FBCC1E9F71657A2F973877",
+    "TWAPI_BUILD_DIR":  "twapi-5.2",
+
     "OSSL_DOWNLOAD_URL":  "https://github.com/openssl/openssl/releases/download/openssl-3.5.6/openssl-3.5.6.tar.gz",
     "OSSL_BUILD_DIR": "openssl-3.5.6",
     "OSSL_DOWNLOAD_FILE": "openssl-3.5.6.tar.gz",

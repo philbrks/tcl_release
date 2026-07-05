@@ -71,8 +71,7 @@ finally { Pop-Location }
 try {
   echo "Building TkTable"
   Push-Location "$Env:TKTABLE_BUILD_DIR\win"
-  # Copy-Item ..\..\..\debug_file makefile.vc -ErrorAction Stop
-  &nmake -f makefile.vc $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR
+  &nmake -f makefile.vc $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
 }
 finally {
@@ -82,8 +81,18 @@ finally {
 # TclUDP
 try {
   echo "Building TclUDP"
-  Push-Location "$Env:TKTABLE_BUILD_DIR\win"
-  # Copy-Item ..\..\..\debug_file makefile.vc -ErrorAction Stop
+  Push-Location "$Env:TCLUDP_BUILD_DIR\win"
+  &nmake -f makefile.vc $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR
+  if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+}
+finally {
+    Pop-Location
+}
+
+# TWAPI
+try {
+  echo "Building TWAPI"
+  Push-Location "$Env:TWAPI_BUILD_DIR\win"
   &nmake -f makefile.vc $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR
   if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
 }
