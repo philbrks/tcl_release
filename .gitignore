@@ -1,0 +1,46 @@
+# Editor / IDE backup and swap files
+
+# Vim
+*.swp
+*.swo
+*.swn
+*~
+.*.swp
+.*.swo
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# JetBrains IDEs (IntelliJ, PyCharm, WebStorm, etc.)
+.idea/
+*.iml
+*.iws
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Kate
+*.kate-swp
+
+# Gedit
+.goutputstream-*
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Generic backup files
+*.bak
+*.orig
+*.tmp
