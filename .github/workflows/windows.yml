@@ -136,7 +136,7 @@ jobs:
           Get-Download -OutputFile 'downloads\${{ env.IMG_DOWNLOAD_FILE }}'    -Url '${{ env.IMG_DOWNLOAD_URL }}'
           Get-Download -OutputFile 'downloads\${{ env.TDOM_DOWNLOAD_FILE }}'   -Url '${{ env.TDOM_DOWNLOAD_URL }}'
           Get-Download -OutputFile 'downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}' -Url '${{ env.TKTABLE_DOWNLOAD_URL }}'
-          Get-Download -OutputFile 'downloads\${{ env.TKUDP_DOWNLOAD_FILE }}' -Url '${{ env.TKUDP_DOWNLOAD_URL }}'
+          Get-Download -OutputFile 'downloads\${{ env.TCLUDP_DOWNLOAD_FILE }}' -Url '${{ env.TCLUDP_DOWNLOAD_URL }}'
           Get-Download -OutputFile 'downloads\${{ env.TWAPI_DOWNLOAD_FILE }}' -Url '${{ env.TWAPI_DOWNLOAD_URL }}'
 
           echo "Done downloading source files."
@@ -168,7 +168,7 @@ jobs:
           Verify-Download "downloads\${{ env.IMG_DOWNLOAD_FILE }}" "${{ env.IMG_DOWNLOAD_HASH }}"
           Verify-Download "downloads\${{ env.TDOM_DOWNLOAD_FILE }}" "${{ env.TDOM_DOWNLOAD_HASH }}"
           Verify-Download "downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}" "${{ env.TKTABLE_DOWNLOAD_HASH }}"
-          Verify-Download "downloads\${{ env.TKUDP_DOWNLOAD_FILE }}" "${{ env.TKUDP_DOWNLOAD_HASH }}"
+          Verify-Download "downloads\${{ env.TCLUDP_DOWNLOAD_FILE }}" "${{ env.TCLUDP_DOWNLOAD_HASH }}"
           Verify-Download "downloads\${{ env.TWAPI_DOWNLOAD_FILE }}" "${{ env.TWAPI_DOWNLOAD_HASH }}"
 
       - name: Extract source archives
@@ -203,7 +203,7 @@ jobs:
           Extract-Download '..\downloads\${{ env.IMG_DOWNLOAD_FILE }}'
           Extract-Download '..\downloads\${{ env.TDOM_DOWNLOAD_FILE }}'
           Extract-Download '..\downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}'
-          Extract-Download '..\downloads\${{ env.TKUDP_DOWNLOAD_FILE }}'
+          Extract-Download '..\downloads\${{ env.TCLUDP_DOWNLOAD_FILE }}'
           Extract-Download '..\downloads\${{ env.TWAPI_DOWNLOAD_FILE }}'
 
           cd ..
