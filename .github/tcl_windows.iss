@@ -9,6 +9,10 @@
 ;   MyMajorMinor   - major.minor only,    e.g. 9.1
 ;   MyInstallDir   - staging tree root,   e.g. C:\Tcl-tk
 ;   MyIconFile     - path to tclsh.ico,   e.g. tcl9.1a1/win/tclsh.ico
+;
+; Optional defines:
+;   MyWishIconFile - path to wish.ico. If omitted, wish shortcuts reuse
+;                    MyIconFile.
 ; =============================================================================
 
 #ifndef MyAppVersion
@@ -34,6 +38,13 @@
 #define MyPublisher      "Tcl Community Association"
 #define MyAppURL         "https://www.tcl-lang.org"
 #define MyTclshExe       "tclsh" + StringChange(MyMajorMinor, ".", "") + ".exe"
+#define MyWishExe        "wish" + StringChange(MyMajorMinor, ".", "") + ".exe"
+
+; Optional: pass /DMyWishIconFile=<path to wish.ico> for a dedicated Tk icon.
+; If not supplied, the wish shortcuts fall back to MyIconFile (tclsh.ico).
+#ifndef MyWishIconFile
+  #define MyWishIconFile MyIconFile
+#endif
 
 [Setup]
 AppId                    = {#MyAppGuid}
@@ -111,12 +122,24 @@ Name: "{group}\Tcl Shell (tclsh {#MyMajorMinor})"; \
       IconFilename: "{app}\bin\{#MyTclshExe}"; \
       Comment: "Tcl interactive shell"
 
+; wish (Tk) shell
+Name: "{group}\Tk Shell (wish {#MyMajorMinor})"; \
+      Filename: "{app}\bin\{#MyWishExe}"; \
+      IconFilename: "{app}\bin\{#MyWishExe}"; \
+      Comment: "Tk windowing shell"
+
 ; Desktop shortcuts (optional component, see [Components])
 Name: "{userdesktop}\Tcl Shell {#MyMajorMinor}"; \
       Filename: "{app}\bin\{#MyTclshExe}"; \
       IconFilename: "{app}\bin\{#MyTclshExe}"; \
       Comment: "Tcl interactive shell"; \
       Tasks: desktopicon_tclsh
+
+Name: "{userdesktop}\Tk Shell {#MyMajorMinor}"; \
+      Filename: "{app}\bin\{#MyWishExe}"; \
+      IconFilename: "{app}\bin\{#MyWishExe}"; \
+      Comment: "Tk windowing shell"; \
+      Tasks: desktopicon_wish
 
 ; ---------------------------------------------------------------------------
 ; Optional tasks presented to the user during setup
@@ -125,6 +148,12 @@ Name: "{userdesktop}\Tcl Shell {#MyMajorMinor}"; \
 ; Desktop icon for tclsh
 Name: "desktopicon_tclsh"; \
       Description: "Create a &desktop shortcut for Tcl Shell (tclsh)"; \
+      GroupDescription: "Additional shortcuts:"; \
+      Flags: unchecked
+
+; Desktop icon for wish
+Name: "desktopicon_wish"; \
+      Description: "Create a desktop shortcut for &Tk Shell (wish)"; \
       GroupDescription: "Additional shortcuts:"; \
       Flags: unchecked
 
@@ -354,4 +383,3 @@ begin
     if IsTaskSelected('modifypath') then
       BroadcastEnvironmentChange;
 end;
-
