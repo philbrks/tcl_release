@@ -46,6 +46,11 @@
     "TWAPI_DOWNLOAD_HASH":  "D07C6563D4FBCC1E9F71657A2F973877",
     "TWAPI_BUILD_DIR":  "twapi-5.2",
 
+    "TKTREECTRL_DOWNLOAD_URL":  "https://github.com/tcltk-depot/tktreectrl/archive/refs/tags/v2.5.1.tar.gz",
+    "TKTREECTRL_DOWNLOAD_FILE":  "tktreectrl-v2.5.1.tar.gz",
+    "TKTREECTRL_DOWNLOAD_HASH":  "BC3FF0619B084EF988C40FB63338FB06",
+    "TKTREECTRL_BUILD_DIR":  "tktreectrl-2.5.1",
+
     "OSSL_DOWNLOAD_URL":  "https://github.com/openssl/openssl/releases/download/openssl-3.5.6/openssl-3.5.6.tar.gz",
     "OSSL_BUILD_DIR": "openssl-3.5.6",
     "OSSL_DOWNLOAD_FILE": "openssl-3.5.6.tar.gz",

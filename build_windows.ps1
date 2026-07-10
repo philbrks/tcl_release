@@ -108,3 +108,17 @@ try {
 finally {
     Pop-Location
 }
+
+# TKTREECTRL
+try {
+  echo "Building TkTreectrl"
+  Push-Location "$Env:TKTREECTRL_BUILD_DIR\win"
+  &nmake -f makefile.vc $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+  if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+  echo "Installing TkTreectrl"
+  &nmake -f makefile.vc install $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR TKDIR=..\..\$Env:TK_BUILD_DIR
+  if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
+}
+finally {
+    Pop-Location
+}

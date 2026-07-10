@@ -138,6 +138,7 @@ jobs:
           Get-Download -OutputFile 'downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}' -Url '${{ env.TKTABLE_DOWNLOAD_URL }}'
           Get-Download -OutputFile 'downloads\${{ env.TCLUDP_DOWNLOAD_FILE }}' -Url '${{ env.TCLUDP_DOWNLOAD_URL }}'
           Get-Download -OutputFile 'downloads\${{ env.TWAPI_DOWNLOAD_FILE }}' -Url '${{ env.TWAPI_DOWNLOAD_URL }}'
+          Get-Download -OutputFile 'downloads\${{ env.TKTREECTRL_DOWNLOAD_FILE }}' -Url '${{ env.TKTREECTRL_DOWNLOAD_URL }}'
 
           echo "Done downloading source files."
 
@@ -170,6 +171,7 @@ jobs:
           Verify-Download "downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}" "${{ env.TKTABLE_DOWNLOAD_HASH }}"
           Verify-Download "downloads\${{ env.TCLUDP_DOWNLOAD_FILE }}" "${{ env.TCLUDP_DOWNLOAD_HASH }}"
           Verify-Download "downloads\${{ env.TWAPI_DOWNLOAD_FILE }}" "${{ env.TWAPI_DOWNLOAD_HASH }}"
+          Verify-Download "downloads\${{ env.TKTREECTRL_DOWNLOAD_FILE }}" "${{ env.TKTREECTRL_DOWNLOAD_HASH }}"
 
       - name: Extract source archives
         shell: powershell
@@ -205,6 +207,7 @@ jobs:
           Extract-Download '..\downloads\${{ env.TKTABLE_DOWNLOAD_FILE }}'
           Extract-Download '..\downloads\${{ env.TCLUDP_DOWNLOAD_FILE }}'
           Extract-Download '..\downloads\${{ env.TWAPI_DOWNLOAD_FILE }}'
+          Extract-Download '..\downloads\${{ env.TKTREECTRL_DOWNLOAD_FILE }}'
 
           cd ..
           tar cf Tcl-Tk-and-libraries.tar.gz bld
