@@ -23,6 +23,7 @@ set packages {
     math
     scrollutil
     tablelist
+    treectrl
 }
 
 foreach pkg $packages {
