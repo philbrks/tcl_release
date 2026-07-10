@@ -36,10 +36,10 @@
     "TKTABLE_DOWNLOAD_HASH":  "SKIP",
     "TKTABLE_BUILD_DIR":  "tktable-35d3f2fa4d",
 
-    "TKUDP_DOWNLOAD_URL":  "https://github.com/bohagan1/TclUDP/releases/download/tcludp-1-0-13/tcludp1.0.13.tar.gz",
-    "TKUDP_DOWNLOAD_FILE":  "tcludp1.0.13.tar.gz",
-    "TKUDP_DOWNLOAD_HASH":  "B98EC97C829FCA53FDC84EC9A4F15B6A",
-    "TKUDP_BUILD_DIR":  "tcludp1.0.13",
+    "TCLUDP_DOWNLOAD_URL":  "https://github.com/bohagan1/TclUDP/releases/download/tcludp-1-0-13/tcludp1.0.13.tar.gz",
+    "TCLUDP_DOWNLOAD_FILE":  "tcludp1.0.13.tar.gz",
+    "TCLUDP_DOWNLOAD_HASH":  "B98EC97C829FCA53FDC84EC9A4F15B6A",
+    "TCLUDP_BUILD_DIR":  "tcludp1.0.13",
 
     "TWAPI_DOWNLOAD_URL":  "https://github.com/apnadkarni/twapi/archive/refs/tags/v5.2.tar.gz",
     "TWAPI_DOWNLOAD_FILE":  "twapiv5.2.tar.gz",

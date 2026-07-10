@@ -17,6 +17,12 @@ set packages {
     itcl
     tls
     dde
+    udp
+    Tktable
+    twapi
+    math
+    scrollutil
+    tablelist
 }
 
 foreach pkg $packages {
