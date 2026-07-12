@@ -1,4 +1,43 @@
-mkdir "$Env:INSTALLDIR"
+if (!$Env:INSTALLDIR) {
+    Set-Item -Path "Env:INSTALLDIR" -Value "C:\Tcl-Tk"
+    if (Test-Path -Path $Env:INSTALLDIR) {
+	throw "INSTALLDIR $Env:INSTALLDIR already exists.  Please set Env:INSTALLDIR to a directory name that does not exist."
+    }
+}
+if (! $Env:SSL_INSTALL_FOLDER) {
+    Set-Item -Path "Env:SSL_INSTALL_FOLDER" -Value "C:\OpenSSL"
+}
+if (!(Test-Path -Path $Env:SSL_INSTALL_FOLDER)) {
+    throw "SSL_INSTALL_FOLDER $Env:SSL_INSTALL_FOLDER does not exist.  An OpenSSL installation is necessecary for this build."
+}
+
+$varsFile = "build-vars.json"
+if ($env:TCL_BUILD_DIR) {
+    echo "Using Env:TCL_BUILD_DIR=$Env:TCL_BUILD_DIR"
+} elseif (Test-Path -Path "$varsFile" -PathType Leaf) {
+    echo "Loading build variables from $varsFile"
+    if (-not (Test-Path $varsFile)) {
+      throw "Build vars file not found: $varsFile"
+    }
+    $vars = Get-Content $varsFile | ConvertFrom-Json 
+    foreach ($prop in $vars.PSObject.Properties) {
+      echo "Setting $($prop.Name)=$($prop.Value)"
+      Set-Item -Path "Env:$($prop.Name)" -Value $($prop.Value)
+    }
+}
+echo "INSTALLDIR=$Env:INSTALLDIR"
+echo "TCLSH=$Env:TCLSH"
+echo "TCL_BUILD_DIR=$Env:TCL_BUILD_DIR"
+echo "SSL_INSTALL_FOLDER=$Env:SSL_INSTALL_FOLDER"
+
+New-Item -Path $Env:INSTALLDIR -ItemType Directory -Force | Out-Null
+
+if (Test-Path -Path $Env:INSTALLDIR -PathType Container) {
+    Write-Host "$Env:INSTALLDIR Directory created successfully: $dirPath"
+} else {
+    throw "Failed to create directory: $dirPath"
+}
+
 # Tcl
 dir
 try {
