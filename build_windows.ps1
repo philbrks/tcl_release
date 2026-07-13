@@ -59,7 +59,7 @@ function Do-Libraries {
     try {
       echo "Building TDom Target=`"$Target`""
       Push-Location $Env:TDOM_BUILD_DIR/win
-      &nmake -f makefile.vc $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR
+      &nmake -f makefile.vc $Target $Env:BUILD_CONFIG INSTALLDIR=C:\Tcl-tk TCLDIR=..\..\$Env:TCL_BUILD_DIR
       if ($lastexitcode -ne 0) { throw "nmake exit code: $lastexitcode" }
     }
     finally { Pop-Location }
