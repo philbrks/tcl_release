@@ -35,4 +35,5 @@ foreach pkg $packages {
     }
 }
 
+puts "Exit status = $failed"
 exit $failed
