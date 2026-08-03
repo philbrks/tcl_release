@@ -157,7 +157,7 @@ try {
   & $Env:TCLSH ./sak.tcl critcl
 
   echo "Installing tcllib"
-  & $Env:TCLSH $Env:TCLLIB_BUILD_DIR/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path $Env:INSTALLDIR/lib -no-apps -no-nroff -no-wait
+  & $Env:TCLSH installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path $Env:INSTALLDIR/lib -no-apps -no-nroff -no-wait
   if ($lastexitcode -ne 0) { throw "tcllib installer exit code: $lastexitcode" }
 }
 finally { Pop-Location }
