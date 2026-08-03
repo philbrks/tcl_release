@@ -10,19 +10,28 @@
     "TCLTLS_DOWNLOAD_FILE":  "tcltls2.0.1.tar.gz",
     "TCLTLS_DOWNLOAD_HASH":  "d5cb3af3f715818fc455811c652c3935",
     "TCLTLS_BUILD_DIR":  "tcltls2.0.1",
+
     "TK_DOWNLOAD_URL":  "http://prdownloads.sourceforge.net/tcl/tk9.1b0-src.tar.gz",
     "TK_DOWNLOAD_FILE":  "tk9.1b0.tar.gz",
     "TK_DOWNLOAD_HASH":  "ae958b9463650ad73afbd2033dcda235",
     "TK_VERSION":  "9.1b0",
     "TK_BUILD_DIR":  "tk9.1b0",
-    "TCLLIB_DOWNLOAD_URL":  "http://prdownloads.sourceforge.net/tcllib/tcllib-2.0.tar.gz",
-    "TCLLIB_DOWNLOAD_FILE":  "tcllib-2.0.tar.gz",
-    "TCLLIB_DOWNLOAD_HASH":  "7A6583B88160FE2040FAB74309881C3E",
-    "TCLLIB_BUILD_DIR":  "tcllib-2.0",
+
+    "CRITCL_DOWNLOAD_URL":  "https://github.com/andreas-kupries/critcl/archive/refs/tags/3.3.1.tar.gz",
+    "CRITCL_DOWNLOAD_FILE":  "critcl-3.3.1.tar.gz",
+    "CRITCL_DOWNLOAD_HASH":  "9BFFB73D8D5B822D36D7EC78E197EF46",
+    "CRITCL_BUILD_DIR":  "critcl-3.3.1",
+
+    "TCLLIB_DOWNLOAD_URL":  "https://core.tcl-lang.org/tcllib/tarball/tcllib-20260803053804-d69b5f3fd3.tar.gz",
+    "TCLLIB_DOWNLOAD_FILE":  "tcllib-20260803053804-d69b5f3fd3.tar.gz",
+    "TCLLIB_DOWNLOAD_HASH":  "D1BBCB83D76BE6BF1B53B3F5AB81F5A6",
+    "TCLLIB_BUILD_DIR":  "tcllib-20260803053804-d69b5f3fd3",
+
     "TKLIB_DOWNLOAD_URL":  "http://prdownloads.sourceforge.net/tcllib/tklib-0.9.tar.gz",
     "TKLIB_DOWNLOAD_FILE":  "tklib-0.9.tar.gz",
     "TKLIB_DOWNLOAD_HASH":  "650A65B431987EB1AFC4481D91B9CF0F",
     "TKLIB_BUILD_DIR":  "tklib-0.9",
+
     "IMG_DOWNLOAD_URL":  "https://downloads.sourceforge.net/project/tkimg/tkimg/2.1/tkimg%202.1.1/Img-2.1.1.tar.gz",
     "IMG_DOWNLOAD_FILE":  "Img-2.1.1.tar.gz",
     "IMG_DOWNLOAD_HASH":  "F1CBC25121CDBE9D037FED327B6B810C",

@@ -142,14 +142,32 @@ Do-Tcl-Tk "install"
 Do-Libraries ""
 Do-Libraries "install"
 
-# Install TclLib and TkLib
+# Install Critcl
 try {
-  echo "Installing tcllib"
-  & $Env:TCLSH $Env:TCLLIB_BUILD_DIR/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path $Env:INSTALLDIR/lib -no-apps -no-nroff -no-wait
-  if ($lastexitcode -ne 0) { throw "tcllib installer exit code: $lastexitcode" }
-  echo "Installing tklib"
-  & $Env:TCLSH $Env:TKLIB_BUILD_DIR/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path $Env:INSTALLDIR/lib -no-apps -no-nroff -no-wait
-  if ($lastexitcode -ne 0) { throw "tklib installer exit code: $lastexitcode" }
+  echo "Installing Critcl"
+  Push-Location "$Env:CRITCL_BUILD_DIR"
+  & $Env:TCLSH build.tcl install
+  if ($lastexitcode -ne 0) { throw "Critcl installer exit code: $lastexitcode" }
 }
 finally { Pop-Location }
 
+try {
+  Push-Location "$Env:TCLLIB_BUILD_DIR"
+  echo "Building tcllibc"
+  & $Env:TCLSH ./sak.tcl critcl
+
+  echo "Installing tcllib"
+  & $Env:TCLSH $Env:TCLLIB_BUILD_DIR/installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path $Env:INSTALLDIR/lib -no-apps -no-nroff -no-wait
+  if ($lastexitcode -ne 0) { throw "tcllib installer exit code: $lastexitcode" }
+}
+finally { Pop-Location }
+
+try {
+  Push-Location "$Env:TKLIB_BUILD_DIR"
+
+  echo "Installing tklib"
+  & $Env:TCLSH installer.tcl -no-gui -no-html -no-examples -pkgs -pkg-path $Env:INSTALLDIR/lib -no-apps -no-nroff -no-wait
+  if ($lastexitcode -ne 0) { throw "tklib installer exit code: $lastexitcode" }
+
+}
+finally { Pop-Location }
