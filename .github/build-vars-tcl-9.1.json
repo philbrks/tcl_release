@@ -22,10 +22,10 @@
     "CRITCL_DOWNLOAD_HASH":  "9BFFB73D8D5B822D36D7EC78E197EF46",
     "CRITCL_BUILD_DIR":  "critcl-3.3.1",
 
-    "TCLLIB_DOWNLOAD_URL":  "https://core.tcl-lang.org/tcllib/tarball/tcllib-20260803053804-d69b5f3fd3.tar.gz",
-    "TCLLIB_DOWNLOAD_FILE":  "tcllib-20260803053804-d69b5f3fd3.tar.gz",
-    "TCLLIB_DOWNLOAD_HASH":  "D1BBCB83D76BE6BF1B53B3F5AB81F5A6",
-    "TCLLIB_BUILD_DIR":  "tcllib-20260803053804-d69b5f3fd3",
+    "TCLLIB_DOWNLOAD_URL":  "https://core.tcl-lang.org/tcllib/tarball/tcllib-main.tar.gz",
+    "TCLLIB_DOWNLOAD_FILE":  "tcllib-main.tar.gz",
+    "TCLLIB_DOWNLOAD_HASH":  "SKIP",
+    "TCLLIB_BUILD_DIR":  "tcllib-main",
 
     "TKLIB_DOWNLOAD_URL":  "http://prdownloads.sourceforge.net/tcllib/tklib-0.9.tar.gz",
     "TKLIB_DOWNLOAD_FILE":  "tklib-0.9.tar.gz",
