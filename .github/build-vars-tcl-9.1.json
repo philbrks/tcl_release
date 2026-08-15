@@ -6,16 +6,17 @@
     "TCL_DOWNLOAD_HASH":  "5b60fe35b2df78a709ac93b52ad7c3b7",
     "TCL_VERSION":  "9.1b0",
     "TCL_BUILD_DIR":  "tcl9.1b0",
-    "TCLTLS_DOWNLOAD_URL":  "https://core.tcl-lang.org/tcltls/uv/tcltls2.0.1.tar.gz",
-    "TCLTLS_DOWNLOAD_FILE":  "tcltls2.0.1.tar.gz",
-    "TCLTLS_DOWNLOAD_HASH":  "d5cb3af3f715818fc455811c652c3935",
-    "TCLTLS_BUILD_DIR":  "tcltls2.0.1",
 
     "TK_DOWNLOAD_URL":  "http://prdownloads.sourceforge.net/tcl/tk9.1b0-src.tar.gz",
     "TK_DOWNLOAD_FILE":  "tk9.1b0.tar.gz",
     "TK_DOWNLOAD_HASH":  "ae958b9463650ad73afbd2033dcda235",
     "TK_VERSION":  "9.1b0",
     "TK_BUILD_DIR":  "tk9.1b0",
+
+    "TCLTLS_DOWNLOAD_URL":  "https://core.tcl-lang.org/tcltls/uv/tcltls2.0.1.tar.gz",
+    "TCLTLS_DOWNLOAD_FILE":  "tcltls2.0.1.tar.gz",
+    "TCLTLS_DOWNLOAD_HASH":  "d5cb3af3f715818fc455811c652c3935",
+    "TCLTLS_BUILD_DIR":  "tcltls2.0.1",
 
     "CRITCL_DOWNLOAD_URL":  "https://github.com/andreas-kupries/critcl/archive/refs/tags/3.3.1.tar.gz",
     "CRITCL_DOWNLOAD_FILE":  "critcl-3.3.1.tar.gz",
@@ -36,10 +37,12 @@
     "IMG_DOWNLOAD_FILE":  "Img-2.1.1.tar.gz",
     "IMG_DOWNLOAD_HASH":  "F1CBC25121CDBE9D037FED327B6B810C",
     "IMG_BUILD_DIR":  "Img-2.1.1",
+
     "TDOM_DOWNLOAD_URL":  "https://core.tcl-lang.org/tdom/tarball/tDom-0-9-6.tar.gz",
     "TDOM_DOWNLOAD_FILE":  "tDom-0-9-6.tar.gz",
     "TDOM_DOWNLOAD_HASH":  "93b4b00faae016439629589b761a9a9f",
     "TDOM_BUILD_DIR":  "tDom-0-9-6",
+
     "TKTABLE_DOWNLOAD_URL":  "https://github.com/bohagan1/TkTable/releases/download/tktable-2-12-2/Tktable2.12.2.tar.gz",
     "TKTABLE_DOWNLOAD_FILE":  "Tktable2.12.2.tar.gz",
     "TKTABLE_DOWNLOAD_HASH":  "0e3b34b3ccbe11c610d59ecef7fd1650",
