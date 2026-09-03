@@ -85,12 +85,13 @@ jobs:
           dir
 
       - name: Init MSVC
-        uses: ilammy/msvc-dev-cmd@v1.13.0
-        with:
-          arch: x64
-
+        run: |
+          $installPath = vswhere -latest -property installationPath
+          echo "VCVARSALL_PATH=$installPath\VC\Auxiliary\Build\vcvarsall.bat" >> $env:GITHUB_ENV
+          
       - name: Build and install OpenSSL
         run: |
+          &$env:VCVARSALL_PATH x64
           try {
               Push-Location ${Env:OSSL_BUILD_DIR}
               &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="${Env:SSL_INSTALL_FOLDER}" --openssldir="${Env:SSL_INSTALL_FOLDER}" -DOPENSSL_NO_DEPRECATED
