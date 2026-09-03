@@ -110,8 +110,9 @@ jobs:
           
       - name: Build and install OpenSSL
         run: |
-          where cl.exe
-          where nmake.exe
+          $installPath = vswhere -latest -property installationPath
+          Import-Module "$installPath\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+          Enter-VsDevShell -VsInstallPath $installPath -SkipAutomaticLocation -DevCmdArguments "-arch=x64"
           try {
               Push-Location ${Env:OSSL_BUILD_DIR}
               &perl Configure VC-WIN64A no-shared no-filenames threads no-ssl3 --api=1.1.0 --prefix="${Env:SSL_INSTALL_FOLDER}" --openssldir="${Env:SSL_INSTALL_FOLDER}" -DOPENSSL_NO_DEPRECATED
