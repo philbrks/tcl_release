@@ -225,14 +225,15 @@ jobs:
           archive: false
 
       - name: Init MSVC
-        uses: ilammy/msvc-dev-cmd@v1.13.0
-        with:
-          arch: x64
-
+        run: |
+          $installPath = vswhere -latest -property installationPath
+          echo "VCVARSALL_PATH=$installPath\VC\Auxiliary\Build\vcvarsall.bat" >> $env:GITHUB_ENV
+          
       - name: Build and install Tcl and included libraries (${{ matrix.config }})
         run: |
 
           ${Env:BUILD_CONFIG} = "${{ matrix.config }}"
+          &"$env:VCVARSALL_PATH x64"
           .\build_windows.ps1
 
         working-directory: bld
