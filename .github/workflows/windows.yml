@@ -233,7 +233,7 @@ jobs:
         run: |
 
           ${Env:BUILD_CONFIG} = "${{ matrix.config }}"
-          &"$env:VCVARSALL_PATH x64"
+          &$env:VCVARSALL_PATH x64
           .\build_windows.ps1
 
         working-directory: bld
