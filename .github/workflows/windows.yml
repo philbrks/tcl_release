@@ -227,10 +227,29 @@ jobs:
       - name: Init MSVC
         run: |
           $installPath = vswhere -latest -property installationPath
-          echo "VCVARSALL_PATH=$installPath\VC\Auxiliary\Build\vcvarsall.bat" >> $env:GITHUB_ENV
-          
+          $vcvarsall = "$installPath\VC\Auxiliary\Build\vcvarsall.bat"
+          if (-not (Test-Path $vcvarsall)) {
+            throw "vcvarsall.bat not found at $vcvarsall"
+          }
+
+          # Run vcvarsall.bat in cmd.exe, then dump the resulting environment.
+          $envDump = cmd.exe /c "`"$vcvarsall`" x64 && set"
+          if ($LASTEXITCODE -ne 0) {
+            throw "vcvarsall.bat failed with exit code $LASTEXITCODE"
+          }
+
+          foreach ($line in $envDump) {
+            if ($line -match '^([^=]+)=(.*)$') {
+              $name = $matches[1]
+              $value = $matches[2]
+              # Skip a few noisy/problematic vars that shouldn't be forwarded verbatim
+              if ($name -in @('PROMPT')) { continue }
+              Add-Content -Path $env:GITHUB_ENV -Value "$name=$value"
+            }
+          }
+
       - name: Build and install Tcl and included libraries (${{ matrix.config }})
-        run: |
+        run:
 
           ${Env:BUILD_CONFIG} = "${{ matrix.config }}"
           &$env:VCVARSALL_PATH x64
