@@ -67,7 +67,7 @@ jobs:
 
       - name: Try to download OpenSSL artifact
         id: download-ossl
-        uses: dawidd6/action-download-artifact@v6
+        uses: dawidd6/action-download-artifact@v24
         continue-on-error: true
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
