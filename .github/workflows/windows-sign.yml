@@ -38,7 +38,7 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "BUILD_RUN_ID=$runId"
 
       - name: Download build variables
-        uses: dawidd6/action-download-artifact@v6
+        uses: dawidd6/action-download-artifact@v24
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           repo: ${{ github.repository }}
