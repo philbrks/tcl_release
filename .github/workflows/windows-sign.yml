@@ -44,6 +44,8 @@ jobs:
           repo: ${{ github.repository }}
           run_id: ${{ env.BUILD_RUN_ID }}
           name: "build-vars"
+
+          
           path: "."
 
       - name: Load build variables
@@ -61,7 +63,7 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "TCL_APP_GUID=B4D6AEFE-3B8C-4B64-B1BD-B45A3442A79C"
 
       - name: Download unsigned installer
-        uses: dawidd6/action-download-artifact@v6
+        uses: dawidd6/action-download-artifact@v24
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           repo: ${{ github.repository }}
