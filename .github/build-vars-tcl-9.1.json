@@ -1,13 +1,13 @@
 ﻿{
     "TCLSH":  "C:\\Tcl-tk\\bin\\tclsh91.exe",
     "TCL_MAJOR_MINOR":  "9.1",
-    "TCL_DOWNLOAD_URL":  "http://prdownloads.sourceforge.net/tcl/tcl9.1b0-src.tar.gz",
+    "TCL_DOWNLOAD_URL":  "http://prdownloads.sourceforge.net/tcl/tcl9.1b1rc1-src.tar.gz",
     "TCL_DOWNLOAD_FILE":  "tcl9.1b0.tar.gz",
     "TCL_DOWNLOAD_HASH":  "5b60fe35b2df78a709ac93b52ad7c3b7",
     "TCL_VERSION":  "9.1b0",
     "TCL_BUILD_DIR":  "tcl9.1b0",
 
-    "TK_DOWNLOAD_URL":  "http://prdownloads.sourceforge.net/tcl/tk9.1b0-src.tar.gz",
+    "TK_DOWNLOAD_URL":  "http://prdownloads.sourceforge.net/tcl/tk9.1b1rc1-src.tar.gz",
     "TK_DOWNLOAD_FILE":  "tk9.1b0.tar.gz",
     "TK_DOWNLOAD_HASH":  "ae958b9463650ad73afbd2033dcda235",
     "TK_VERSION":  "9.1b0",
