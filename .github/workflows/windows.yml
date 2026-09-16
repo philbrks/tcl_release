@@ -6,10 +6,9 @@ on:
         required: true
         type: choice
         options:
-          - '["9.0"]'
           - '["9.1"]'
           - '["main"]'
-        default: '["main"]'
+        default: '["9.1"]'
 
 permissions:
   contents: read
