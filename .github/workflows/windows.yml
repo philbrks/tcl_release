@@ -67,7 +67,7 @@ jobs:
 
       - name: Try to download OpenSSL artifact
         id: download-ossl
-        uses: dawidd6/action-download-artifact@v6
+        uses: dawidd6/action-download-artifact@v24
         continue-on-error: true
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -224,15 +224,12 @@ jobs:
           path: Tcl-Tk-and-libraries.tar.gz
           archive: false
 
-      - name: Init MSVC
-        uses: ilammy/msvc-dev-cmd@v1.13.0
-        with:
-          arch: x64
-
       - name: Build and install Tcl and included libraries (${{ matrix.config }})
         run: |
-
           ${Env:BUILD_CONFIG} = "${{ matrix.config }}"
+          $installPath = vswhere -latest -property installationPath
+          Import-Module "$installPath\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+          Enter-VsDevShell -VsInstallPath $installPath -SkipAutomaticLocation -DevCmdArguments "-arch=x64"
           .\build_windows.ps1
 
         working-directory: bld
